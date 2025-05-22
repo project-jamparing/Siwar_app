@@ -19,58 +19,47 @@ export default async function DaftarWargaPage() {
           </Link>
         </div>
 
-        <div className="w-full overflow-x-auto">
-          <div className="min-w-max inline-block align-middle">
-            <table className="table-auto border text-xs sm:text-sm bg-white shadow rounded text-black w-60px">
-              <thead className="bg-gray-100 sticky top-0 z-10 text-black">
-                <tr>
-                  <th className="border px-4 py-2">NIK</th>
-                  <th className="border px-4 py-2">Nama</th>
-                  <th className="border px-4 py-2">No KK</th>
-                  <th className="border px-4 py-2">Jenis Kelamin</th>
-                  <th className="border px-4 py-2">Tempat Lahir</th>
-                  <th className="border px-4 py-2">Tanggal Lahir</th>
-                  <th className="border px-4 py-2">Agama</th>
-                  <th className="border px-4 py-2">Pendidikan</th>
-                  <th className="border px-4 py-2">Pekerjaan</th>
-                  <th className="border px-4 py-2">Golongan Darah</th>
-                  <th className="border px-4 py-2">Status Kawin</th>
-                  <th className="border px-4 py-2">Tgl Kawin</th>
-                  <th className="border px-4 py-2">Status Hubungan</th>
-                  <th className="border px-4 py-2">Kewarganegaraan</th>
-                  <th className="border px-4 py-2">No Paspor</th>
-                  <th className="border px-4 py-2">No KITAP</th>
-                  <th className="border px-4 py-2">Ayah</th>
-                  <th className="border px-4 py-2">Ibu</th>
-                </tr>
-              </thead>
-              <tbody>
-                {warga.map((w) => (
-                  <tr key={w.nik} className="hover:bg-yellow-50">
-                    <td className="border px-4 py-2">{w.nik}</td>
-                    <td className="border px-4 py-2">{w.nama}</td>
-                    <td className="border px-4 py-2">{w.no_kk || '-'}</td>
-                    <td className="border px-4 py-2">{w.jenis_kelamin.replace('_', ' ')}</td>
-                    <td className="border px-4 py-2">{w.tempat_lahir || '-'}</td>
-                    <td className="border px-4 py-2">{w.tanggal_lahir?.toLocaleDateString() || '-'}</td>
-                    <td className="border px-4 py-2">{w.agama || '-'}</td>
-                    <td className="border px-4 py-2">{w.pendidikan || '-'}</td>
-                    <td className="border px-4 py-2">{w.jenis_pekerjaan || '-'}</td>
-                    <td className="border px-4 py-2">{w.golongan_darah || '-'}</td>
-                    <td className="border px-4 py-2">{w.status_perkawinan || '-'}</td>
-                    <td className="border px-4 py-2">{w.tanggal_perkawinan?.toLocaleDateString() || '-'}</td>
-                    <td className="border px-4 py-2">{w.status_hubungan_dalam_keluarga || '-'}</td>
-                    <td className="border px-4 py-2">{w.kewarganegaraan || '-'}</td>
-                    <td className="border px-4 py-2">{w.no_paspor || '-'}</td>
-                    <td className="border px-4 py-2">{w.no_kitap || '-'}</td>
-                    <td className="border px-4 py-2">{w.ayah || '-'}</td>
-                    <td className="border px-4 py-2">{w.ibu || '-'}</td>
+        <div className="overflow-x-auto">
+            <div className="inline-block min-w-full overflow-hidden rounded-md border border-gray-300 shadow">
+              <table className="min-w-full text-sm text-left bg-white">
+                <thead className="bg-blue-100 text-gray-800">
+                  <tr>
+                    <th className="border px-4 py-2">NIK</th>
+                    <th className="border px-4 py-2">Nama</th>
+                    <th className="border px-4 py-2">Tempat Lahir</th>
+                    <th className="border px-4 py-2">Tanggal Lahir</th>
+                    <th className="border px-4 py-2">Agama</th>
+                    <th className="border px-4 py-2">Status Kawin</th>
+                    <th className="border px-4 py-2">Pekerjaan</th>
+                    <th className="border px-4 py-2">Golongan Darah</th>
+                    <th className="border px-4 py-2">Kewarganegaraan</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {warga.map((w) => (
+                    <tr key={w.nik} className="hover:bg-yellow-50 transition-colors">
+                      <td className="border px-4 py-2">{w.nik}</td>
+                      <td className="border px-4 py-2">{w.nama}</td>
+                      <td className="border px-4 py-2">{w.tempat_lahir || '-'}</td>
+                      <td className="border px-4 py-2">{w.tanggal_lahir?.toLocaleDateString() || '-'}</td>
+                      <td className="border px-4 py-2">{w.agama || '-'}</td>
+                      <td className="border px-4 py-2">
+                        {w.status_perkawinan === 'kawin_tercatat'
+                          ? 'Kawin'
+                          : w.status_perkawinan === 'belum_kawin'
+                          ? 'Belum Kawin'
+                          : '-'}
+                      </td>
+                      <td className="border px-4 py-2">{w.jenis_pekerjaan || '-'}</td>
+                      <td className="border px-4 py-2">{w.golongan_darah || '-'}</td>
+                      <td className="border px-4 py-2">{w.kewarganegaraan || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
       </main>
     </div>
   );

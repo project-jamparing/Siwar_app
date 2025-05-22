@@ -32,15 +32,34 @@ export default function TambahWargaPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/warga', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) {
+
+    // Validasi enum
+    if (!['laki_laki', 'perempuan'].includes(form.jenis_kelamin)) {
+      alert('Pilih jenis kelamin yang valid.');
+      return;
+    }
+    if (!['belum_kawin', 'kawin_tercatat'].includes(form.status_perkawinan)) {
+      alert('Pilih status perkawinan yang valid.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/warga', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`Gagal menambahkan warga: ${err.message || res.statusText}`);
+        return;
+      }
+
       router.push('/dashboard/admin/warga');
-    } else {
-      alert('Gagal menambahkan warga');
+    } catch (error) {
+      console.error('Client error:', error);
+      alert('Terjadi kesalahan di sisi client.');
     }
   };
 
@@ -58,8 +77,7 @@ export default function TambahWargaPage() {
           ['Pendidikan', 'pendidikan'],
           ['Pekerjaan', 'jenis_pekerjaan'],
           ['Golongan Darah', 'golongan_darah'],
-          ['Status Kawin', 'status_perkawinan'],
-          ['Tgl Kawin', 'tanggal_perkawinan'],
+          ['Tanggal Kawin', 'tanggal_perkawinan'],
           ['Status Hubungan', 'status_hubungan_dalam_keluarga'],
           ['Kewarganegaraan', 'kewarganegaraan'],
           ['No Paspor', 'no_paspor'],
@@ -80,6 +98,7 @@ export default function TambahWargaPage() {
           </div>
         ))}
 
+        {/* Jenis Kelamin */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
           <select
@@ -92,6 +111,21 @@ export default function TambahWargaPage() {
             <option value="">Pilih</option>
             <option value="laki_laki">Laki-laki</option>
             <option value="perempuan">Perempuan</option>
+          </select>
+        </div>
+
+        {/* Status Perkawinan */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Status Perkawinan</label>
+          <select
+            name="status_perkawinan"
+            value={form.status_perkawinan}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+          >
+            <option value="">Pilih</option>
+            <option value="belum_kawin">Belum Kawin</option>
+            <option value="kawin_tercatat">Kawin Tercatat</option>
           </select>
         </div>
 
