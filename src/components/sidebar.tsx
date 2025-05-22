@@ -21,6 +21,7 @@ const menuItemsByRole: Record<
   "3": [
     { label: "Dashboard", href: "/dashboard/rt", icon: <Home className="w-5 h-5" /> },
     { label: "Data Iuran RT", href: "/dashboard/rt/iuran", icon: <Bell className="w-5 h-5" /> },
+    { label: "Pengumuman", href: "/dashboard/rt/pengumuman", icon: <Megaphone className="w-5 h-5" /> }
   ],
   "4": [
     { label: "Dashboard", href: "/dashboard/warga", icon: <Home className="w-5 h-5" /> },
