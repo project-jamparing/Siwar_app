@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
     console.error('Error tambah warga:', error);
-    console.error('Body:', body); // Tambahin ini
+    console.error('Body:', body); 
     return NextResponse.json({ message: 'Terjadi kesalahan.', error: error.message }, { status: 500 });
   }
 }
