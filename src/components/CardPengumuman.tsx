@@ -1,27 +1,50 @@
 'use client';
 
-type PengumumanItem = {
+import { FC } from 'react';
+import Link from 'next/link';
+
+type Pengumuman = {
   id: number;
-  tanggal: string;
   judul: string;
-  subjek: string;
   isi: string;
 };
 
 type Props = {
-  item: PengumumanItem;
-  onClick: (item: PengumumanItem) => void;
+  item: Pengumuman;
+  onDelete: (id: number) => void;
+  onClick: (item: Pengumuman) => void;
 };
 
-export default function CardPengumuman({ item, onClick }: Props) {
-  return (
-    <div
-      onClick={() => onClick(item)}
-      className="cursor-pointer w-[220px] h-[140px] bg-white rounded-lg shadow-md flex flex-col justify-between p-4 hover:shadow-xl transition"
-    >
-      <h3 className="font-semibold text-black">{item.judul}</h3>
-      <p className="text-sm text-black">{item.subjek}</p>
-      <p className="text-xs text-black">{item.tanggal}</p>
+const CardPengumuman: FC<Props> = ({ item, onDelete, onClick }) => (
+  <div className="bg-white border border-gray-200 rounded-2xl shadow hover:shadow-md transition-all p-5 w-full max-w-sm">
+    <h2 className="text-xl font-semibold text-gray-800 mb-2">{item.judul}</h2>
+    <p className="text-gray-600 text-sm mb-4">
+      {item.isi.length > 100 ? item.isi.slice(0, 100) + '...' : item.isi}
+    </p>
+    <div className="flex gap-2 justify-end">
+      <button
+        onClick={() => onClick(item)}
+        className="text-blue-600 hover:text-blue-800 text-sm px-3 py-1 rounded hover:bg-blue-50"
+      >
+        Lihat
+      </button>
+      <Link href={`/dashboard/rt/pengumuman/edit/${item.id}`}>
+        <button className="text-yellow-600 hover:text-yellow-800 text-sm px-3 py-1 rounded hover:bg-yellow-50">
+          Edit
+        </button>
+      </Link>
+      <button
+        onClick={() => {
+          if (confirm(`Yakin mau hapus pengumuman "${item.judul}"?`)) {
+            onDelete(item.id);
+          }
+        }}
+        className="text-red-600 hover:text-red-800 text-sm px-3 py-1 rounded hover:bg-red-50"
+      >
+        Hapus
+      </button>
     </div>
-  );
-}
+  </div>
+);
+
+export default CardPengumuman;

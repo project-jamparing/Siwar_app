@@ -1,44 +1,16 @@
-'use client';
-import { useEffect, useState } from 'react';
+// app/dashboard/rt/pengumuman/page.tsx
+import { Pengumuman as PengumumanModel } from '@prisma/client';
 import Pengumuman from '@/components/Pengumuman';
-import Link from 'next/link';
 
-export default function PengumumanRT() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch('/api/pengumuman')
-      .then(res => res.json())
-      .then(json => {
-        setData(json);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+async function getData(): Promise<Pengumuman[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman`, {
+    cache: 'no-store',
+  });
+  return res.json();
+}
 
-  if (loading) return <p>Loading...</p>;
-  if (!data.length) return (
-    <>
-      <Link
-        href="/dashboard/rt/pengumuman/tambah"
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-4 inline-block"
-      >
-        + Tambah Pengumuman
-      </Link>
-      <p>Belum ada pengumuman.</p>
-    </>
-  );
-
-  return (
-    <div>
-      <Link
-        href="/dashboard/rt/pengumuman/tambah"
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-4 inline-block"
-      >
-        + Tambah Pengumuman
-      </Link>
-      <Pengumuman data={data} />
-    </div>
-  );
+export default async function Page() {
+  const data = await getData();
+  return <Pengumuman data={data} />;
 }

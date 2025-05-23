@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Pengumuman from '@/components/Pengumuman';
 
-export default function PengumumanRT() {
+export default function RTPage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,5 +20,5 @@ export default function PengumumanRT() {
   if (loading) return <p>Loading...</p>;
   if (!data.length) return <p>Belum ada pengumuman.</p>;
 
-  return 
+  return <Pengumuman data={data} />;
 }
