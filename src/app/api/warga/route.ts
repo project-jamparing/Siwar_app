@@ -1,16 +1,72 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
 
 export async function GET() {
   try {
-    const warga = await prisma.warga.findMany({
-      include: {
-        user: true,
-      },
-    });
+    const cookieStore = await cookies();
+    const role_id = Number(cookieStore.get('role_id')?.value);
+    const nik = cookieStore.get('nik')?.value;
 
-    return NextResponse.json(warga);
+    // Admin dan RW bisa lihat semua
+    if (role_id === 1 || role_id === 2) {
+      const warga = await prisma.warga.findMany({
+        include: {
+          user: true,
+        },
+      });
+
+      return NextResponse.json(warga);
+    }
+
+    // RT: ambil rt_id dari nik user yang login
+    if (role_id === 3 && nik) {
+      const userRT = await prisma.user.findUnique({
+        where: { nik },
+        include: {
+          warga: {
+            include: {
+              kk: true,
+            },
+          },
+        },
+      });
+
+      const rt_id = userRT?.warga?.kk?.rt_id;
+      if (!rt_id) {
+        return NextResponse.json({ error: 'RT ID tidak ditemukan' }, { status: 400 });
+      }
+
+      const warga = await prisma.warga.findMany({
+        where: {
+          kk: {
+            rt_id: rt_id,
+          },
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      return NextResponse.json(warga);
+    }
+
+    // Warga: hanya bisa lihat dirinya sendiri
+    if (role_id === 4 && nik) {
+      const warga = await prisma.warga.findMany({
+        where: {
+          nik,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      return NextResponse.json(warga);
+    }
+
+    return NextResponse.json({ error: 'Role tidak valid' }, { status: 403 });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ error: 'Gagal ambil data warga' }, { status: 500 });

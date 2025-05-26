@@ -97,6 +97,10 @@ export default function WargaTable({ warga }: { warga: Warga[] }) {
                       ? 'Kawin'
                       : w.status_perkawinan === 'belum_kawin'
                       ? 'Belum Kawin'
+                      : w.status_perkawinan === 'cerai_hidup'
+                      ? 'Cerai Hidup'
+                      : w.status_perkawinan === 'cerai_mati'
+                      ? 'Cerai Mati'
                       : '-'}
                   </td>
                   <td className="border px-4 py-2">{w.jenis_pekerjaan || '-'}</td>

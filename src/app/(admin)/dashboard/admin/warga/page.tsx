@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import WargaTable from './WargaTable';
+import WargaTable from '@/components/WargaTable';
 
 export default async function DaftarWargaPage() {
   const warga = await prisma.warga.findMany({

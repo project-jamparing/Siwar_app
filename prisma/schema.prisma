@@ -31,10 +31,11 @@ model jabatan {
 }
 
 model kk {
-  no_kk               String    @id @db.VarChar(20)
-  rt_id               Int?      @unique(map: "rt_id_2")
-  nik                 String?   @unique(map: "nik") @db.VarChar(16)
-  warga_kk_nikTowarga warga?    @relation("kk_nikTowarga", fields: [nik], references: [nik], onDelete: Cascade, map: "kk_ibfk_1")
+  no_kk               String          @id @db.VarChar(20)
+  rt_id               Int?            @unique(map: "rt_id_2") @db.UnsignedInt
+  nik                 String?         @unique(map: "nik") @db.VarChar(16)
+  warga_kk_nikTowarga warga?          @relation("kk_nikTowarga", fields: [nik], references: [nik], onDelete: Cascade, map: "kk_ibfk_1")
+  rukun_tetangga      rukun_tetangga? @relation(fields: [rt_id], references: [id], onDelete: Cascade, map: "kk_ibfk_2")
   tagihan             tagihan[]
   warga               warga[]
 
@@ -63,6 +64,7 @@ model role {
 model rukun_tetangga {
   id         Int          @id @default(autoincrement()) @db.UnsignedInt
   nama       String       @db.VarChar(50)
+  kk         kk?
   pengumuman pengumuman[]
 }
 
@@ -137,4 +139,6 @@ enum warga_jenis_kelamin {
 enum warga_status_perkawinan {
   kawin_tercatat
   belum_kawin
+  cerai_hidup
+  cerai_mati
 }

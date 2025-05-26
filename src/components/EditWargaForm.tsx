@@ -1,82 +1,221 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
-type Warga = {
-  nik: string;
-  nama: string;
-  jenis_kelamin: string;
-  tempat_lahir?: string | null;
-  tanggal_lahir?: string | null;
-  agama?: string | null;
-  status_perkawinan?: string | null;
-  jenis_pekerjaan?: string | null;
-  golongan_darah?: string | null;
-  kewarganegaraan?: string | null;
-};
-
-export default function EditWargaForm({ nik }: { nik: string }) {
+export default function EditWargaPage() {
   const router = useRouter();
-  const [warga, setWarga] = useState<Warga | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { nik } = useParams();
+  const [showSuccess, setShowSuccess] = useState(false);
 
+
+  const [form, setForm] = useState({
+    nik: '',
+    nama: '',
+    no_kk: '',
+    jenis_kelamin: '',
+    tempat_lahir: '',
+    tanggal_lahir: null,
+    agama: '',
+    pendidikan: '',
+    jenis_pekerjaan: '',
+    golongan_darah: '',
+    status_perkawinan: '',
+    tanggal_perkawinan: '',
+    status_hubungan_dalam_keluarga: '',
+    kewarganegaraan: '',
+    no_paspor: '',
+    no_kitap: '',
+    ayah: '',
+    ibu: '',
+  });  
+
+  // Fetch data warga by NIK
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
       const res = await fetch(`/api/warga/${nik}`);
       const data = await res.json();
-      console.log('DATA WARGA:', data);
-      setWarga(data);
-      setLoading(false);
-    }
-    fetchData();
-  }, [nik]);  
+      setForm(data); // isi semua field
+    };
+    if (nik) fetchData();
+  }, [nik]);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!warga) return;
-
-    const res = await fetch(`/api/warga/${warga.nik}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(warga),
-    });
-
-    if (res.ok) {
-      alert('Data berhasil diperbarui');
-      router.push('/dashboard/admin/warga');
-    } else {
-      const err = await res.json();
-      alert('Gagal update: ' + err.message);
+  
+    if (!['laki_laki', 'perempuan'].includes(form.jenis_kelamin)) {
+      alert('Pilih jenis kelamin yang valid.');
+      return;
     }
-  }
-
-  if (loading || !warga) return <p>Loading...</p>;
+    if (!['belum_kawin', 'kawin_tercatat', 'cerai_hidup', 'cerai_mati'].includes(form.status_perkawinan)) {
+      alert('Pilih status perkawinan yang valid.');
+      return;
+    }
+  
+    try {
+      const res = await fetch(`/api/warga/${nik}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form), // kirim semua data
+      });
+  
+      if (!res.ok) {
+        const err = await res.json();
+        alert('Gagal update: ' + err.message);
+        return;
+      }
+  
+      setShowSuccess(true); // muncul modal kalo sukses
+    } catch (error) {
+      console.error('Client error:', error);
+      alert('Terjadi kesalahan di sisi client.');
+    }
+  };  
 
   return (
-    <div className="max-w-2xl mx-auto mt-8 bg-white p-6 rounded-xl shadow-md">
-      <h2 className="text-xl font-bold mb-4">Edit Warga</h2>
-      <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-        <input
-          type="text"
-          value={warga.nama}
-          onChange={(e) => setWarga({ ...warga, nama: e.target.value })}
-          className="border p-2 col-span-2"
-          placeholder="Nama"
-        />
-        <select
-          value={warga.jenis_kelamin}
-          onChange={(e) => setWarga({ ...warga, jenis_kelamin: e.target.value })}
-          className="border p-2"
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Edit Data Warga</h1>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black">
+        {[
+          ['NIK', 'nik'],
+          ['Nama', 'nama'],
+          ['No KK', 'no_kk'],
+          ['Tempat Lahir', 'tempat_lahir'],
+          ['Tanggal Lahir', 'tanggal_lahir'],
+          ['Agama', 'agama'],
+          ['Pendidikan', 'pendidikan'],
+          ['Pekerjaan', 'jenis_pekerjaan'],
+          ['Tanggal Kawin', 'tanggal_perkawinan'],
+          ['No Paspor', 'no_paspor'],
+          ['No KITAP', 'no_kitap'],
+          ['Ayah', 'ayah'],
+          ['Ibu', 'ibu'],
+        ].map(([label, name]) => (
+          <div key={name}>
+            <label className="block text-sm font-medium text-gray-700">{label}</label>
+            <input
+              type={name.includes('tanggal') ? 'date' : 'text'}
+              name={name}
+              value={(form as any)[name] || ''}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+              required={['nik', 'nama'].includes(name)}
+            />
+          </div>
+        ))}
+
+        {/* Jenis Kelamin */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
+          <select
+            name="jenis_kelamin"
+            value={form.jenis_kelamin}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="laki_laki">Laki-laki</option>
+            <option value="perempuan">Perempuan</option>
+          </select>
+        </div>
+
+        {/* Status Dalam Keluarga */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Status Hubungan </label>
+          <select
+            name="status_hubungan_dalam_keluarga"
+            value={form.status_hubungan_dalam_keluarga}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="Kepala Keluarga">Kepala Keluarga</option>
+            <option value="Istri">Istri</option>
+            <option value="Anak">Anak</option>
+          </select>
+        </div>
+
+        {/* Golongan Darah */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Golongan Darah</label>
+          <select
+            name="golongan_darah"
+            value={form.golongan_darah}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="O">O</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="AB">AB</option>
+          </select>
+        </div>
+
+        {/* Kewarganegaraan */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Kewaeganegaraan</label>
+          <select
+            name="kewarganegaraan"
+            value={form.kewarganegaraan}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="WNI">WNI</option>
+            <option value="WNA">WNA</option>
+          </select>
+        </div>
+
+        {/* Status Perkawinan */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Status Perkawinan</label>
+          <select
+            name="status_perkawinan"
+            value={form.status_perkawinan}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+          >
+            <option value="">Pilih</option>
+            <option value="belum_kawin">Belum Kawin</option>
+            <option value="kawin_tercatat">Kawin Tercatat</option>
+            <option value="cerai_hidup">Cerai Hidup</option>
+            <option value="cerai_mati">Cerai Mati</option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          className="col-span-1 md:col-span-2 mt-4 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
         >
-          <option value="laki-laki">Laki-laki</option>
-          <option value="perempuan">Perempuan</option>
-        </select>
-        {/* ... input lainnya tetap sama ... */}
-        <button type="submit" className="col-span-2 bg-blue-600 text-white py-2 rounded">
           Simpan Perubahan
         </button>
       </form>
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-md text-center">
+            <h2 className="text-lg font-semibold mb-2">Perubahan Berhasil</h2>
+            <p className="text-sm text-gray-600 mb-4">Data warga berhasil diperbarui.</p>
+            <button
+              onClick={() => {
+                setShowSuccess(false);
+                router.push('/dashboard/admin/warga');
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

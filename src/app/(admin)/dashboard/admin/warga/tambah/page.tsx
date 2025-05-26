@@ -33,12 +33,11 @@ export default function TambahWargaPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validasi enum
     if (!['laki_laki', 'perempuan'].includes(form.jenis_kelamin)) {
       alert('Pilih jenis kelamin yang valid.');
       return;
     }
-    if (!['belum_kawin', 'kawin_tercatat'].includes(form.status_perkawinan)) {
+    if (!['belum_kawin', 'kawin_tercatat', 'cerai_hidup', 'cerai_mati'].includes(form.status_perkawinan)) {
       alert('Pilih status perkawinan yang valid.');
       return;
     }
@@ -76,10 +75,8 @@ export default function TambahWargaPage() {
           ['Agama', 'agama'],
           ['Pendidikan', 'pendidikan'],
           ['Pekerjaan', 'jenis_pekerjaan'],
-          ['Golongan Darah', 'golongan_darah'],
           ['Tanggal Kawin', 'tanggal_perkawinan'],
           ['Status Hubungan', 'status_hubungan_dalam_keluarga'],
-          ['Kewarganegaraan', 'kewarganegaraan'],
           ['No Paspor', 'no_paspor'],
           ['No KITAP', 'no_kitap'],
           ['Ayah', 'ayah'],
@@ -90,7 +87,7 @@ export default function TambahWargaPage() {
             <input
               type={name.includes('tanggal') ? 'date' : 'text'}
               name={name}
-              value={(form as any)[name]}
+              value={(form as any)[name] || ''}
               onChange={handleChange}
               className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
               required={['nik', 'nama'].includes(name)}
@@ -114,6 +111,40 @@ export default function TambahWargaPage() {
           </select>
         </div>
 
+        {/* Golongan Darah */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Golongan Darah</label>
+          <select
+            name="golongan_darah"
+            value={form.golongan_darah}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="O">O</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="AB">AB</option>
+          </select>
+        </div>
+
+        {/* Kewarganegaraan */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Kewarganegaraan</label>
+          <select
+            name="kewarganegaraan"
+            value={form.kewarganegaraan}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="WNI">WNI</option>
+            <option value="WNA">WNA</option>
+          </select>
+        </div>
+
         {/* Status Perkawinan */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Status Perkawinan</label>
@@ -122,10 +153,13 @@ export default function TambahWargaPage() {
             value={form.status_perkawinan}
             onChange={handleChange}
             className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+            required
           >
             <option value="">Pilih</option>
             <option value="belum_kawin">Belum Kawin</option>
             <option value="kawin_tercatat">Kawin Tercatat</option>
+            <option value="cerai_hidup">Cerai Hidup</option>
+            <option value="cerai_mati">Cerai Mati</option>
           </select>
         </div>
 
