@@ -7,6 +7,11 @@ type Pengumuman = {
   id: number;
   judul: string;
   isi: string;
+  rt_id: number;
+  rukun_tetangga?: {
+    id: number;
+    nama: string;
+  };
 };
 
 type Props = {
@@ -20,6 +25,9 @@ const CardPengumuman: FC<Props> = ({ item, onDelete, onClick }) => (
     <h2 className="text-xl font-semibold text-gray-800 mb-2">{item.judul}</h2>
     <p className="text-gray-600 text-sm mb-4">
       {item.isi.length > 100 ? item.isi.slice(0, 100) + '...' : item.isi}
+    </p>
+    <p className="text-xs text-gray-500 mb-2">
+       {item.rukun_tetangga?.nama || 'Tidak diketahui'}
     </p>
     <div className="flex gap-2 justify-end">
       <button

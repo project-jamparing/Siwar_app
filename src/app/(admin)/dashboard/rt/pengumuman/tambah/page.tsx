@@ -16,7 +16,7 @@ export default function TambahPengumuman() {
     const res = await fetch('/api/pengumuman', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ judul, subjek, isi, tanggal }),
+      body: JSON.stringify({ judul, subjek, isi, tanggal, rt_id: 3 }),
     });
 
     if (res.ok) {

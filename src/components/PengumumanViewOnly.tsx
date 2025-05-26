@@ -1,54 +1,40 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import CardPengumuman from '@/components/CardPengumuman';
 
 type Pengumuman = {
   id: number;
   judul: string;
   subjek: string;
   isi: string;
-  tanggal: string;
+  tanggal: Date;
 };
 
 type Props = {
   data: Pengumuman[];
 };
 
-export default function Pengumuman({ data: initialData }: Props) {
-  const [data, setData] = useState(initialData);
+export default function PengumumanViewOnly({ data }: Props) {
   const [selected, setSelected] = useState<Pengumuman | null>(null);
-
-  async function handleDelete(id: number) {
-    try {
-      const res = await fetch(`/api/pengumuman/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Gagal hapus');
-      setData(data.filter(item => item.id !== id));
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Daftar Pengumuman</h1>
-        <Link href="/dashboard/rt/pengumuman/tambah">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow">
-            + Tambah
-          </button>
-        </Link>
-      </div>
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">Daftar Pengumuman</h1>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {data.map((item) => (
-          <CardPengumuman
+          <div
             key={item.id}
-            item={item}
-            onDelete={handleDelete}
-            onClick={setSelected}
-          />
+            onClick={() => setSelected(item)}
+            className="bg-white rounded-xl shadow p-4 hover:bg-gray-100 cursor-pointer"
+          >
+            <h2 className="text-lg font-semibold text-gray-800">{item.judul}</h2>
+            <p className="text-sm text-gray-500">
+              {new Date(item.tanggal).toISOString().slice(0, 10)}
+            </p>
+
+            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.isi}</p>
+          </div>
         ))}
       </div>
 
@@ -56,7 +42,9 @@ export default function Pengumuman({ data: initialData }: Props) {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow max-w-md w-full">
             <h2 className="text-xl font-semibold text-gray-800">{selected.judul}</h2>
-            <p className="text-sm text-gray-500 mb-1">{new Date(selected.tanggal).toLocaleDateString()}</p>
+            <p className="text-sm text-gray-500 mb-1">
+              {new Date(selected.tanggal).toLocaleDateString()}
+            </p>
             <p className="text-sm text-gray-500 mb-1">{selected.subjek}</p>
             <p className="text-gray-700 mt-2 whitespace-pre-line">{selected.isi}</p>
             <button
