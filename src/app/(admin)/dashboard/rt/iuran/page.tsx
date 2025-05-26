@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type FormData = {
   id?: number;
@@ -15,15 +16,14 @@ const formatTanggal = (isoDate: string) => {
   const year = date.getFullYear().toString().slice(2);
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return `${day}-${month}-${year}`;
 };
 
 const toInputDate = (isoDate: string) => {
-  if (!isoDate) return '';
-  return new Date(isoDate).toISOString().slice(0, 10);
+  return isoDate ? new Date(isoDate).toISOString().slice(0, 10) : '';
 };
 
-const Iuran = () => {
+export default function IuranPage() {
   const [formData, setFormData] = useState<FormData>({
     nama: '',
     nominal: '',
@@ -36,96 +36,60 @@ const Iuran = () => {
   const [editId, setEditId] = useState<number | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('/api/iuran');
-        const data = await res.json();
-        setDataIuran(data);
-      } catch (err) {
-        console.error('Gagal fetch data:', err);
-      }
-    };
-
     fetchData();
   }, []);
 
+  const fetchData = async () => {
+    try {
+      const res = await fetch('/api/iuran');
+      const data = await res.json();
+      setDataIuran(data);
+    } catch (err) {
+      console.error('Gagal fetch data:', err);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isEditing && editId !== null) {
-      try {
-        const res = await fetch('/api/iuran', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: editId,
-            nama: formData.nama,
-            nominal: Number(formData.nominal),
-            tanggalTagih: formData.tanggalTagih,
-            tanggalTempo: formData.tanggalTempo,
-          }),
-        });
+    const payload = {
+      id: editId,
+      nama: formData.nama,
+      nominal: Number(formData.nominal),
+      tanggal_tagih: formData.tanggalTagih,
+      tanggal_tempo: formData.tanggalTempo,
+    };
 
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.message);
+    const method = isEditing ? 'PUT' : 'POST';
 
-        const updated = await fetch('/api/iuran');
-        const newData = await updated.json();
-        setDataIuran(newData);
+    try {
+      const res = await fetch('/api/iuran', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-        alert('Data berhasil diubah');
-      } catch (err) {
-        console.error('Edit error:', err);
-        alert('Gagal mengubah data');
-      }
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message);
 
+      await fetchData();
+      setFormData({ nama: '', nominal: '', tanggalTagih: '', tanggalTempo: '' });
       setIsEditing(false);
       setEditId(null);
-    } else {
-      try {
-        const res = await fetch('/api/iuran', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nama: formData.nama,
-            nominal: Number(formData.nominal),
-            tanggal_tagih: formData.tanggalTagih,
-            tanggal_tempo: formData.tanggalTempo,
-          }),
-        });
-
-        const result = await res.json();
-
-        if (res.ok) {
-          const updated = await fetch('/api/iuran');
-          const newData = await updated.json();
-          setDataIuran(newData);
-          alert('Data berhasil disimpan');
-        } else {
-          alert('Error: ' + result.message);
-        }
-      } catch (error) {
-        console.error('Fetch error:', error);
-        alert('Terjadi kesalahan saat mengirim data');
-      }
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('Terjadi kesalahan saat menyimpan data');
     }
-
-    setFormData({
-      nama: '',
-      nominal: '',
-      tanggalTagih: '',
-      tanggalTempo: '',
-    });
   };
 
   const handleEdit = (item: any) => {
@@ -136,37 +100,25 @@ const Iuran = () => {
       tanggalTagih: toInputDate(item.tanggalTagih),
       tanggalTempo: toInputDate(item.tanggalTempo),
     });
-    setEditId(item.id ?? null);
+    setEditId(item.id);
     setIsEditing(true);
   };
 
-  const handleDelete = (id?: number) => {
-    if (!id) return;
+  const handleDelete = (id: number) => {
     setDeleteId(id);
     setShowConfirm(true);
   };
 
   const confirmDelete = async () => {
     if (!deleteId) return;
-
     try {
-      const res = await fetch(`/api/iuran?id=${deleteId}`, {
-        method: 'DELETE',
-      });
-
+      const res = await fetch(`/api/iuran?id=${deleteId}`, { method: 'DELETE' });
       const result = await res.json();
-
-      if (res.ok) {
-        const updated = await fetch('/api/iuran');
-        const newData = await updated.json();
-        setDataIuran(newData);
-        alert('Data berhasil dihapus');
-      } else {
-        alert('Gagal hapus: ' + result.message);
-      }
-    } catch (error) {
-      console.error('Hapus error:', error);
-      alert('Terjadi kesalahan saat menghapus data');
+      if (!res.ok) throw new Error(result.message);
+      await fetchData();
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Gagal menghapus data');
     } finally {
       setShowConfirm(false);
       setDeleteId(null);
@@ -177,30 +129,51 @@ const Iuran = () => {
     <div className="p-6 bg-white text-black rounded shadow-md max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Data Iuran Warga</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-        {['nama', 'nominal', 'tanggalTagih', 'tanggalTempo'].map((field) => (
-          <div key={field}>
-            <label className="block font-semibold mb-1 capitalize">
-              {field.replace('tanggal', 'Tanggal ')}
-            </label>
-            <input
-              type={field === 'nominal' ? 'number' : field.startsWith('tanggal') ? 'date' : 'text'}
-              name={field}
-              value={(formData as any)[field]}
-              onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
-              required
-            />
-          </div>
-        ))}
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      <AnimatePresence mode="wait">
+        <motion.form
+          key={isEditing ? 'edit-form' : 'create-form'}
+          onSubmit={handleSubmit}
+          className="space-y-4 mb-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.3 }}
         >
-          {isEditing ? 'Update' : 'Simpan'}
-        </button>
-      </form>
+          {['nama', 'nominal', 'tanggalTagih', 'tanggalTempo'].map((field) => (
+            <div key={field}>
+              <label className="block font-semibold mb-1 capitalize">
+                {field.replace('tanggal', 'Tanggal ')}
+              </label>
+              <input
+                type={field === 'nominal' ? 'number' : field.startsWith('tanggal') ? 'date' : 'text'}
+                name={field}
+                value={(formData as any)[field]}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded"
+                required
+              />
+            </div>
+          ))}
+
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            {isEditing ? 'Update' : 'Simpan'}
+          </button>
+        </motion.form>
+      </AnimatePresence>
+
+      {saveSuccess && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          className="mb-4 bg-green-500 text-white px-4 py-2 rounded"
+        >
+          ✅ Data berhasil {isEditing ? 'diupdate' : 'disimpan'}!
+        </motion.div>
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left border border-gray-200">
@@ -216,25 +189,15 @@ const Iuran = () => {
           </thead>
           <tbody>
             {dataIuran.map((item, index) => (
-              <tr key={index} className="bg-white">
+              <tr key={item.id} className="bg-white">
                 <td className="px-4 py-2 border">{index + 1}</td>
                 <td className="px-4 py-2 border">{item.nama}</td>
-                <td className="px-4 py-2 border">Rp{parseInt(item.nominal).toLocaleString()}</td>
+                <td className="px-4 py-2 border">Rp{Number(item.nominal).toLocaleString()}</td>
                 <td className="px-4 py-2 border">{formatTanggal(item.tanggalTagih)}</td>
                 <td className="px-4 py-2 border">{formatTanggal(item.tanggalTempo)}</td>
                 <td className="px-4 py-2 border text-center space-x-2">
-                  <button
-                    className="text-blue-600 hover:underline"
-                    onClick={() => handleEdit(item)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-600 hover:underline"
-                    onClick={() => handleDelete(item.id)}
-                  >
-                    Hapus
-                  </button>
+                  <button onClick={() => handleEdit(item)} className="text-blue-600 hover:underline">Edit</button>
+                  <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:underline">Hapus</button>
                 </td>
               </tr>
             ))}
@@ -250,7 +213,7 @@ const Iuran = () => {
       </div>
 
       {showConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 text-center border">
             <h2 className="text-lg font-bold mb-4">Konfirmasi Hapus</h2>
             <p className="mb-6">Apakah Anda yakin ingin menghapus data ini?</p>
@@ -273,6 +236,4 @@ const Iuran = () => {
       )}
     </div>
   );
-};
-
-export default Iuran;
+}
