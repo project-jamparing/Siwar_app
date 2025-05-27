@@ -1,17 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 
-export default function TambahWargaPage() {
+export default function EditWargaPage() {
   const router = useRouter();
+  const { nik } = useParams();
+  const [showSuccess, setShowSuccess] = useState(false);
+
+
   const [form, setForm] = useState({
     nik: '',
     nama: '',
     no_kk: '',
     jenis_kelamin: '',
     tempat_lahir: '',
-    tanggal_lahir: '',
+    tanggal_lahir: null,
     agama: '',
     pendidikan: '',
     jenis_pekerjaan: '',
@@ -24,7 +28,17 @@ export default function TambahWargaPage() {
     no_kitap: '',
     ayah: '',
     ibu: '',
-  });
+  });  
+
+  // Fetch data warga by NIK
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch(`/api/warga/${nik}`);
+      const data = await res.json();
+      setForm(data); // isi semua field
+    };
+    if (nik) fetchData();
+  }, [nik]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,7 +46,7 @@ export default function TambahWargaPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!['laki_laki', 'perempuan'].includes(form.jenis_kelamin)) {
       alert('Pilih jenis kelamin yang valid.');
       return;
@@ -41,30 +55,30 @@ export default function TambahWargaPage() {
       alert('Pilih status perkawinan yang valid.');
       return;
     }
-
+  
     try {
-      const res = await fetch('/api/warga', {
-        method: 'POST',
+      const res = await fetch(`/api/warga/${nik}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(form), // kirim semua data
       });
-
+  
       if (!res.ok) {
         const err = await res.json();
-        alert(`Gagal menambahkan warga: ${err.message || res.statusText}`);
+        alert('Gagal update: ' + err.message);
         return;
       }
-
-      router.push('/dashboard/admin/warga');
+  
+      setShowSuccess(true); // muncul modal kalo sukses
     } catch (error) {
       console.error('Client error:', error);
       alert('Terjadi kesalahan di sisi client.');
     }
-  };
+  };  
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Tambah Warga</h1>
+      <h1 className="text-2xl font-bold mb-4">Edit Data Warga</h1>
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black">
         {[
           ['NIK', 'nik'],
@@ -76,7 +90,6 @@ export default function TambahWargaPage() {
           ['Pendidikan', 'pendidikan'],
           ['Pekerjaan', 'jenis_pekerjaan'],
           ['Tanggal Kawin', 'tanggal_perkawinan'],
-          ['Status Hubungan', 'status_hubungan_dalam_keluarga'],
           ['No Paspor', 'no_paspor'],
           ['No KITAP', 'no_kitap'],
           ['Ayah', 'ayah'],
@@ -111,6 +124,23 @@ export default function TambahWargaPage() {
           </select>
         </div>
 
+        {/* Status Dalam Keluarga */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Status Hubungan </label>
+          <select
+            name="status_hubungan_dalam_keluarga"
+            value={form.status_hubungan_dalam_keluarga}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="Kepala Keluarga">Kepala Keluarga</option>
+            <option value="Istri">Istri</option>
+            <option value="Anak">Anak</option>
+          </select>
+        </div>
+
         {/* Golongan Darah */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Golongan Darah</label>
@@ -131,7 +161,7 @@ export default function TambahWargaPage() {
 
         {/* Kewarganegaraan */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Kewarganegaraan</label>
+          <label className="block text-sm font-medium text-gray-700">Kewaeganegaraan</label>
           <select
             name="kewarganegaraan"
             value={form.kewarganegaraan}
@@ -153,7 +183,6 @@ export default function TambahWargaPage() {
             value={form.status_perkawinan}
             onChange={handleChange}
             className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-            required
           >
             <option value="">Pilih</option>
             <option value="belum_kawin">Belum Kawin</option>
@@ -165,11 +194,28 @@ export default function TambahWargaPage() {
 
         <button
           type="submit"
-          className="col-span-1 md:col-span-2 mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+          className="col-span-1 md:col-span-2 mt-4 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
         >
-          Simpan Data
+          Simpan Perubahan
         </button>
       </form>
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-md text-center">
+            <h2 className="text-lg font-semibold mb-2">Perubahan Berhasil</h2>
+            <p className="text-sm text-gray-600 mb-4">Data warga berhasil diperbarui.</p>
+            <button
+              onClick={() => {
+                setShowSuccess(false);
+                router.push('/dashboard/admin/warga');
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

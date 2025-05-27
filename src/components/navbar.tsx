@@ -31,7 +31,7 @@ export default async function Navbar() {
   const roleLabel = roleName[user.role_id] || "Tidak Diketahui";
 
   return (
-    <header className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+    <header className="w-full bg-white shadow-md px-6 py-4 flex justify-between items-center ">
       <h1 className="text-xl font-semibold text-gray-800">Dashboard {roleLabel}</h1>
       <p className="text-sm text-gray-600">
         Halo, Selamat Datang <span className="font-medium text-blue-600">{userName}</span>
