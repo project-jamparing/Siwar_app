@@ -15,6 +15,7 @@ const menuItemsByRole: Record<
   ],
   "2": [
     { label: "Dashboard", href: "/dashboard/rw", icon: <Home className="w-5 h-5" /> },
+    { label: "Data Warga", href: "/dashboard/rw/warga", icon: <Users className="w-5 h-5" /> },
     { label: "Data Iuran RW", href: "/dashboard/rw/iuran", icon: <Bell className="w-5 h-5" /> },
     { label: "Pengumuman", href: "/dashboard/rw/pengumuman", icon: <Megaphone className="w-5 h-5" /> },
   ],
