@@ -17,12 +17,37 @@ export default async function RTPage() {
 
   const user = await prisma.user.findFirst({
     where: { nik },
-    include: { warga: true },
+    include: {
+      warga: {
+        include: { kk: true },
+      },
+    },
   });
-
+  
   if (!user || user.role_id !== 3) {
     redirect('/login');
   }
+  
+  const rtId = user?.warga?.kk?.rt_id;
+  if (!rtId) {
+    throw new Error('RT ID tidak ditemukan');
+  }
+  
+  // Ambil semua no_kk di RT tersebut
+  const kks = await prisma.kk.findMany({
+    where: { rt_id: rtId },
+    select: { no_kk: true },
+  });
+  const noKkList = kks.map(k => k.no_kk);
+  
+  // Ambil warga yang no_kk-nya ada di RT
+  const wargaRT = await prisma.warga.findMany({
+    where: {
+      no_kk: { in: noKkList },
+    },
+  });
+  
+  const jumlahWarga = wargaRT.length;  
 
   return (
     <main className="flex-1 p-6">
@@ -33,7 +58,7 @@ export default async function RTPage() {
             <h3 className="text-lg font-semibold text-gray-700">Jumlah Warga</h3>
             <Users className="text-indigo-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">128</p>
+          <p className="text-3xl font-bold text-gray-800">{jumlahWarga}</p>
         </div>
 
         <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">

@@ -1,0 +1,41 @@
+[33mcommit fe5344219fd4226d91b090858035a4712559f2f2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtambah-warga[m[33m, [m[1;31morigin/tambah-warga[m[33m)[m
+Author: rafi <rafinashrullah021@gmail.com>
+Date:   Tue May 27 14:51:07 2025 +0700
+
+    prisma doank
+
+[33mcommit 62786e41c1b37061f3910d6d949f20e156c302bc[m
+Author: rafi <rafinashrullah021@gmail.com>
+Date:   Mon May 26 15:10:52 2025 +0700
+
+    benerin fitur edit
+
+[33mcommit c2a59e8c64fb384e21b6175ad696e00ae96b1946[m
+Author: rafi <rafinashrullah021@gmail.com>
+Date:   Fri May 23 11:23:30 2025 +0700
+
+    tambah fitur edit
+
+[33mcommit d214a02711073543906cf666b6afed6be9b77cc8[m
+Author: rafi <rafinashrullah021@gmail.com>
+Date:   Fri May 23 10:58:40 2025 +0700
+
+    tambah fitur delete
+
+[33mcommit b6f7ddd4d6a7c1a4b0997f1dfb22a5ce0de1da09[m
+Author: rafi <rafinashrullah021@gmail.com>
+Date:   Thu May 22 16:23:16 2025 +0700
+
+    Fitur Tambah Warga
+
+[33mcommit 89f75d7f4172fc630b0f3670da5060ba2ba55009[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m
+Author: rafi <rafinashrullah021@gmail.com>
+Date:   Thu May 22 08:29:59 2025 +0700
+
+    Form_login_dan_Dashboard
+
+[33mcommit 1aa70f65f40da8e1bdd36c1650412f40c1632971[m
+Author: rafi <rafinashrullah021@gmail.com>
+Date:   Tue May 20 14:15:13 2025 +0700
+
+    Initial commit from Create Next App
