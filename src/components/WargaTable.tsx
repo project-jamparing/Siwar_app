@@ -115,7 +115,7 @@ export default function WargaTable({
                   {showActions && (
                     <td className="border px-4 py-2 space-x-2">
                       <a
-                        href={`/dashboard/admin/warga/edit/${w.nik}`}
+                        href={`/dashboard/rw/warga/edit/${w.nik}`}
                         className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
                       >
                         Edit

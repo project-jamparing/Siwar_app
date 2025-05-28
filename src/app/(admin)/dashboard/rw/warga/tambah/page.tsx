@@ -32,7 +32,7 @@ export default function TambahWargaPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!['laki_laki', 'perempuan'].includes(form.jenis_kelamin)) {
       alert('Pilih jenis kelamin yang valid.');
       return;
@@ -41,26 +41,38 @@ export default function TambahWargaPage() {
       alert('Pilih status perkawinan yang valid.');
       return;
     }
-
+  
     try {
       const res = await fetch('/api/warga', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-
+  
       if (!res.ok) {
         const err = await res.json();
         alert(`Gagal menambahkan warga: ${err.message || res.statusText}`);
         return;
       }
-
-      router.push('/dashboard/admin/warga');
+  
+      // 🟢 Cek dan update jika dia Kepala Keluarga
+      if (form.status_hubungan_dalam_keluarga === 'Kepala Keluarga') {
+        await fetch('/api/kk/update-nik', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            no_kk: form.no_kk,
+            nik: form.nik
+          }),
+        });
+      }
+  
+      router.push('/dashboard/rw/warga');
     } catch (error) {
       console.error('Client error:', error);
       alert('Terjadi kesalahan di sisi client.');
     }
-  };
+  };  
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -76,7 +88,6 @@ export default function TambahWargaPage() {
           ['Pendidikan', 'pendidikan'],
           ['Pekerjaan', 'jenis_pekerjaan'],
           ['Tanggal Kawin', 'tanggal_perkawinan'],
-          ['Status Hubungan', 'status_hubungan_dalam_keluarga'],
           ['No Paspor', 'no_paspor'],
           ['No KITAP', 'no_kitap'],
           ['Ayah', 'ayah'],
@@ -108,6 +119,23 @@ export default function TambahWargaPage() {
             <option value="">Pilih</option>
             <option value="laki_laki">Laki-laki</option>
             <option value="perempuan">Perempuan</option>
+          </select>
+        </div>
+
+         {/* Status Dalam Keluarga */}
+         <div>
+          <label className="block text-sm font-medium text-gray-700">Status Hubungan </label>
+          <select
+            name="status_hubungan_dalam_keluarga"
+            value={form.status_hubungan_dalam_keluarga}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="Kepala Keluarga">Kepala Keluarga</option>
+            <option value="Istri">Istri</option>
+            <option value="Anak">Anak</option>
           </select>
         </div>
 

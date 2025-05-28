@@ -12,13 +12,19 @@ export default async function DaftarWargaPage() {
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Daftar Warga Lengkap</h1>
           <a
-            href="/dashboard/admin/warga/tambah"
+            href="/dashboard/rw/warga/tambah_kk"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
+          >
+            + Tambah Nomor KK
+          </a>
+          <a
+            href="/dashboard/rw/warga/tambah"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
           >
             + Tambah Warga
           </a>
         </div>
-        <WargaTable warga={warga} />
+        <WargaTable warga={warga}  showActions={true} />
       </main>
     </div>
   );
