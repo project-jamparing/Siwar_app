@@ -6,12 +6,13 @@ export default function FormTambahKK() {
   const [form, setForm] = useState({
     no_kk: '',
     rt_id: '',
-    nik: '',
     kategori_id: '',
   });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -29,11 +30,27 @@ export default function FormTambahKK() {
     setLoading(false);
     if (res.ok) {
       alert('✅ Berhasil tambah KK');
-      setForm({ no_kk: '', rt_id: '', nik: '', kategori_id: '' });
+      setForm({ no_kk: '', rt_id: '', kategori_id: '' });
     } else {
       alert(result.message || '❌ Gagal menambahkan KK');
     }
   };
+
+  // Data untuk select
+  const rtOptions = [
+    { id: '1', label: 'RT01' },
+    { id: '2', label: 'RT02' },
+    { id: '3', label: 'RT03' },
+  ];
+
+  const kategoriOptions = [
+    { id: '1', label: 'Kampung' },
+    { id: '2', label: 'Kost' },
+    { id: '3', label: 'Kavling' },
+    { id: '4', label: 'UMKM' },
+    { id: '5', label: 'Kantor' },
+    { id: '6', label: 'Bisnis' },
+  ];
 
   return (
     <form
@@ -42,25 +59,61 @@ export default function FormTambahKK() {
     >
       <h2 className="text-xl font-semibold text-gray-800 text-center">Tambah Kartu Keluarga</h2>
 
-      {[
-        { label: 'No KK', name: 'no_kk', placeholder: 'Masukkan No KK' },
-        { label: 'RT ID', name: 'rt_id', placeholder: 'Masukkan ID RT' },
-        { label: 'NIK Kepala Keluarga (Opsional)', name: 'nik', placeholder: 'Boleh dikosongkan' },
-        { label: 'Kategori ID', name: 'kategori_id', placeholder: 'Masukkan ID Kategori' },
-      ].map(({ label, name, placeholder }) => (
-        <div key={name}>
-          <label className="block mb-1 font-medium text-gray-700">{label}</label>
-          <input
-            type="text"
-            name={name}
-            value={(form as any)[name]}
-            onChange={handleChange}
-            placeholder={placeholder}
-            required={name === 'no_kk'} // hanya no_kk yang wajib diisi
-            className="w-full px-4 py-2 border rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          />
-        </div>
-      ))}
+      {/* No KK input */}
+      <div>
+        <label className="block mb-1 font-medium text-gray-700">No KK</label>
+        <input
+          type="text"
+          name="no_kk"
+          value={form.no_kk}
+          onChange={handleChange}
+          placeholder="Masukkan No KK"
+          required
+          className="w-full px-4 py-2 border rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+        />
+      </div>
+
+      {/* RT select */}
+      <div>
+        <label className="block mb-1 font-medium text-gray-700">RT</label>
+        <select
+          name="rt_id"
+          value={form.rt_id}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-2 border rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+        >
+          <option value="" disabled>
+            Pilih RT
+          </option>
+          {rtOptions.map(({ id, label }) => (
+            <option key={id} value={id}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Kategori select */}
+      <div>
+        <label className="block mb-1 font-medium text-gray-700">Kategori</label>
+        <select
+          name="kategori_id"
+          value={form.kategori_id}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-2 border rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+        >
+          <option value="" disabled>
+            Pilih Kategori
+          </option>
+          {kategoriOptions.map(({ id, label }) => (
+            <option key={id} value={id}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <button
         type="submit"
