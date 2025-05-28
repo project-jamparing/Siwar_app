@@ -24,6 +24,12 @@ export default async function RTPage() {
     redirect('/login');
   }
 
+  // ✅ Ambil pengumuman 2 hari terakhir via fetch API
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?terbaru=true`, {
+    cache: 'no-store',
+  });
+  const pengumumanTerbaru = await res.json();
+
   return (
     <main className="flex-1 p-6">
       {/* Statistik */}
@@ -49,22 +55,24 @@ export default async function RTPage() {
             <h3 className="text-lg font-semibold text-gray-700">Pengumuman Aktif</h3>
             <Megaphone className="text-yellow-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">2</p>
+          <p className="text-3xl font-bold text-gray-800">{pengumumanTerbaru.length}</p>
         </div>
       </div>
 
-      {/* Pengumuman */}
+      {/* Pengumuman Terbaru */}
       <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Pengumuman Terbaru</h2>
         <div className="space-y-3">
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Rapat RT Jumat</h3>
-            <p className="text-gray-600 text-sm">19.30 WIB di Balai Warga</p>
-          </div>
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Kerja Bakti Minggu</h3>
-            <p className="text-gray-600 text-sm">Minggu, 07.00 pagi – saluran air</p>
-          </div>
+          {pengumumanTerbaru.length === 0 ? (
+            <p className="text-gray-500">Tidak ada pengumuman 2 hari terakhir</p>
+          ) : (
+            pengumumanTerbaru.map((item: any) => (
+              <div key={item.id} className="p-4 bg-indigo-50 rounded-lg">
+                <h3 className="font-semibold text-indigo-700">{item.judul}</h3>
+                <p className="text-gray-600 text-sm">{item.subjek}</p>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </main>

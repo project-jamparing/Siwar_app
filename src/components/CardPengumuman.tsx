@@ -2,17 +2,7 @@
 
 import { FC } from 'react';
 import Link from 'next/link';
-
-type Pengumuman = {
-  id: number;
-  judul: string;
-  isi: string;
-  rt_id: number;
-  rukun_tetangga?: {
-    id: number;
-    nama: string;
-  };
-};
+import { Pengumuman } from '@/lib/type/pengumuman';
 
 type Props = {
   item: Pengumuman;
@@ -21,33 +11,40 @@ type Props = {
 };
 
 const CardPengumuman: FC<Props> = ({ item, onDelete, onClick }) => (
-  <div className="bg-white border border-gray-200 rounded-2xl shadow hover:shadow-md transition-all p-5 w-full max-w-sm">
-    <h2 className="text-xl font-semibold text-gray-800 mb-2">{item.judul}</h2>
-    <p className="text-gray-600 text-sm mb-4">
-      {item.isi.length > 100 ? item.isi.slice(0, 100) + '...' : item.isi}
+  <div className="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5 w-full max-w-sm">
+    <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-2 truncate">
+      {item.judul}
+    </h2>
+
+    <p className="text-gray-600 text-sm mb-3 line-clamp-3">
+      {item.isi}
     </p>
-    <p className="text-xs text-gray-500 mb-2">
-       {item.rukun_tetangga?.nama || 'Tidak diketahui'}
+
+    <p className="text-xs text-gray-500 italic mb-4">
+      {item.rukun_tetangga?.nama || 'RT tidak diketahui'}
     </p>
-    <div className="flex gap-2 justify-end">
+
+    <div className="flex flex-wrap gap-2 justify-end">
       <button
         onClick={() => onClick(item)}
-        className="text-blue-600 hover:text-blue-800 text-sm px-3 py-1 rounded hover:bg-blue-50"
+        className="text-sm font-medium text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-600 px-3 py-1 rounded-lg transition-all"
       >
         Lihat
       </button>
+
       <Link href={`/dashboard/rt/pengumuman/edit/${item.id}`}>
-        <button className="text-yellow-600 hover:text-yellow-800 text-sm px-3 py-1 rounded hover:bg-yellow-50">
+        <button className="text-sm font-medium text-yellow-600 hover:text-white hover:bg-yellow-500 border border-yellow-500 px-3 py-1 rounded-lg transition-all">
           Edit
         </button>
       </Link>
+
       <button
         onClick={() => {
           if (confirm(`Yakin mau hapus pengumuman "${item.judul}"?`)) {
             onDelete(item.id);
           }
         }}
-        className="text-red-600 hover:text-red-800 text-sm px-3 py-1 rounded hover:bg-red-50"
+        className="text-sm font-medium text-red-600 hover:text-white hover:bg-red-600 border border-red-600 px-3 py-1 rounded-lg transition-all"
       >
         Hapus
       </button>

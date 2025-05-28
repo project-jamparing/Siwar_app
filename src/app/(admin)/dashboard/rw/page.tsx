@@ -1,28 +1,40 @@
-import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { redirect } from 'next/navigation';
-import {
-  Users,
-  FileCheck2,
-  Megaphone,
-} from 'lucide-react';
+import { Users, FileCheck2, Megaphone } from 'lucide-react';
 
-export default async function RWPage() {
-  const cookie = await cookies();
-  const nik = cookie.get('nik')?.value;
+export default function RWPage() {
+  const [isSending, setIsSending] = useState(false);
+  const [message, setMessage] = useState('');
 
-  if (!nik) {
-    redirect('/login');
-  }
+  const simpanIuran = async () => {
+    setIsSending(true);
+    setMessage('');
+    try {
+      const res = await fetch('/api/iuran', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          nama: 'Faris cukurukuk',
+          nominal: 100000,
+          tanggal_tagih: '2025-05-01',
+          tanggal_bayar: '2025-05-21',
+          tanggal_tempo: '2025-05-31'
+        })
+      });
 
-  const user = await prisma.user.findFirst({
-    where: { nik },
-    include: { warga: true },
-  });
-
-  if (!user || user.role_id !== 2) {
-    redirect('/login');
-  }
+      const data = await res.json();
+      setMessage(data.message || 'Respon tidak dikenal');
+    } catch (err) {
+      console.error(err);
+      setMessage('Terjadi kesalahan saat kirim data');
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <main className="flex-1 p-6">
@@ -53,6 +65,18 @@ export default async function RWPage() {
         </div>
       </div>
 
+      {/* Tombol simpan data */}
+      <div className="mb-6">
+        <button
+          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-400"
+          onClick={simpanIuran}
+          disabled={isSending}
+        >
+          {isSending ? 'Menyimpan...' : 'Simpan Iuran Contoh'}
+        </button>
+        {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}
+      </div>
+
       {/* Pengumuman */}
       <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Pengumuman RW Terbaru</h2>
@@ -67,6 +91,6 @@ export default async function RWPage() {
           </div>
         </div>
       </div>
-    </main>
-  );
+    </main>
+  );
 }

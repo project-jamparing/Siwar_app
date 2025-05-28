@@ -8,7 +8,14 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.findFirst({
       where: { nik },
-      include: { role: true },
+      include: {
+        role: true,
+        warga: {
+          include: {
+            kk: true, 
+          },
+        },
+      },
     });
 
     if (!user || !user.password || !user.role_id) {
@@ -30,13 +37,13 @@ export async function POST(req: Request) {
     const res = NextResponse.json({
       message: 'Login berhasil',
       redirect: roleRedirect[user.role_id],
+      role_id: user.role_id,
+      rt_id: user?.warga?.kk?.rt_id ?? null,
     });
-    
+
     res.cookies.set('token', 'dummy-token', { httpOnly: true });
     res.cookies.set('role_id', String(user.role_id), { httpOnly: true });
     res.cookies.set('nik', String(user.nik), { httpOnly: true });
-
-
     
     return res;    
   } catch (error) {
