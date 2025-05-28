@@ -7,33 +7,28 @@ export default async function DaftarWargaPage() {
   const nik = cookieStore.get('nik')?.value;
 
   let warga = [];
+  let noKK = '';
 
   if (nik) {
+    // Ambil data user dan no_kk
     const user = await prisma.user.findUnique({
       where: { nik },
       include: {
         warga: {
-          include: {
-            kk: true,
+          select: {
+            no_kk: true,
           },
         },
       },
     });
 
-    const rtId = user?.warga?.kk?.rt_id;
-    const roleId = user?.role_id;
+    noKK = user?.warga?.no_kk || '';
 
-    if (roleId === 3 && rtId) {
+    if (noKK) {
       warga = await prisma.warga.findMany({
         where: {
-          kk: {
-            rt_id: rtId,
-          },
+          no_kk: noKK,
         },
-        orderBy: { nama: 'asc' },
-      });
-    } else {
-      warga = await prisma.warga.findMany({
         orderBy: { nama: 'asc' },
       });
     }
@@ -42,10 +37,17 @@ export default async function DaftarWargaPage() {
   return (
     <div className="flex h-screen bg-gray-50 text-black">
       <main className="flex-1 p-4 overflow-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Daftar Warga Lengkap</h1>
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-2xl font-bold">Anggota Keluarga</h1>
         </div>
-        <WargaTable warga={warga} showActions={false} />
+
+        {/* Tambahan: No KK */}
+        <div className="mb-4 text-sm text-gray-700">
+          <span className="font-semibold">Nomor Kartu Keluarga:</span> {noKK || 'Tidak ditemukan'}
+        </div>
+
+        {/* Tabel Warga */}
+        <WargaTable warga={warga}  showActions={false} />
       </main>
     </div>
   );

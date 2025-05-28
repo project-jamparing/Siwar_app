@@ -18,7 +18,7 @@ export default async function DaftarWargaPage() {
             + Tambah Warga
           </a>
         </div>
-        <WargaTable warga={warga} />
+        <WargaTable warga={warga}  showActions={true} />
       </main>
     </div>
   );

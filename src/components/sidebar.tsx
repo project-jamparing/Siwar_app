@@ -27,6 +27,7 @@ const menuItemsByRole: Record<
   ],
   "4": [
     { label: "Dashboard", href: "/dashboard/warga", icon: <Home className="w-5 h-5" /> },
+    { label: "Data Keluarga", href: "/dashboard/warga/keluarga", icon: <Users className="w-5 h-5" /> },
     { label: "Iuran Saya", href: "/dashboard/warga/iuran", icon: <Bell className="w-5 h-5" /> },
     { label: "Pengumuman", href: "/dashboard/warga/pengumuman", icon: <Megaphone className="w-5 h-5" /> },
   ],
