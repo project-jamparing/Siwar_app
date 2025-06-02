@@ -16,8 +16,6 @@ export async function GET(
     return NextResponse.json(warga);
   } catch (error) {
     console.error('Error fetching keluarga by no_kk:', error);
-    console.log('No KK:', no_kk);
-    console.log('Anggota keluarga:', anggotaKeluarga);
     return NextResponse.json({ error: 'Terjadi kesalahan.' }, { status: 500 });
   }
 }
