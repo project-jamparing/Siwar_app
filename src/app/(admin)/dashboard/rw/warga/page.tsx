@@ -13,12 +13,6 @@ export default async function DaftarWargaPage() {
           <h1 className="text-3xl font-extrabold tracking-tight">Daftar Warga Lengkap</h1>
           <div className="flex flex-wrap gap-3">
             <a
-              href="/dashboard/rw/warga/tambah_kk"
-              className="inline-block bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 text-white font-semibold px-5 py-2 rounded-md transition-shadow shadow-md focus:outline-none"
-            >
-              + Tambah Nomor KK
-            </a>
-            <a
               href="/dashboard/rw/warga/tambah"
               className="inline-block bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 text-white font-semibold px-5 py-2 rounded-md transition-shadow shadow-md focus:outline-none"
             >

@@ -25,13 +25,12 @@ export default function FormTambahWarga() {
     ayah: '',
     ibu: '',
     rt_id: '',
-    kategori: '',
+    kategori_id: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
-    // Jika status_perkawinan berubah ke "belum_kawin", kosongkan tanggal_perkawinan
     if (name === 'status_perkawinan' && value === 'belum_kawin') {
       setForm(prev => ({ ...prev, status_perkawinan: value, tanggal_perkawinan: '' }));
       return;
@@ -43,32 +42,24 @@ export default function FormTambahWarga() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validasi jenis kelamin
     if (!['laki_laki', 'perempuan'].includes(form.jenis_kelamin)) {
       alert('Pilih jenis kelamin yang valid.');
       return;
     }
 
-    // Validasi status perkawinan
     if (!['belum_kawin', 'kawin_tercatat', 'cerai_hidup', 'cerai_mati'].includes(form.status_perkawinan)) {
       alert('Pilih status perkawinan yang valid.');
       return;
     }
 
-    // Jika status perkawinan bukan 'belum_kawin', tanggal_perkawinan wajib diisi
     if (form.status_perkawinan !== 'belum_kawin' && !form.tanggal_perkawinan) {
       alert('Tanggal perkawinan wajib diisi jika status perkawinan bukan Belum Kawin.');
       return;
     }
 
-    // Jika status hubungan dalam keluarga Kepala Keluarga, rt_id dan kategori wajib
     if (form.status_hubungan_dalam_keluarga === 'Kepala Keluarga') {
-      if (!form.rt_id) {
-        alert('RT wajib diisi untuk Kepala Keluarga.');
-        return;
-      }
-      if (!form.kategori_id) {
-        alert('Kategori wajib diisi untuk Kepala Keluarga.');
+      if (!form.rt_id || !form.kategori_id) {
+        alert('RT dan Kategori wajib diisi untuk Kepala Keluarga.');
         return;
       }
     }
@@ -86,7 +77,6 @@ export default function FormTambahWarga() {
         return;
       }
 
-      // Jika Kepala Keluarga, update no_kk dengan nik
       if (form.status_hubungan_dalam_keluarga === 'Kepala Keluarga') {
         await fetch('/api/kk/update-nik', {
           method: 'POST',
@@ -105,182 +95,145 @@ export default function FormTambahWarga() {
     }
   };
 
+  const inputStyle =
+    'mt-1 block w-full rounded-lg border border-gray-300 p-2 text-sm text-gray-800 bg-white shadow-sm focus:ring-blue-500 focus:border-blue-500';
+
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black">
-      {/* Input text dan tanggal */}
-      {[
-        ['NIK', 'nik', 'text', true],
-        ['Nama', 'nama', 'text', true],
-        ['No KK', 'no_kk', 'text', false],
-        ['Tempat Lahir', 'tempat_lahir', 'text', false],
-        ['Tanggal Lahir', 'tanggal_lahir', 'date', false],
-        ['Agama', 'agama', 'text', false],
-        ['Pendidikan', 'pendidikan', 'text', false],
-        ['Pekerjaan', 'jenis_pekerjaan', 'text', false],
-        ['No Paspor', 'no_paspor', 'text', false],
-        ['No KITAP', 'no_kitap', 'text', false],
-        ['Ayah', 'ayah', 'text', false],
-        ['Ibu', 'ibu', 'text', false],
-      ].map(([label, name, type, required]) => (
-        <div key={name}>
-          <label className="block text-sm font-medium text-gray-700">{label}</label>
-          <input
-            type={type}
-            name={name}
-            value={(form as any)[name] || ''}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-            required={required}
-          />
-        </div>
-      ))}
+    <div className="bg-gray-100 min-h-screen p-6">
+      <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Form Tambah Warga</h2>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[
+            ['NIK', 'nik', 'text', true],
+            ['Nama', 'nama', 'text', true],
+            ['No KK', 'no_kk', 'text', false],
+            ['Tempat Lahir', 'tempat_lahir', 'text', false],
+            ['Tanggal Lahir', 'tanggal_lahir', 'date', false],
+            ['Agama', 'agama', 'text', false],
+            ['Pendidikan', 'pendidikan', 'text', false],
+            ['Pekerjaan', 'jenis_pekerjaan', 'text', false],
+            ['No Paspor', 'no_paspor', 'text', false],
+            ['No KITAP', 'no_kitap', 'text', false],
+            ['Ayah', 'ayah', 'text', false],
+            ['Ibu', 'ibu', 'text', false],
+          ].map(([label, name, type, required]) => (
+            <div key={name}>
+              <label className="block text-sm font-medium text-gray-700">{label}</label>
+              <input
+                type={type}
+                name={name}
+                value={(form as any)[name] || ''}
+                onChange={handleChange}
+                className={inputStyle}
+                required={required}
+              />
+            </div>
+          ))}
 
-      {/* Jenis Kelamin */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
-        <select
-          name="jenis_kelamin"
-          value={form.jenis_kelamin}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-          required
-        >
-          <option value="">Pilih</option>
-          <option value="laki_laki">Laki-laki</option>
-          <option value="perempuan">Perempuan</option>
-        </select>
-      </div>
+          <Select label="Jenis Kelamin" name="jenis_kelamin" value={form.jenis_kelamin} onChange={handleChange} options={[
+            ['', 'Pilih'],
+            ['laki_laki', 'Laki-laki'],
+            ['perempuan', 'Perempuan'],
+          ]} />
 
-      {/* Status Hubungan */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Status Hubungan</label>
-        <select
-          name="status_hubungan_dalam_keluarga"
-          value={form.status_hubungan_dalam_keluarga}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-          required
-        >
-          <option value="">Pilih</option>
-          <option value="Kepala Keluarga">Kepala Keluarga</option>
-          <option value="Istri">Istri</option>
-          <option value="Anak">Anak</option>
-        </select>
-      </div>
+          <Select label="Status Hubungan" name="status_hubungan_dalam_keluarga" value={form.status_hubungan_dalam_keluarga} onChange={handleChange} options={[
+            ['', 'Pilih'],
+            ['Kepala Keluarga', 'Kepala Keluarga'],
+            ['Istri', 'Istri'],
+            ['Anak', 'Anak'],
+          ]} />
 
-      {/* Jika Kepala Keluarga, tampilkan RT dan Kategori */}
-      {form.status_hubungan_dalam_keluarga === 'Kepala Keluarga' && (
-        <>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">RT</label>
-            <select
-              name="rt_id"
-              value={form.rt_id}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-              required
+          {form.status_hubungan_dalam_keluarga === 'Kepala Keluarga' && (
+            <>
+              <Select label="RT" name="rt_id" value={form.rt_id} onChange={handleChange} options={[
+                ['', 'Pilih RT'],
+                ['1', 'RT01'],
+                ['2', 'RT02'],
+                ['3', 'RT03'],
+              ]} />
+              <Select label="Kategori" name="kategori_id" value={form.kategori_id} onChange={handleChange} options={[
+                ['', 'Pilih Kategori'],
+                ['1', 'Kampung'],
+                ['2', 'Kost'],
+                ['3', 'Kavling'],
+                ['4', 'UMKM'],
+                ['5', 'Kantor'],
+                ['6', 'Bisnis'],
+              ]} />
+            </>
+          )}
+
+          <Select label="Golongan Darah" name="golongan_darah" value={form.golongan_darah} onChange={handleChange} options={[
+            ['', 'Pilih'],
+            ['O', 'O'],
+            ['A', 'A'],
+            ['B', 'B'],
+            ['AB', 'AB'],
+          ]} />
+
+          <Select label="Kewarganegaraan" name="kewarganegaraan" value={form.kewarganegaraan} onChange={handleChange} options={[
+            ['', 'Pilih'],
+            ['WNI', 'WNI'],
+            ['WNA', 'WNA'],
+          ]} />
+
+          <Select label="Status Perkawinan" name="status_perkawinan" value={form.status_perkawinan} onChange={handleChange} options={[
+            ['', 'Pilih'],
+            ['belum_kawin', 'Belum Kawin'],
+            ['kawin_tercatat', 'Kawin Tercatat'],
+            ['cerai_hidup', 'Cerai Hidup'],
+            ['cerai_mati', 'Cerai Mati'],
+          ]} />
+
+          {form.status_perkawinan !== 'belum_kawin' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tanggal Perkawinan</label>
+              <input
+                type="date"
+                name="tanggal_perkawinan"
+                value={form.tanggal_perkawinan}
+                onChange={handleChange}
+                className={inputStyle}
+                required
+              />
+            </div>
+          )}
+
+          <div className="md:col-span-2">
+            <button
+              type="submit"
+              className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 font-semibold shadow"
             >
-              <option value="">Pilih RT</option>
-              <option value="1">RT01</option>
-              <option value="2">RT02</option>
-              <option value="3">RT03</option>
-            </select>
+              Simpan Data Warga
+            </button>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Kategori</label>
-            <select
-              name="kategori_id"
-              value={form.kategori_id}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-              required
-            >
-              <option value="">Pilih Kategori</option>
-              <option value="1">Kampung</option>
-              <option value="2">Kost</option>
-              <option value="3">Kavling</option>
-              <option value="4">UMKM</option>
-              <option value="5">Kantor</option>
-              <option value="6">Bisnis</option>
-            </select>
-          </div>
-        </>
-      )}
-
-      {/* Golongan Darah */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Golongan Darah</label>
-        <select
-          name="golongan_darah"
-          value={form.golongan_darah}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-          required
-        >
-          <option value="">Pilih</option>
-          <option value="O">O</option>
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="AB">AB</option>
-        </select>
+        </form>
       </div>
+    </div>
+  );
+}
 
-      {/* Kewarganegaraan */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Kewarganegaraan</label>
-        <select
-          name="kewarganegaraan"
-          value={form.kewarganegaraan}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-          required
-        >
-          <option value="">Pilih</option>
-          <option value="WNI">WNI</option>
-          <option value="WNA">WNA</option>
-        </select>
-      </div>
-
-      {/* Status Perkawinan */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Status Perkawinan</label>
-        <select
-          name="status_perkawinan"
-          value={form.status_perkawinan}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-          required
-        >
-          <option value="">Pilih</option>
-          <option value="belum_kawin">Belum Kawin</option>
-          <option value="kawin_tercatat">Kawin Tercatat</option>
-          <option value="cerai_hidup">Cerai Hidup</option>
-          <option value="cerai_mati">Cerai Mati</option>
-        </select>
-      </div>
-
-      {/* Tanggal Perkawinan - tampil hanya jika status_perkawinan bukan belum_kawin */}
-      {form.status_perkawinan !== 'belum_kawin' && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Tanggal Perkawinan</label>
-          <input
-            type="date"
-            name="tanggal_perkawinan"
-            value={form.tanggal_perkawinan}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded border border-gray-300 p-2 text-sm"
-            required={form.status_perkawinan !== 'belum_kawin'}
-          />
-        </div>
-      )}
-
-      <button
-        type="submit"
-        className="col-span-1 md:col-span-2 mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+function Select({ label, name, value, onChange, options }: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: [string, string][];
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="mt-1 block w-full rounded-lg border border-gray-300 p-2 text-sm text-gray-800 bg-white shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        required
       >
-        Simpan Data
-      </button>
-    </form>
+        {options.map(([val, labelText]) => (
+          <option key={val} value={val}>{labelText}</option>
+        ))}
+      </select>
+    </div>
   );
 }
