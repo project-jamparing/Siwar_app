@@ -28,7 +28,7 @@ export default async function AdminPage() {
   return (
     <main className="flex-1 p-6">
     {/* Statistik */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-semibold text-gray-700">Jumlah Warga</h3>
@@ -52,10 +52,10 @@ export default async function AdminPage() {
         </div>
         <p className="text-3xl font-bold text-gray-800">2</p>
       </div>
-    </div>
+    </div> */}
 
     {/* Pengumuman */}
-    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+    {/* <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Pengumuman Terbaru</h2>
       <div className="space-y-3">
         <div className="p-4 bg-indigo-50 rounded-lg">
@@ -67,7 +67,7 @@ export default async function AdminPage() {
           <p className="text-gray-600 text-sm">Minggu, 07.00 pagi – saluran air</p>
         </div>
       </div>
-    </div>
+    </div> */}
   </main>
   );
 }
