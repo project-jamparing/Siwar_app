@@ -1,18 +1,16 @@
 import PengumumanViewOnly from '@/components/PengumumanViewOnly';
-import prisma from '@/lib/prisma';
+import { cookies } from 'next/headers';
+import { Pengumuman } from '@/lib/type/pengumuman';
 
 export default async function PengumumanPage() {
-  const data = await prisma.pengumuman.findMany({
-    select: {
-      id: true,
-      tanggal: true,
-      judul: true,
-      subjek: true,
-      isi: true,
-    },
-    orderBy: { tanggal: 'desc' },
+  const cookieStore = cookies();
+  const nik = cookieStore.get('nik')?.value;
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?role=warga&nik=${nik}`, {
+    cache: 'no-store',
   });
+
+  const data: Pengumuman[] = await res.json();
 
   return <PengumumanViewOnly data={data} />;
 }
-    

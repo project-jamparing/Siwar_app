@@ -5,10 +5,10 @@ export default async function PengumumanPage() {
   const data = await prisma.pengumuman.findMany({
     select: {
       id: true,
-      tanggal: true,
       judul: true,
       subjek: true,
       isi: true,
+      tanggal: true,
     },
     orderBy: { tanggal: 'desc' },
   });

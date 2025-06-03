@@ -44,7 +44,7 @@ export default function EditPengumumanPage() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4 max-w-md mx-auto">
-      <h1 className="text-xl font-bold">Edit Pengumuman</h1>
+      <h1 className="text-xl font-bold text-gray-900 mb-4">Edit Pengumuman</h1>
       <input
         type="text"
         value={judul}
@@ -54,7 +54,7 @@ export default function EditPengumumanPage() {
       />
       <input
         type="text"
-        value={subjek}
+        value={subjek ?? ''}
         onChange={(e) => setSubjek(e.target.value)}
         placeholder="Subjek"
         className="border p-2 w-full text-gray-700"

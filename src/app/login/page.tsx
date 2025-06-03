@@ -22,10 +22,13 @@ export default function LoginPage() {
     });
   
     const data = await res.json();
+    console.log(data);
   
     if (res.ok) {
       // simpan status login di localStorage
       localStorage.setItem('isLoggedIn', 'true'); 
+      localStorage.setItem('nik', data.nik);
+      localStorage.setItem('role', data.role);
       router.push(data.redirect);
     } else {
       setError(data.error || 'Login gagal');

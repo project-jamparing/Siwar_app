@@ -19,3 +19,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   return NextResponse.json(updated);
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const id = Number(params.id);
+    await prisma.pengumuman.delete({ where: { id } });
+    return NextResponse.json({ message: 'Pengumuman berhasil dihapus' });
+  } catch (error) {
+    console.error('Gagal hapus pengumuman:', error);
+    return NextResponse.json({ message: 'Gagal hapus pengumuman' }, { status: 500 });
+  }
+}

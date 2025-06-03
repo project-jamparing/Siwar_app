@@ -10,6 +10,7 @@ export default function TambahPengumuman() {
   const [isi, setIsi] = useState('');
   const [tanggal, setTanggal] = useState('');
 
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -28,6 +29,7 @@ export default function TambahPengumuman() {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4">
+      <h1 className="text-xl font-bold text-gray-900">Tambah Pengumuman</h1>
       <input
         type="text"
         placeholder="Judul"

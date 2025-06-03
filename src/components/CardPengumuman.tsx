@@ -6,7 +6,7 @@ import { Pengumuman } from '@/lib/type/pengumuman';
 
 type Props = {
   item: Pengumuman;
-  onDelete: (id: number) => void;
+  onDelete: (item: Pengumuman) => void;
   onClick: (item: Pengumuman) => void;
 };
 
@@ -17,11 +17,11 @@ const CardPengumuman: FC<Props> = ({ item, onDelete, onClick }) => (
     </h2>
 
     <p className="text-gray-600 text-sm mb-3 line-clamp-3">
-      {item.isi}
+      {item.subjek}
     </p>
 
     <p className="text-xs text-gray-500 italic mb-4">
-      {item.rukun_tetangga?.nama || 'RT tidak diketahui'}
+      {item.rukun_tetangga?.nama ?? 'RT tidak diketahui'}
     </p>
 
     <div className="flex flex-wrap gap-2 justify-end">
@@ -39,15 +39,12 @@ const CardPengumuman: FC<Props> = ({ item, onDelete, onClick }) => (
       </Link>
 
       <button
-        onClick={() => {
-          if (confirm(`Yakin mau hapus pengumuman "${item.judul}"?`)) {
-            onDelete(item.id);
-          }
-        }}
+        onClick={() => onDelete(item)}
         className="text-sm font-medium text-red-600 hover:text-white hover:bg-red-600 border border-red-600 px-3 py-1 rounded-lg transition-all"
       >
         Hapus
       </button>
+
     </div>
   </div>
 );

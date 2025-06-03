@@ -1,18 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import CardPengumuman from '@/components/CardPengumuman';
-import { Pengumuman as PengumumanType } from '@/lib/type/pengumuman';
-import { Plus } from 'lucide-react'; // Icon (opsional)
+import type { Pengumuman } from '@/lib/type/pengumuman';
+import { Plus } from 'lucide-react';
 
-type Props = {
-  data: PengumumanType[];
-};
 
-export default function Pengumuman({ data: initialData }: Props) {
-  const [data, setData] = useState(initialData);
-  const [selected, setSelected] = useState<PengumumanType | null>(null);
+export default function Pengumuman() {
+  const [data, setData] = useState<Pengumuman[]>([]);
+  const [selected, setSelected] = useState<Pengumuman | null>(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [pengumumanToDelete, setPengumumanToDelete] = useState<Pengumuman | null>(null);
+
+  useEffect(() => {
+    const role = localStorage.getItem('role');
+    const nik = localStorage.getItem('nik');
+
+    const fetchPengumuman = async () => {
+      try {
+        const res = await fetch(`/api/pengumuman?role=${role}&nik=${nik}`);
+        const json = await res.json();
+        setData(json);
+      } catch (err) {
+        console.error('Gagal fetch pengumuman:', err);
+      }
+    };
+
+    fetchPengumuman();
+  }, []);
+  // === Selesai perubahan ===
 
   async function handleDelete(id: number) {
     try {
@@ -28,7 +45,7 @@ export default function Pengumuman({ data: initialData }: Props) {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">📢 Daftar Pengumuman</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Daftar Pengumuman</h1>
         <Link href="/dashboard/rt/pengumuman/tambah">
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow transition">
             <Plus size={18} />
@@ -43,7 +60,10 @@ export default function Pengumuman({ data: initialData }: Props) {
           <CardPengumuman
             key={item.id}
             item={item}
-            onDelete={handleDelete}
+            onDelete={(id) => {
+              setShowConfirmDelete(true);
+              setPengumumanToDelete(item);
+            }}
             onClick={setSelected}
           />
         ))}
@@ -53,7 +73,6 @@ export default function Pengumuman({ data: initialData }: Props) {
       {selected && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full relative animate-fade-in">
-            {/* Tombol close */}
             <button
               onClick={() => setSelected(null)}
               className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
@@ -61,7 +80,6 @@ export default function Pengumuman({ data: initialData }: Props) {
             >
               ✕
             </button>
-
             <h2 className="text-2xl font-bold text-gray-800 mb-1">{selected.judul}</h2>
             <p className="text-sm text-gray-500">
               {new Date(selected.tanggal).toLocaleDateString('id-ID', {
@@ -73,13 +91,47 @@ export default function Pengumuman({ data: initialData }: Props) {
             </p>
             <p className="text-sm text-gray-500 italic mb-2">{selected.subjek}</p>
             <p className="text-gray-700 mt-3 whitespace-pre-line">{selected.isi}</p>
+          </div>
+        </div>
+      )}
 
-            <button
-              onClick={() => setSelected(null)}
-              className="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
-            >
-              Tutup
-            </button>
+      {/* Modal konfirmasi hapus pengumuman */}
+      {showConfirmDelete && pengumumanToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-5 rounded-2xl max-w-sm w-full shadow-lg animate-fade-in">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Yakin ingin menghapus pengumuman ini? yang bener
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">{pengumumanToDelete.judul}</p>
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 text-sm rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
+                onClick={() => {
+                  setShowConfirmDelete(false);
+                  setPengumumanToDelete(null);
+                }}
+              >
+                Batal
+              </button>
+              <button
+                className="px-4 py-2 text-sm rounded bg-red-600 text-white hover:bg-red-700"
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/pengumuman/${pengumumanToDelete.id}`, {
+                      method: 'DELETE',
+                    });
+                    if (!res.ok) throw new Error('Gagal hapus');
+                    setData(data.filter(item => item.id !== pengumumanToDelete.id));
+                    setShowConfirmDelete(false);
+                    setPengumumanToDelete(null);
+                  } catch (err) {
+                    console.error(err);
+                  }
+                }}
+              >
+                Hapus
+              </button>
+            </div>
           </div>
         </div>
       )}
