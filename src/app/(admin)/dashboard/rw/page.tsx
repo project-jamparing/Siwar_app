@@ -1,96 +1,101 @@
 'use client';
+import React, { useEffect, useState } from 'react';
+import IuranForm from '@/components/IuranForm';
+import IuranTable from '@/components/IuranTable';
 
-import { useEffect, useState } from 'react';
-import { redirect } from 'next/navigation';
-import { Users, FileCheck2, Megaphone } from 'lucide-react';
+type IuranItem = {
+  id: number;
+  nama: string;
+  nominal: number;
+  tanggalTagih: string;
+  tanggalTempo: string;
+};
 
-export default function RWPage() {
-  const [isSending, setIsSending] = useState(false);
-  const [message, setMessage] = useState('');
+const initialFormData = {
+  nama: '',
+  nominal: '',
+  tanggalTagih: '',
+  tanggalTempo: '',
+};
 
-  const simpanIuran = async () => {
-    setIsSending(true);
-    setMessage('');
-    try {
-      const res = await fetch('/api/iuran', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          nama: 'Faris cukurukuk',
-          nominal: 100000,
-          tanggal_tagih: '2025-05-01',
-          tanggal_bayar: '2025-05-21',
-          tanggal_tempo: '2025-05-31'
-        })
-      });
+export default function IuranPage() {
+  const [formData, setFormData] = useState(initialFormData);
+  const [data, setData] = useState<IuranItem[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
 
-      const data = await res.json();
-      setMessage(data.message || 'Respon tidak dikenal');
-    } catch (err) {
-      console.error(err);
-      setMessage('Terjadi kesalahan saat kirim data');
-    } finally {
-      setIsSending(false);
+  // Ambil data dari API
+  const fetchData = async () => {
+    const res = await fetch('/api/iuran');
+    const json = await res.json();
+    setData(json);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Handle input
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Edit data
+  const handleEdit = (item: IuranItem) => {
+    setFormData({
+      nama: item.nama,
+      nominal: item.nominal.toString(),
+      tanggalTagih: item.tanggalTagih,
+      tanggalTempo: item.tanggalTempo,
+    });
+    setIsEditing(true);
+    setEditId(item.id);
+  };
+
+  // Hapus data
+  const handleDelete = async (id: number) => {
+    if (!confirm('Yakin ingin menghapus data ini?')) return;
+
+    const res = await fetch(`/api/iuran?id=${id}`, { method: 'DELETE' });
+    const result = await res.json();
+    alert(result.message);
+
+    if (res.ok) {
+      fetchData();
     }
   };
 
+  // Format tanggal
+  const formatTanggal = (iso: string) => {
+    return new Date(iso).toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
   return (
-    <main className="flex-1 p-6">
-      {/* Statistik */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold text-gray-700">Jumlah RT</h3>
-            <Users className="text-indigo-500" />
-          </div>
-          <p className="text-3xl font-bold text-gray-800">5</p>
-        </div>
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Data Iuran Warga</h1>
 
-        <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold text-gray-700">Total Iuran RW</h3>
-            <FileCheck2 className="text-green-500" />
-          </div>
-          <p className="text-3xl font-bold text-gray-800">Rp 6.500.000</p>
-        </div>
+      <IuranForm
+        formData={{ ...formData, id: editId ?? undefined }}
+        isEditing={isEditing}
+        handleChange={handleChange}
+        handleSuccess={() => {
+          setFormData(initialFormData);
+          setIsEditing(false);
+          setEditId(null);
+          fetchData();
+        }}
+      />
 
-        <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold text-gray-700">Pengumuman RW</h3>
-            <Megaphone className="text-yellow-500" />
-          </div>
-          <p className="text-3xl font-bold text-gray-800">4</p>
-        </div>
-      </div>
-
-      {/* Tombol simpan data */}
-      <div className="mb-6">
-        <button
-          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-400"
-          onClick={simpanIuran}
-          disabled={isSending}
-        >
-          {isSending ? 'Menyimpan...' : 'Simpan Iuran Contoh'}
-        </button>
-        {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}
-      </div>
-
-      {/* Pengumuman */}
-      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Pengumuman RW Terbaru</h2>
-        <div className="space-y-3">
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Musyawarah Warga RW</h3>
-            <p className="text-gray-600 text-sm">Sabtu, 20.00 WIB di Aula RW</p>
-          </div>
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Gotong Royong Mingguan</h3>
-            <p className="text-gray-600 text-sm">Minggu, 06.00 pagi – lingkungan RW</p>
-          </div>
-        </div>
-      </div>
-    </main>
-  );
+      <IuranTable
+        data={data}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        formatTanggal={formatTanggal}
+      />
+    </div>
+  );
 }

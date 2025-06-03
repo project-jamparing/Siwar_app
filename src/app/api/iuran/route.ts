@@ -9,70 +9,65 @@ const dbConfig = {
 };
 
 export async function GET() {
-  const conn = await mysql.createConnection(dbConfig);
-  const [rows] = await conn.execute("SELECT * FROM iuran ORDER BY id DESC");
-  await conn.end();
+  try {
+    const conn = await mysql.createConnection(dbConfig);
+    const [rows] = await conn.execute('SELECT * FROM iuran ORDER BY id DESC');
+    await conn.end();
 
-  const formatted = (rows as any[]).map((row) => ({
-    id: row.id,
-    nama: row.nama,
-    nominal: row.nominal,
-    tanggalTagih: row.tanggal_tagih,
-    tanggalTempo: row.tanggal_tempo,
-  }));
+    const formatted = (rows as any[]).map((row) => ({
+      id: row.id,
+      nama: row.nama,
+      nominal: row.nominal,
+      tanggalNagih: row.tanggal_nagih,
+      tanggalTempo: row.tanggal_tempo,
+      deskripsi: row.deskripsi,
+      kategori_id: row.kategori_id,
+      status: row.status,
+    }));
 
-  return NextResponse.json(formatted);
+    return NextResponse.json(formatted);
+  } catch (error) {
+    console.error('GET error:', error);
+    return NextResponse.json({ message: 'Terjadi kesalahan', error }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const { nama, nominal, tanggal_tagih, tanggal_tempo } = await req.json();
-  if (!nama || !nominal || !tanggal_tagih || !tanggal_tempo) {
-    return NextResponse.json({ message: "Data tidak lengkap" }, { status: 400 });
+  try {
+    const body = await req.json();
+    const {
+      nama,
+      nominal,
+      tanggalNagih,
+      tanggalTempo,
+      deskripsi,
+      kategori_id,
+      status,
+    } = body;
+
+    if (
+      !nama?.trim() ||
+      isNaN(nominal) ||
+      !tanggalNagih ||
+      !tanggalTempo ||
+      !deskripsi?.trim() ||
+      isNaN(kategori_id) ||
+      !status?.trim()
+    ) {
+      return NextResponse.json({ message: 'Data tidak lengkap' }, { status: 400 });
+    }
+
+    const conn = await mysql.createConnection(dbConfig);
+    await conn.execute(
+      `INSERT INTO iuran (nama, nominal, tanggal_nagih, tanggal_tempo, deskripsi, kategori_id, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [nama, nominal, tanggalNagih, tanggalTempo, deskripsi, kategori_id, status]
+    );
+    await conn.end();
+
+    return NextResponse.json({ message: 'Data berhasil disimpan' });
+  } catch (error) {
+    console.error('POST error:', error);
+    return NextResponse.json({ message: 'Terjadi kesalahan', error }, { status: 500 });
   }
-
-  const conn = await mysql.createConnection(dbConfig);
-  await conn.execute(
-    `INSERT INTO iuran (nama, nominal, tanggal_tagih, tanggal_tempo) VALUES (?, ?, ?, ?)`,
-    [nama, nominal, tanggal_tagih, tanggal_tempo]
-  );
-  await conn.end();
-
-  return NextResponse.json({ message: "Data berhasil disimpan" });
-}
-
-export async function PUT(req: NextRequest) {
-  const { id, nama, nominal, tanggal_tagih, tanggal_tempo } = await req.json();
-  if (!id || !nama || !nominal || !tanggal_tagih || !tanggal_tempo) {
-    return NextResponse.json({ message: "Data tidak lengkap" }, { status: 400 });
-  }
-
-  const conn = await mysql.createConnection(dbConfig);
-  const [result]: any = await conn.execute(
-    `UPDATE iuran SET nama = ?, nominal = ?, tanggal_tagih = ?, tanggal_tempo = ? WHERE id = ?`,
-    [nama, nominal, tanggal_tagih, tanggal_tempo, id]
-  );
-  await conn.end();
-
-  if (result.affectedRows === 0) {
-    return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 });
-  }
-
-  return NextResponse.json({ message: "Data berhasil diupdate" });
-}
-
-export async function DELETE(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
-
-  if (!id) return NextResponse.json({ message: "ID diperlukan" }, { status: 400 });
-
-  const conn = await mysql.createConnection(dbConfig);
-  const [result]: any = await conn.execute(`DELETE FROM iuran WHERE id = ?`, [id]);
-  await conn.end();
-
-  if (result.affectedRows === 0) {
-    return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 });
-  }
-
-  return NextResponse.json({ message: "Data berhasil dihapus" });
 }
