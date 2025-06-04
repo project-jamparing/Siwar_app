@@ -28,6 +28,8 @@ export default function FormTambahWarga() {
     kategori_id: '',
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
@@ -41,25 +43,30 @@ export default function FormTambahWarga() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     if (!['laki_laki', 'perempuan'].includes(form.jenis_kelamin)) {
       alert('Pilih jenis kelamin yang valid.');
+      setIsSubmitting(false);
       return;
     }
 
     if (!['belum_kawin', 'kawin_tercatat', 'cerai_hidup', 'cerai_mati'].includes(form.status_perkawinan)) {
       alert('Pilih status perkawinan yang valid.');
+      setIsSubmitting(false);
       return;
     }
 
     if (form.status_perkawinan !== 'belum_kawin' && !form.tanggal_perkawinan) {
       alert('Tanggal perkawinan wajib diisi jika status perkawinan bukan Belum Kawin.');
+      setIsSubmitting(false);
       return;
     }
 
     if (form.status_hubungan_dalam_keluarga === 'Kepala Keluarga') {
       if (!form.rt_id || !form.kategori_id) {
         alert('RT dan Kategori wajib diisi untuk Kepala Keluarga.');
+        setIsSubmitting(false);
         return;
       }
     }
@@ -74,6 +81,7 @@ export default function FormTambahWarga() {
       if (!res.ok) {
         const err = await res.json();
         alert(`Gagal menambahkan warga: ${err.message || res.statusText}`);
+        setIsSubmitting(false);
         return;
       }
 
@@ -88,10 +96,22 @@ export default function FormTambahWarga() {
         });
       }
 
+      // Tambah user di tabel user jika belum ada
+      await fetch('/api/user/tambah-dari-nik', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nik: form.nik,
+          nama: form.nama,
+        }),
+      });
+
       router.push('/dashboard/rw/warga');
     } catch (error) {
       console.error('Client error:', error);
       alert('Terjadi kesalahan di sisi client.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -126,64 +146,107 @@ export default function FormTambahWarga() {
                 onChange={handleChange}
                 className={inputStyle}
                 required={required}
+                disabled={isSubmitting}
               />
             </div>
           ))}
 
-          <Select label="Jenis Kelamin" name="jenis_kelamin" value={form.jenis_kelamin} onChange={handleChange} options={[
-            ['', 'Pilih'],
-            ['laki_laki', 'Laki-laki'],
-            ['perempuan', 'Perempuan'],
-          ]} />
+          <Select
+            label="Jenis Kelamin"
+            name="jenis_kelamin"
+            value={form.jenis_kelamin}
+            onChange={handleChange}
+            options={[
+              ['', 'Pilih'],
+              ['laki_laki', 'Laki-laki'],
+              ['perempuan', 'Perempuan'],
+            ]}
+          />
 
-          <Select label="Status Hubungan" name="status_hubungan_dalam_keluarga" value={form.status_hubungan_dalam_keluarga} onChange={handleChange} options={[
-            ['', 'Pilih'],
-            ['Kepala Keluarga', 'Kepala Keluarga'],
-            ['Istri', 'Istri'],
-            ['Anak', 'Anak'],
-          ]} />
+          <Select
+            label="Status Hubungan"
+            name="status_hubungan_dalam_keluarga"
+            value={form.status_hubungan_dalam_keluarga}
+            onChange={handleChange}
+            options={[
+              ['', 'Pilih'],
+              ['Kepala Keluarga', 'Kepala Keluarga'],
+              ['Istri', 'Istri'],
+              ['Anak', 'Anak'],
+            ]}
+          />
 
           {form.status_hubungan_dalam_keluarga === 'Kepala Keluarga' && (
             <>
-              <Select label="RT" name="rt_id" value={form.rt_id} onChange={handleChange} options={[
-                ['', 'Pilih RT'],
-                ['1', 'RT01'],
-                ['2', 'RT02'],
-                ['3', 'RT03'],
-              ]} />
-              <Select label="Kategori" name="kategori_id" value={form.kategori_id} onChange={handleChange} options={[
-                ['', 'Pilih Kategori'],
-                ['1', 'Kampung'],
-                ['2', 'Kost'],
-                ['3', 'Kavling'],
-                ['4', 'UMKM'],
-                ['5', 'Kantor'],
-                ['6', 'Bisnis'],
-              ]} />
+              <Select
+                label="RT"
+                name="rt_id"
+                value={form.rt_id}
+                onChange={handleChange}
+                options={[
+                  ['', 'Pilih RT'],
+                  ['1', 'RT01'],
+                  ['2', 'RT02'],
+                  ['3', 'RT03'],
+                ]}
+              />
+              <Select
+                label="Kategori"
+                name="kategori_id"
+                value={form.kategori_id}
+                onChange={handleChange}
+                options={[
+                  ['', 'Pilih Kategori'],
+                  ['1', 'Kampung'],
+                  ['2', 'Kost'],
+                  ['3', 'Kavling'],
+                  ['4', 'UMKM'],
+                  ['5', 'Kantor'],
+                  ['6', 'Bisnis'],
+                ]}
+              />
             </>
           )}
 
-          <Select label="Golongan Darah" name="golongan_darah" value={form.golongan_darah} onChange={handleChange} options={[
-            ['', 'Pilih'],
-            ['O', 'O'],
-            ['A', 'A'],
-            ['B', 'B'],
-            ['AB', 'AB'],
-          ]} />
+          <Select
+            label="Golongan Darah"
+            name="golongan_darah"
+            value={form.golongan_darah}
+            onChange={handleChange}
+            options={[
+              ['', 'Pilih'],
+              ['O', 'O'],
+              ['A', 'A'],
+              ['B', 'B'],
+              ['AB', 'AB'],
+            ]}
+          />
 
-          <Select label="Kewarganegaraan" name="kewarganegaraan" value={form.kewarganegaraan} onChange={handleChange} options={[
-            ['', 'Pilih'],
-            ['WNI', 'WNI'],
-            ['WNA', 'WNA'],
-          ]} />
+          <Select
+            label="Kewarganegaraan"
+            name="kewarganegaraan"
+            value={form.kewarganegaraan}
+            onChange={handleChange}
+            options={[
+              ['', 'Pilih'],
+              ['WNI', 'WNI'],
+              ['WNA', 'WNA'],
+            ]}
+          />
 
-          <Select label="Status Perkawinan" name="status_perkawinan" value={form.status_perkawinan} onChange={handleChange} options={[
-            ['', 'Pilih'],
-            ['belum_kawin', 'Belum Kawin'],
-            ['kawin_tercatat', 'Kawin Tercatat'],
-            ['cerai_hidup', 'Cerai Hidup'],
-            ['cerai_mati', 'Cerai Mati'],
-          ]} />
+          <Select
+            label="Status Perkawinan"
+            name="status_perkawinan"
+            value={form.status_perkawinan}
+            onChange={handleChange}
+            options={[
+              ['', 'Pilih'],
+              ['belum_kawin', 'Belum Kawin'],
+              ['kawin_tercatat', 'Kawin Tercatat'],
+              ['cerai_hidup', 'Cerai Hidup'],
+              ['cerai_mati', 'Cerai Mati'],
+            ]}
+          />
 
           {form.status_perkawinan !== 'belum_kawin' && (
             <div>
@@ -195,6 +258,7 @@ export default function FormTambahWarga() {
                 onChange={handleChange}
                 className={inputStyle}
                 required
+                disabled={isSubmitting}
               />
             </div>
           )}
@@ -202,9 +266,12 @@ export default function FormTambahWarga() {
           <div className="md:col-span-2">
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 font-semibold shadow"
+              disabled={isSubmitting}
+              className={`w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 font-semibold shadow ${
+                isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Simpan Data Warga
+              {isSubmitting ? 'Menyimpan...' : 'Simpan Data Warga'}
             </button>
           </div>
         </form>
@@ -213,7 +280,13 @@ export default function FormTambahWarga() {
   );
 }
 
-function Select({ label, name, value, onChange, options }: {
+function Select({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+}: {
   label: string;
   name: string;
   value: string;
@@ -227,11 +300,12 @@ function Select({ label, name, value, onChange, options }: {
         name={name}
         value={value}
         onChange={onChange}
-        className="mt-1 block w-full rounded-lg border border-gray-300 p-2 text-sm text-gray-800 bg-white shadow-sm focus:ring-blue-500 focus:border-blue-500"
-        required
+        className="mt-1 block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-800 shadow-sm focus:ring-blue-500 focus:border-blue-500"
       >
-        {options.map(([val, labelText]) => (
-          <option key={val} value={val}>{labelText}</option>
+        {options.map(([val, label]) => (
+          <option key={val} value={val}>
+            {label}
+          </option>
         ))}
       </select>
     </div>
