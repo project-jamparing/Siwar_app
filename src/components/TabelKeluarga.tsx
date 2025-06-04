@@ -47,7 +47,7 @@ export default function TabelKeluarga() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white rounded-xl shadow-md text-gray-800">
-      <h2 className="text-3xl font-bold mb-6">📋 Daftar Kepala Keluarga</h2>
+      <h2 className="text-3xl font-bold mb-6">📋 Daftar Kartu Keluarga</h2>
 
       {loading ? (
         <p className="text-center py-6 text-gray-500">Memuat data...</p>
@@ -69,7 +69,7 @@ export default function TabelKeluarga() {
               {data.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-6 text-gray-500">
-                    Tidak ada data kepala keluarga.
+                    Tidak ada data kepala keluarga
                   </td>
                 </tr>
               ) : (

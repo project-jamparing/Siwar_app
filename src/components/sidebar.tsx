@@ -17,7 +17,7 @@ const menuItemsByRole: Record<
 > = {
   "1": [
     { label: "Dashboard", href: "/dashboard/admin", icon: <Home className="w-5 h-5" /> },
-    { label: "Data RW/RT", href: "/dashboard/admin/data", icon: <Users className="w-5 h-5" /> },
+    { label: "Data RW/RT", href: "/dashboard/admin/Data", icon: <Users className="w-5 h-5" /> },
   ],
   "2": [
     { label: "Dashboard", href: "/dashboard/rw", icon: <Home className="w-5 h-5" /> },
