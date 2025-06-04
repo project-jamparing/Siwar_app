@@ -143,7 +143,7 @@ export default function EditWargaPage() {
             className="w-full border border-gray-300 rounded-lg px-3 py-2"
             required
           >
-            <option value="">Pilih</option>
+            <option value="undefined">Pilih</option>
             <option value="O">O</option>
             <option value="A">A</option>
             <option value="B">B</option>

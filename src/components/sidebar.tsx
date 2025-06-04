@@ -1,7 +1,15 @@
 import Link from "next/link";
-import { Bell, Home, Megaphone, Users, History, Crown } from "lucide-react";
+import {
+  Bell,
+  Home,
+  Megaphone,
+  Users,
+  History,
+  Crown,
+} from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import { cookies } from "next/headers";
+import Image from "next/image";
 
 const menuItemsByRole: Record<
   string,
@@ -36,29 +44,36 @@ const menuItemsByRole: Record<
 
 export default async function SideBar() {
   const cookieStore = await cookies();
-  const role_id = cookieStore.get("role_id")?.value ?? "4"; 
-
+  const role_id = cookieStore.get("role_id")?.value ?? "4";
   const menuItems = menuItemsByRole[role_id] || [];
 
   return (
-    <aside className="w-64 bg-white border-r shadow-lg hidden md:flex flex-col justify-between">
+    <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between shadow-sm hidden md:flex">
       <div>
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-bold text-blue-600">SIWAR APP</h2>
+        <div className="p-6 border-b border-gray-200">
+        <Image
+          src="/images/logo/logo.png"
+          alt="SIWAR APP"
+          width={120}
+          height={40}
+          className="mx-auto"
+        />
         </div>
-        <nav className="p-4 space-y-4">
+        <nav className="px-4 pt-6 space-y-3">
           {menuItems.map((item, idx) => (
             <Link
               key={idx}
               href={item.href}
-              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600"
+              className="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-blue-100 hover:text-blue-600 text-gray-800 font-medium"
             >
               {item.icon}
               <span>{item.label}</span>
             </Link>
           ))}
-          <LogoutButton />
         </nav>
+      </div>
+      <div className="p-4 border-t border-gray-200">
+        <LogoutButton />
       </div>
     </aside>
   );

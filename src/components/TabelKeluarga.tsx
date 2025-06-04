@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Eye } from 'lucide-react';
 
 interface KepalaKeluarga {
   nik: string;
@@ -13,21 +14,31 @@ interface KepalaKeluarga {
 
 export default function TabelKeluarga() {
   const [data, setData] = useState<KepalaKeluarga[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const res = await fetch('/api/warga/kepala-keluarga');
+        if (!res.ok) throw new Error('Gagal mengambil data');
+
         const json = await res.json();
 
         if (json.error) {
-          console.error(json.error);
+          setError(json.error);
+          setData([]);
           return;
         }
 
         setData(json);
-      } catch (error) {
-        console.error('Gagal mengambil data:', error);
+      } catch (err: any) {
+        setError(err.message || 'Terjadi kesalahan');
+        setData([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -35,46 +46,54 @@ export default function TabelKeluarga() {
   }, []);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto bg-white rounded-lg shadow-md text-gray-900">
-      <h2 className="text-2xl font-semibold mb-6 text-gray-900">Daftar Kepala Keluarga</h2>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300 text-gray-900">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border border-gray-300 px-4 py-2 text-left">No KK</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Nama Kepala Keluarga</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">RT</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Kategori</th>
-              <th className="border border-gray-300 px-4 py-2 text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.length === 0 ? (
+    <div className="p-6 max-w-6xl mx-auto bg-white rounded-xl shadow-md text-gray-800">
+      <h2 className="text-3xl font-bold mb-6">📋 Daftar Kepala Keluarga</h2>
+
+      {loading ? (
+        <p className="text-center py-6 text-gray-500">Memuat data...</p>
+      ) : error ? (
+        <p className="text-center py-6 text-red-600">Error: {error}</p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg">
+          <table className="w-full border border-gray-200 text-sm">
+            <thead className="bg-gray-100 text-left text-gray-600 uppercase tracking-wider text-xs">
               <tr>
-                <td colSpan={5} className="text-center py-6 text-gray-500">
-                  Tidak ada data kepala keluarga.
-                </td>
+                <th className="px-4 py-3">No KK</th>
+                <th className="px-4 py-3">Nama</th>
+                <th className="px-4 py-3">RT</th>
+                <th className="px-4 py-3">Kategori</th>
+                <th className="px-4 py-3 text-center">Aksi</th>
               </tr>
-            ) : (
-              data.map((item) => (
-                <tr key={item.nik} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 px-4 py-3">{item.no_kk}</td>
-                  <td className="border border-gray-300 px-4 py-3">{item.nama}</td>
-                  <td className="border border-gray-300 px-4 py-3">{item.rt}</td>
-                  <td className="border border-gray-300 px-4 py-3 capitalize">{item.kategori}</td>
-                  <td className="border border-gray-300 px-4 py-3 text-center">
-                    <Link href={`/dashboard/rw/keluarga/${item.no_kk}`}>
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">
-                        Lihat Detail
-                      </button>
-                    </Link>
+            </thead>
+            <tbody>
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-6 text-gray-500">
+                    Tidak ada data kepala keluarga.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                data.map((item) => (
+                  <tr key={item.no_kk} className="hover:bg-gray-50 transition">
+                    <td className="px-4 py-3 border-t border-gray-200">{item.no_kk}</td>
+                    <td className="px-4 py-3 border-t border-gray-200">{item.nama}</td>
+                    <td className="px-4 py-3 border-t border-gray-200">{item.rt}</td>
+                    <td className="px-4 py-3 border-t border-gray-200 capitalize">{item.kategori}</td>
+                    <td className="px-4 py-3 border-t border-gray-200 text-center">
+                      <Link href={`/dashboard/rw/keluarga/${item.no_kk}`}>
+                        <button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm transition">
+                          <Eye className="w-4 h-4" />
+                          Lihat
+                        </button>
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

@@ -66,7 +66,19 @@ export default function DetailKeluargaTable({ anggotaKeluarga }: DetailKeluargaT
               <td className="border p-2">{anggota.agama}</td>
               <td className="border p-2">{anggota.pendidikan}</td>
               <td className="border p-2">{anggota.jenis_pekerjaan}</td>
-              <td className="border p-2">{anggota.golongan_darah}</td>
+              <td className="border px-4 py-2">
+                    {anggota.golongan_darah === 'O'
+                      ? 'O'
+                      : anggota.golongan_darah === 'A'
+                      ? 'A'
+                      : anggota.golongan_darah === 'B'
+                      ? 'B'
+                      : anggota.golongan_darah === 'AB'
+                      ? 'AB'
+                      : anggota.golongan_darah === 'NULL'
+                      ? 'Tidak diketahui'
+                      : '-'}
+                  </td>
               <td className="border px-4 py-2">
                     {anggota.status_perkawinan === 'kawin_tercatat'
                       ? 'Kawin'
