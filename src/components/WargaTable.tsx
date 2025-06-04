@@ -1,6 +1,6 @@
 'use client';
 import { useState, useTransition } from 'react';
-import { Trash2, Pencil } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 type Warga = {
   nik: string;
@@ -15,7 +15,13 @@ type Warga = {
   kewarganegaraan?: string | null;
 };
 
-export default function WargaTable({ warga }: { warga: Warga[] }) {
+export default function WargaTable({
+  warga,
+  showActions = true,
+}: {
+  warga: Warga[];
+  showActions?: boolean;
+}) {
   const [isPending, startTransition] = useTransition();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedNik, setSelectedNik] = useState<string | null>(null);
@@ -78,7 +84,7 @@ export default function WargaTable({ warga }: { warga: Warga[] }) {
                 <th className="border px-4 py-2">Pekerjaan</th>
                 <th className="border px-4 py-2">Golongan Darah</th>
                 <th className="border px-4 py-2">Kewarganegaraan</th>
-                <th className="border px-4 py-2">Aksi</th>
+                {showActions && <th className="border px-4 py-2">Aksi</th>}
               </tr>
             </thead>
             <tbody>
@@ -106,21 +112,23 @@ export default function WargaTable({ warga }: { warga: Warga[] }) {
                   <td className="border px-4 py-2">{w.jenis_pekerjaan || '-'}</td>
                   <td className="border px-4 py-2">{w.golongan_darah || '-'}</td>
                   <td className="border px-4 py-2">{w.kewarganegaraan || '-'}</td>
-                  <td className="border px-4 py-2 space-x-2">
-                    <a
-                      href={`/dashboard/admin/warga/edit/${w.nik}`}
-                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
-                    >
-                      Edit
-                    </a>
-                    <button
-                      onClick={() => handleDelete(w.nik, w.nama)}
-                      className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 flex items-center gap-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Hapus
-                    </button>
-                  </td>
+                  {showActions && (
+                    <td className="border px-4 py-2 space-x-2">
+                      <a
+                        href={`/dashboard/rw/warga/edit/${w.nik}`}
+                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
+                      >
+                        Edit
+                      </a>
+                      <button
+                        onClick={() => handleDelete(w.nik, w.nama)}
+                        className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 flex items-center gap-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Hapus
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

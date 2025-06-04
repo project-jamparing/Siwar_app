@@ -36,16 +36,18 @@ export default function RWPage() {
     }
   };
 
+  const warga = await prisma.warga.findMany();
+
   return (
     <main className="flex-1 p-6">
       {/* Statistik */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold text-gray-700">Jumlah RT</h3>
+              <h3 className="text-lg font-semibold text-gray-700">Jumlah Warga</h3>
             <Users className="text-indigo-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">5</p>
+          <p className="text-3xl font-bold text-gray-800">{warga.length}</p>
         </div>
 
         <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">

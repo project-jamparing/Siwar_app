@@ -77,7 +77,22 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const data = await prisma.warga.create({
+    // Cek jika Kepala Keluarga → buat KK terlebih dahulu
+    if (body.status_hubungan_dalam_keluarga === 'Kepala Keluarga') {
+      await prisma.kk.create({
+        data: {
+          no_kk: body.no_kk,
+          kategori_id: parseInt(body.kategori_id),
+          rukun_tetangga: {
+            connect: {
+              id: parseInt(body.rt_id),
+            },
+          },
+        },
+      });
+    }      
+
+    const warga = await prisma.warga.create({
       data: {
         nik: body.nik,
         nama: body.nama,
@@ -100,10 +115,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json(warga, { status: 201 });
   } catch (error: any) {
     console.error('Error tambah warga:', error);
-    console.error('Body:', body); 
     return NextResponse.json({ message: 'Terjadi kesalahan.', error: error.message }, { status: 500 });
   }
 }

@@ -8,15 +8,15 @@ datasource db {
 }
 
 model iuran {
-  id            Int          @id @default(autoincrement()) @db.UnsignedInt
-  nama          String       @db.VarChar(100)
-  deskripsi     String?       @db.VarChar(255)
-  nominal       Decimal      @db.Decimal(12, 2)
-  tanggal_nagih DateTime?     @db.Date
-  tanggal_tempo DateTime     @db.Date
-  status        iuran_status @default(aktif)
-  kategori_id   Int?          @db.UnsignedInt
-  kategori      kategori?     @relation(fields: [kategori_id], references: [id], onDelete: Cascade, map: "iuran_ibfk_1")
+  id            Int           @id @default(autoincrement()) @db.UnsignedInt
+  nama          String        @db.VarChar(100)
+  deskripsi     String        @db.VarChar(255)
+  nominal       Decimal       @db.Decimal(12, 2)
+  tanggal_nagih DateTime      @db.Date
+  tanggal_tempo DateTime      @db.Date
+  status        iuran_status  @default(aktif)
+  kategori_id   Int           @db.UnsignedInt
+  kategori      kategori      @relation(fields: [kategori_id], references: [id], onDelete: Cascade, map: "iuran_ibfk_1")
   tagihan       tagihan[]
 
   @@index([kategori_id], map: "kategori_id")
@@ -37,12 +37,12 @@ model jabatan {
 }
 
 model kk {
-  no_kk               String    @id @unique @db.VarChar(20)
-  rt_id               Int?      @db.UnsignedInt
-  nik                 String?   @unique @db.VarChar(16)
-  kategori_id         Int?       @db.UnsignedInt
-  kategori            kategori?  @relation(fields: [kategori_id], references: [id])
-  warga_kk_nikTowarga warga?    @relation("kk_nikTowarga", fields: [nik], references: [nik], onDelete: Cascade, map: "kk_ibfk_1")
+  no_kk               String          @id @db.VarChar(20)
+  rt_id               Int?            @unique(map: "rt_id_2") @db.UnsignedInt
+  nik                 String?         @unique(map: "nik") @db.VarChar(16)
+  kategori_id         Int             @db.UnsignedInt
+  warga_kk_nikTowarga warga?          @relation("kk_nikTowarga", fields: [nik], references: [nik], onDelete: Cascade, map: "kk_ibfk_1")
+  rukun_tetangga      rukun_tetangga? @relation(fields: [rt_id], references: [id], onDelete: Cascade, map: "kk_ibfk_2")
   tagihan             tagihan[]
   warga               warga[]
 
@@ -71,6 +71,7 @@ model role {
 model rukun_tetangga {
   id         Int          @id @unique(map: "id") @default(autoincrement()) @db.UnsignedInt
   nama       String       @db.VarChar(50)
+  kk         kk?
   pengumuman pengumuman[]
 }
 
@@ -131,7 +132,6 @@ model kategori {
   id    Int     @id @default(autoincrement()) @db.UnsignedInt
   nama  String  @db.VarChar(50)
   iuran iuran[]
-  kk    kk[] // <-- ini harus ditambahkan sebagai relasi balik
 }
 
 enum tagihan_status {
