@@ -1,5 +1,5 @@
-import DetailKeluargaTable from '@/components/DetailKeluargaTable';
-import BackButton from '@/components/BackButton';
+import DetailKeluargaTable from '@/components/Tables/DetailKeluargaTable';
+import BackButton from '@/components/Buttons/BackButton';
 import prisma  from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 

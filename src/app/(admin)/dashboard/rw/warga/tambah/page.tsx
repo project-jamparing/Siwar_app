@@ -2,7 +2,7 @@
 
 'use client';
 
-import FormTambahWarga from '@/components/FormTambahWarga';
+import FormTambahWarga from '@/components/Forms/FormTambahWarga';
 
 export default function TambahWargaPage() {
   return (

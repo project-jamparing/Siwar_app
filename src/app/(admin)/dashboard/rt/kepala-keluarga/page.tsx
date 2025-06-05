@@ -1,4 +1,4 @@
-import TabelKeluargaRT from '@/components/TabelKeluargaRT';
+import TabelKeluargaRT from '@/components/Tables/TabelKeluargaRT';
 
 export default function KepalaKeluargaPage() {
   return (

@@ -1,4 +1,4 @@
-import UpdateRoleForm from "@/components/UpdateRoleForm";
+import UpdateRoleForm from "@/components/Forms/UpdateRoleForm";
 
 export default function DashboardPage() {
   return (

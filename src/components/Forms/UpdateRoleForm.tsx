@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import BackButton from "../Buttons/BackButton";
 
 const roleOptions = [
   { id: 2, label: "RW" },
@@ -45,7 +46,7 @@ export default function UpdateRoleForm() {
   return (
     <div className="max-w-md mx-auto mt-12 bg-white p-8 rounded-3xl shadow-lg ring-1 ring-gray-200">
       <h2 className="text-2xl font-semibold mb-6 text-gray-900 text-center">Update Role Pengguna</h2>
-
+      <BackButton />
       <label className="block mb-2 font-medium text-gray-700" htmlFor="nik">
         NIK
       </label>

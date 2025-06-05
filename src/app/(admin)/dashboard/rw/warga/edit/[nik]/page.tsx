@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import EditWargaForm from '@/components/EditWargaForm';
+import EditWargaForm from '@/components/Forms/EditWargaForm';
 
 export default async function EditPage({ params }: { params: { nik: string } }) {
   const nik = params.nik;

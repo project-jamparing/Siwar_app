@@ -1,4 +1,4 @@
-import TabelKeluarga from '@/components/TabelKeluarga';
+import TabelKeluarga from '@/components/Tables/TabelKeluarga';
 
 export default function KepalaKeluargaPage() {
   return (

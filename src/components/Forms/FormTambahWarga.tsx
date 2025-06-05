@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import BackButton from '../Buttons/BackButton';
 
 export default function FormTambahWarga() {
   const router = useRouter();
@@ -96,15 +97,17 @@ export default function FormTambahWarga() {
         });
       }
 
-      // Tambah user di tabel user jika belum ada
-      await fetch('/api/user/tambah-dari-nik', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nik: form.nik,
-          nama: form.nama,
-        }),
-      });
+      // Hanya buat akun user jika statusnya Kepala Keluarga
+      if (form.status_hubungan_dalam_keluarga === 'Kepala Keluarga') {
+        await fetch('/api/user/tambah-dari-nik', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nik: form.nik,
+            nama: form.nama,
+          }),
+        });
+      }
 
       router.push('/dashboard/rw/warga');
     } catch (error) {
@@ -121,7 +124,8 @@ export default function FormTambahWarga() {
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Form Tambah Warga</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Tambah Warga</h2>
+        <BackButton />
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
             ['NIK', 'nik', 'text', true],
@@ -188,6 +192,7 @@ export default function FormTambahWarga() {
                   ['1', 'RT01'],
                   ['2', 'RT02'],
                   ['3', 'RT03'],
+                  ['4', 'RT04'],
                 ]}
               />
               <Select

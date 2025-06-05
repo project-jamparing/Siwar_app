@@ -7,8 +7,9 @@ import {
   History,
   Crown,
   Lock,
+  Users2,
 } from "lucide-react";
-import LogoutButton from "@/components/LogoutButton";
+import LogoutButton from "@/components/Buttons/LogoutButton";
 import { cookies } from "next/headers";
 import Image from "next/image";
 
@@ -19,6 +20,7 @@ const menuItemsByRole: Record<
   "1": [
     { label: "Dashboard", href: "/dashboard/admin", icon: <Home className="w-5 h-5" /> },
     { label: "Data RW/RT", href: "/dashboard/admin/Data", icon: <Users className="w-5 h-5" /> },
+    { label: "Data Warga", href: "/dashboard/admin/warga", icon: <Users2 className="w-5 h-5" /> },
   ],
   "2": [
     { label: "Dashboard", href: "/dashboard/rw", icon: <Home className="w-5 h-5" /> },
@@ -52,14 +54,14 @@ export default async function SideBar() {
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between shadow-sm hidden md:flex">
       <div>
-        <div className="p-6 border-b border-gray-200">
-        <Image
-          src="/images/logo/logo.png"
-          alt="SIWAR APP"
-          width={120}
-          height={40}
-          className="mx-auto"
-        />
+      <div className="p-6 border-b border-gray-200 pb-4">
+          <Image
+            src="/images/logo/logo.png"
+            alt="SIWAR APP"
+            width={160}
+            height={50}
+            className="mx-auto"
+          />
         </div>
         <nav className="px-4 pt-6 space-y-3">
           {menuItems.map((item, idx) => (

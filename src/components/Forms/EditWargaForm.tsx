@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import BackButton from '../Buttons/BackButton';
 
 export default function EditWargaPage() {
   const router = useRouter();
@@ -70,6 +71,7 @@ export default function EditWargaPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto text-black">
       <h1 className="text-2xl font-bold mb-4">Edit Data Warga</h1>
+      <BackButton />
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {/* Field input umum */}

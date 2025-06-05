@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
-import WargaTable from '@/components/WargaTable';
+import WargaTable from '@/components/Tables/WargaTable';
 
 export default async function DaftarWargaPage() {
   const cookieStore = await cookies();

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import TableJabatan from "@/components/TableJabatan";
+import TableJabatan from "@/components/Tables/TableJabatan";
 
 type Jabatan = {
   id: number;
