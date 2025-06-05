@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     }
 
     // Hash password default '123456'
-    const hashedPassword = await bcrypt.hash('123456', 10);
+    const hashedPassword = await bcrypt.hash('password123', 10);
 
     // Insert user baru
     const user = await prisma.user.create({

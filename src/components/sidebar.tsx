@@ -6,6 +6,7 @@ import {
   Users,
   History,
   Crown,
+  Lock,
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import { cookies } from "next/headers";
@@ -39,6 +40,7 @@ const menuItemsByRole: Record<
     { label: "Data Keluarga", href: "/dashboard/warga/keluarga", icon: <Users className="w-5 h-5" /> },
     { label: "Iuran Saya", href: "/dashboard/warga/iuran", icon: <Bell className="w-5 h-5" /> },
     { label: "Pengumuman", href: "/dashboard/warga/pengumuman", icon: <Megaphone className="w-5 h-5" /> },
+    { label: "Ganti Password", href: "/dashboard/warga/ganti-password", icon: <Lock className="w-5 h-5" /> },
   ],
 };
 
