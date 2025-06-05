@@ -21,6 +21,7 @@ const menuItemsByRole: Record<
     { label: "Dashboard", href: "/dashboard/admin", icon: <Home className="w-5 h-5" /> },
     { label: "Data RW/RT", href: "/dashboard/admin/Data", icon: <Users className="w-5 h-5" /> },
     { label: "Data Warga", href: "/dashboard/admin/warga", icon: <Users2 className="w-5 h-5" /> },
+    { label: "Data KK", href: "/dashboard/admin/kepala-keluarga", icon: <Crown className="w-5 h-5" /> },
   ],
   "2": [
     { label: "Dashboard", href: "/dashboard/rw", icon: <Home className="w-5 h-5" /> },

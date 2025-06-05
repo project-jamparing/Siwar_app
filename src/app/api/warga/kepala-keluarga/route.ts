@@ -9,7 +9,7 @@ export async function GET() {
     const nik = cookieStore.get('nik')?.value;
 
     // Hanya role RW (2) dan RT (3) yang boleh akses
-    if (![2, 3].includes(role_id) || !nik) {
+    if (![1, 2, 3].includes(role_id) || !nik) {
       return NextResponse.json({ error: 'Akses ditolak' }, { status: 403 });
     }
 
