@@ -16,7 +16,26 @@ export default function TabelKeluarga() {
   const [data, setData] = useState<KepalaKeluarga[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
+  // Ambil role dari API user/profile
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const res = await fetch('/api/user/profile');
+        if (!res.ok) throw new Error('Gagal mengambil role pengguna');
+        const json = await res.json();
+        setRole(json.role); // pastikan response ada { role: "rw" | "rt" | ... }
+      } catch (err: any) {
+        console.error('Gagal ambil role:', err);
+        setRole('rw'); // fallback kalau error
+      }
+    };
+
+    fetchRole();
+  }, []);
+
+  // Ambil data kepala keluarga
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -30,10 +49,9 @@ export default function TabelKeluarga() {
         if (json.error) {
           setError(json.error);
           setData([]);
-          return;
+        } else {
+          setData(json);
         }
-
-        setData(json);
       } catch (err: any) {
         setError(err.message || 'Terjadi kesalahan');
         setData([]);
@@ -80,12 +98,14 @@ export default function TabelKeluarga() {
                     <td className="px-4 py-3 border-t border-gray-200">{item.rt}</td>
                     <td className="px-4 py-3 border-t border-gray-200 capitalize">{item.kategori}</td>
                     <td className="px-4 py-3 border-t border-gray-200 text-center">
-                      <Link href={`/dashboard/rw/keluarga/${item.no_kk}`}>
-                        <button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm transition">
-                          <Eye className="w-4 h-4" />
-                          Lihat
-                        </button>
-                      </Link>
+                      {role && (
+                        <Link href={`/dashboard/${role}/keluarga/${item.no_kk}`}>
+                          <button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm transition">
+                            <Eye className="w-4 h-4" />
+                            Lihat
+                          </button>
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 ))
