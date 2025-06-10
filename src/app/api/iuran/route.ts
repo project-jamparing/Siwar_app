@@ -1,73 +1,67 @@
-import { NextRequest, NextResponse } from "next/server";
-import mysql from "mysql2/promise";
-
-const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "siwar_db",
-};
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const conn = await mysql.createConnection(dbConfig);
-    const [rows] = await conn.execute('SELECT * FROM iuran ORDER BY id DESC');
-    await conn.end();
-
-    const formatted = (rows as any[]).map((row) => ({
-      id: row.id,
-      nama: row.nama,
-      nominal: row.nominal,
-      tanggalNagih: row.tanggal_nagih,
-      tanggalTempo: row.tanggal_tempo,
-      deskripsi: row.deskripsi,
-      kategori_id: row.kategori_id,
-      status: row.status,
-    }));
-
-    return NextResponse.json(formatted);
+    const data = await prisma.iuran.findMany({
+      include: { kategori: true },
+      orderBy: { id: 'desc' },
+    });
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('GET error:', error);
-    return NextResponse.json({ message: 'Terjadi kesalahan', error }, { status: 500 });
+    return NextResponse.json({ message: 'Gagal ambil data' }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const {
-      nama,
-      nominal,
-      tanggalNagih,
-      tanggalTempo,
-      deskripsi,
-      kategori_id,
-      status,
-    } = body;
-
-    if (
-      !nama?.trim() ||
-      isNaN(nominal) ||
-      !tanggalNagih ||
-      !tanggalTempo ||
-      !deskripsi?.trim() ||
-      isNaN(kategori_id) ||
-      !status?.trim()
-    ) {
-      return NextResponse.json({ message: 'Data tidak lengkap' }, { status: 400 });
-    }
-
-    const conn = await mysql.createConnection(dbConfig);
-    await conn.execute(
-      `INSERT INTO iuran (nama, nominal, tanggal_nagih, tanggal_tempo, deskripsi, kategori_id, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [nama, nominal, tanggalNagih, tanggalTempo, deskripsi, kategori_id, status]
-    );
-    await conn.end();
-
-    return NextResponse.json({ message: 'Data berhasil disimpan' });
+    const data = await prisma.iuran.create({
+      data: {
+        nama: body.nama,
+        nominal: body.nominal,
+        tanggal_nagih: body.tanggal_nagih,
+        tanggal_tempo: body.tanggal_tempo,
+        deskripsi: body.deskripsi,
+        kategori_id: body.kategori_id,
+        status: body.status,
+      },
+    });
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('POST error:', error);
-    return NextResponse.json({ message: 'Terjadi kesalahan', error }, { status: 500 });
+    return NextResponse.json({ message: 'Gagal simpan data' }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const updated = await prisma.iuran.update({
+      where: { id: body.id },
+      data: {
+        nama: body.nama,
+        nominal: body.nominal,
+        tanggal_nagih: body.tanggal_nagih,
+        tanggal_tempo: body.tanggal_tempo,
+        deskripsi: body.deskripsi,
+        kategori_id: body.kategori_id,
+        status: body.status,
+      },
+    });
+    return NextResponse.json(updated);
+  } catch (error) {
+    return NextResponse.json({ message: 'Gagal update data' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const id = Number(req.nextUrl.searchParams.get('id'));
+  if (!id) return NextResponse.json({ message: 'ID tidak valid' }, { status: 400 });
+
+  try {
+    await prisma.iuran.delete({ where: { id } });
+    return NextResponse.json({ message: 'Data berhasil dihapus' });
+  } catch (error) {
+    return NextResponse.json({ message: 'Gagal hapus data' }, { status: 500 });
   }
 }

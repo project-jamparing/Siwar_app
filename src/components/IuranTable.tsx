@@ -1,68 +1,55 @@
 'use client';
 import React from 'react';
 
-type IuranItem = {
-  id: number;
-  nama: string;
-  nominal: number;
-  tanggalNagih: string;
-  tanggalTempo: string;
-  deskripsi: string;
-  kategori_id: number;
-  status: 'aktif' | 'nonaktif';
-};
-
 type Props = {
-  data: IuranItem[];
-  onEdit: (item: IuranItem) => void;
+  data: any[];
+  onEdit: (item: any) => void;
   onDelete: (id: number) => void;
-  formatTanggal: (isoDate: string) => string;
+  formatTanggal: (iso: string) => string;
 };
 
 export default function IuranTable({ data, onEdit, onDelete, formatTanggal }: Props) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm text-left border border-gray-200">
-        <thead className="bg-gray-100 text-gray-700">
-          <tr>
-            <th className="px-4 py-2 border">No</th>
-            <th className="px-4 py-2 border">Nama</th>
-            <th className="px-4 py-2 border">Nominal</th>
-            <th className="px-4 py-2 border">Nagih</th>
-            <th className="px-4 py-2 border">Tempo</th>
-            <th className="px-4 py-2 border">Deskripsi</th>
-            <th className="px-4 py-2 border">Kategori</th>
-            <th className="px-4 py-2 border">Status</th>
-            <th className="px-4 py-2 border">Aksi</th>
+    <table className="w-full table-auto border-collapse">
+      <thead>
+        <tr className="bg-gray-200">
+          <th className="border px-4 py-2">Nama</th>
+          <th className="border px-4 py-2">Nominal</th>
+          <th className="border px-4 py-2">Tanggal Nagih</th>
+          <th className="border px-4 py-2">Tanggal Tempo</th>
+          <th className="border px-4 py-2">Deskripsi</th>
+          <th className="border px-4 py-2">Kategori</th>
+          <th className="border px-4 py-2">Status</th>
+          <th className="border px-4 py-2">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((item) => (
+          <tr key={item.id} className="text-center">
+            <td className="border px-4 py-2">{item.nama}</td>
+            <td className="border px-4 py-2">{item.nominal}</td>
+            <td className="border px-4 py-2">{formatTanggal(item.tanggal_nagih)}</td>
+            <td className="border px-4 py-2">{formatTanggal(item.tanggal_tempo)}</td>
+            <td className="border px-4 py-2">{item.deskripsi}</td>
+            <td className="border px-4 py-2">{item.kategori?.nama || '-'}</td>
+            <td className="border px-4 py-2">{item.status}</td>
+            <td className="border px-4 py-2 space-x-2">
+              <button
+                onClick={() => onEdit(item)}
+                className="bg-yellow-400 text-white px-2 py-1 rounded hover:bg-yellow-500"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => onDelete(item.id)}
+                className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+              >
+                Hapus
+              </button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {data.length > 0 ? (
-            data.map((item, index) => (
-              <tr key={item.id} className="bg-white">
-                <td className="px-4 py-2 border">{index + 1}</td>
-                <td className="px-4 py-2 border">{item.nama}</td>
-                <td className="px-4 py-2 border">Rp{Number(item.nominal).toLocaleString()}</td>
-                <td className="px-4 py-2 border">{formatTanggal(item.tanggalNagih)}</td>
-                <td className="px-4 py-2 border">{formatTanggal(item.tanggalTempo)}</td>
-                <td className="px-4 py-2 border">{item.deskripsi}</td>
-                <td className="px-4 py-2 border">{item.kategori_id}</td>
-                <td className="px-4 py-2 border capitalize">{item.status}</td>
-                <td className="px-4 py-2 border text-center space-x-2">
-                  <button onClick={() => onEdit(item)} className="text-blue-600 hover:underline">Edit</button>
-                  <button onClick={() => onDelete(item.id)} className="text-red-600 hover:underline">Hapus</button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={9} className="text-center px-4 py-4 border text-gray-500">
-                Belum ada data iuran
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   );
 }

@@ -8,12 +8,11 @@ type FormData = {
   id?: number;
   nama: string;
   nominal: string;
-  tanggalTagih: string;
   tanggalTempo: string;
   tanggalNagih: string;
   deskripsi: string;
   kategoriId: string;
-  status: 'aktif' | 'nonaktif';
+  status: string;
 };
 
 const formatTanggal = (isoDate: string) => {
@@ -34,7 +33,6 @@ export default function IuranPage() {
   const [formData, setFormData] = useState<FormData>({
     nama: '',
     nominal: '',
-    tanggalTagih: '',
     tanggalTempo: '',
     tanggalNagih: '',
     deskripsi: '',
@@ -62,25 +60,26 @@ export default function IuranPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-          const payload = {
-        id: editId,
-        nama: formData.nama,
-        nominal: Number(formData.nominal),
-        tanggal_tagih: formData.tanggalTagih,
-        tanggal_tempo: formData.tanggalTempo,
-        tanggal_nagih: formData.tanggalNagih,
-        deskripsi: formData.deskripsi,
-        kategori_id: Number(formData.kategoriId), // <-- ini udah bener
-        status: formData.status,
-      };
+    const payload = {
+      id: editId,
+      nama: formData.nama,
+      nominal: Number(formData.nominal),
+      tanggal_nagih: formData.tanggalNagih ? new Date(formData.tanggalNagih) : null,
+      tanggal_tempo: new Date(formData.tanggalTempo),
+      deskripsi: formData.deskripsi,
+      kategori_id: formData.kategoriId ? Number(formData.kategoriId) : null,
+      status: formData.status || 'aktif',
+    };
 
     const method = isEditing ? 'PUT' : 'POST';
 
@@ -108,7 +107,6 @@ export default function IuranPage() {
     setFormData({
       nama: '',
       nominal: '',
-      tanggalTagih: '',
       tanggalTempo: '',
       tanggalNagih: '',
       deskripsi: '',
@@ -120,21 +118,20 @@ export default function IuranPage() {
     setShowForm(false);
   };
 
- const handleEdit = (item: any) => {
-  setFormData({
-    nama: item.nama,
-    nominal: item.nominal.toString(),
-    tanggalTagih: toInputDate(item.tanggalTagih),
-    tanggalNagih: toInputDate(item.tanggalNagih), // <--
-    tanggalTempo: toInputDate(item.tanggalTempo),
-    deskripsi: item.deskripsi || '',
-    kategoriId: item.kategori_id?.toString() || '',
-    status: item.status || 'aktif',
-  });
-  setEditId(item.id);
-  setIsEditing(true);
-  setShowForm(true);
-};
+  const handleEdit = (item: any) => {
+    setFormData({
+      nama: item.nama,
+      nominal: item.nominal.toString(),
+      tanggalNagih: toInputDate(item.tanggal_nagih),
+      tanggalTempo: toInputDate(item.tanggal_tempo),
+      deskripsi: item.deskripsi || '',
+      kategoriId: item.kategori_id?.toString() || '',
+      status: item.status || 'aktif',
+    });
+    setEditId(item.id);
+    setIsEditing(true);
+    setShowForm(true);
+  };
 
   const handleDelete = (id: number) => {
     setDeleteId(id);
@@ -217,6 +214,38 @@ export default function IuranPage() {
           formatTanggal={formatTanggal}
         />
       )}
+
+      <AnimatePresence>
+        {showConfirm && (
+          <motion.div
+            className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                Apakah Anda yakin ingin menghapus data ini?
+              </h2>
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                >
+                  Ya, Hapus
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,101 +1,72 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import IuranForm from '@/components/IuranForm';
-import IuranTable from '@/components/IuranTable';
+import { cookies } from 'next/headers';
+import prisma from '@/lib/prisma';
+import { redirect } from 'next/navigation';
+import {
+  Users,
+  FileCheck2,
+  Megaphone,
+} from 'lucide-react';
 
-type IuranItem = {
-  id: number;
-  nama: string;
-  nominal: number;
-  tanggalTagih: string;
-  tanggalTempo: string;
-};
+export default async function RTPage() {
+  const cookie = await cookies();
+  const nik = cookie.get('nik')?.value;
 
-const initialFormData = {
-  nama: '',
-  nominal: '',
-  tanggalTagih: '',
-  tanggalTempo: '',
-};
+  if (!nik) {
+    redirect('/login');
+  }
 
-export default function IuranPage() {
-  const [formData, setFormData] = useState(initialFormData);
-  const [data, setData] = useState<IuranItem[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editId, setEditId] = useState<number | null>(null);
+  const user = await prisma.user.findFirst({
+    where: { nik },
+    include: { warga: true },
+  });
 
-  // Ambil data dari API
-  const fetchData = async () => {
-    const res = await fetch('/api/iuran');
-    const json = await res.json();
-    setData(json);
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // Handle input
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // Edit data
-  const handleEdit = (item: IuranItem) => {
-    setFormData({
-      nama: item.nama,
-      nominal: item.nominal.toString(),
-      tanggalTagih: item.tanggalTagih,
-      tanggalTempo: item.tanggalTempo,
-    });
-    setIsEditing(true);
-    setEditId(item.id);
-  };
-
-  // Hapus data
-  const handleDelete = async (id: number) => {
-    if (!confirm('Yakin ingin menghapus data ini?')) return;
-
-    const res = await fetch(`/api/iuran?id=${id}`, { method: 'DELETE' });
-    const result = await res.json();
-    alert(result.message);
-
-    if (res.ok) {
-      fetchData();
-    }
-  };
-
-  // Format tanggal
-  const formatTanggal = (iso: string) => {
-    return new Date(iso).toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
+  if (!user || user.role_id !== 2) {
+    redirect('/login');
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Data Iuran Warga</h1>
+    <main className="flex-1 p-6">
+      {/* Statistik */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-700">Jumlah Warga</h3>
+            <Users className="text-indigo-500" />
+          </div>
+          <p className="text-3xl font-bold text-gray-800">128</p>
+        </div>
 
-      <IuranForm
-        formData={{ ...formData, id: editId ?? undefined }}
-        isEditing={isEditing}
-        handleChange={handleChange}
-        handleSuccess={() => {
-          setFormData(initialFormData);
-          setIsEditing(false);
-          setEditId(null);
-          fetchData();
-        }}
-      />
+        <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-700">Iuran Masuk</h3>
+            <FileCheck2 className="text-green-500" />
+          </div>
+          <p className="text-3xl font-bold text-gray-800">Rp 1.200.000</p>
+        </div>
 
-      <IuranTable
-        data={data}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        formatTanggal={formatTanggal}
-      />
-    </div>
+        <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-700">Pengumuman Aktif</h3>
+            <Megaphone className="text-yellow-500" />
+          </div>
+          <p className="text-3xl font-bold text-gray-800">2</p>
+        </div>
+      </div>
+
+      {/* Pengumuman */}
+      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Pengumuman Terbaru</h2>
+        <div className="space-y-3">
+          <div className="p-4 bg-indigo-50 rounded-lg">
+            <h3 className="font-semibold text-indigo-700">Rapat RT Jumat</h3>
+            <p className="text-gray-600 text-sm">19.30 WIB di Balai Warga</p>
+          </div>
+          <div className="p-4 bg-indigo-50 rounded-lg">
+            <h3 className="font-semibold text-indigo-700">Kerja Bakti Minggu</h3>
+            <p className="text-gray-600 text-sm">Minggu, 07.00 pagi – saluran air</p>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }

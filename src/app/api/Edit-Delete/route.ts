@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
-// DB Config
 const dbConfig = {
   host: "localhost",
   user: "root",
@@ -9,7 +8,6 @@ const dbConfig = {
   database: "siwar_db",
 };
 
-// ================= PUT (UPDATE) =================
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
@@ -17,7 +15,6 @@ export async function PUT(req: NextRequest) {
       id,
       nama,
       nominal,
-      tanggalTagih,
       tanggalNagih,
       tanggalTempo,
       deskripsi,
@@ -29,7 +26,6 @@ export async function PUT(req: NextRequest) {
       !id ||
       !nama?.trim() ||
       isNaN(nominal) ||
-      !tanggalTagih ||
       !tanggalNagih ||
       !tanggalTempo ||
       !deskripsi?.trim() ||
@@ -42,9 +38,9 @@ export async function PUT(req: NextRequest) {
     const conn = await mysql.createConnection(dbConfig);
     const [result]: any = await conn.execute(
       `UPDATE iuran 
-       SET nama = ?, nominal = ?, tanggal_tagih = ?, tanggal_nagih = ?, tanggal_tempo = ?, deskripsi = ?, kategori_id = ?, status = ? 
+       SET nama = ?, nominal = ?, tanggal_nagih = ?, tanggal_tempo = ?, deskripsi = ?, kategori_id = ?, status = ?
        WHERE id = ?`,
-      [nama, nominal, tanggalTagih, tanggalNagih, tanggalTempo, deskripsi, kategori_id, status, id]
+      [nama, nominal, tanggalNagih, tanggalTempo, deskripsi, kategori_id, status, id]
     );
     await conn.end();
 
@@ -55,19 +51,14 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ message: "Data berhasil diupdate" });
   } catch (error) {
     console.error("PUT error:", error);
-    return NextResponse.json(
-      { message: "Terjadi kesalahan saat mengupdate", error },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Terjadi kesalahan saat mengupdate", error }, { status: 500 });
   }
 }
 
-// ================= DELETE =================
 export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const idParam = searchParams.get("id");
-    const id = Number(idParam);
+    const id = Number(searchParams.get("id"));
 
     if (!id || isNaN(id)) {
       return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
@@ -81,12 +72,9 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "Data berhasil dihapus", deleted_id: id });
+    return NextResponse.json({ message: "Data berhasil dihapus" });
   } catch (error) {
     console.error("DELETE error:", error);
-    return NextResponse.json(
-      { message: "Terjadi kesalahan saat menghapus", error },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Terjadi kesalahan saat menghapus", error }, { status: 500 });
   }
 }
