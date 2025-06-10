@@ -27,8 +27,9 @@ const menuItemsByRole: Record<
     { label: "Dashboard", href: "/dashboard/rw", icon: <Home className="w-5 h-5" /> },
     { label: "Data Warga", href: "/dashboard/rw/warga", icon: <Users className="w-5 h-5" /> },
     { label: "Data KK", href: "/dashboard/rw/kepala-keluarga", icon: <Crown className="w-5 h-5" /> },
-    { label: "Data Iuran", href: "/dashboard/rw/iuaran", icon: <Bell className="w-5 h-5" /> },
     { label: "Pengumuman", href: "/dashboard/rw/pengumuman", icon: <Megaphone className="w-5 h-5" /> },
+    { label: "Data Iuran", href: "/dashboard/rw/iuran", icon: <Bell className="w-5 h-5" /> },
+    { label: "Data Riwayat Iuran", href: "/dashboard/rw/databayar", icon: <Bell className="w-5 h-5" /> },
   ],
   "3": [
     { label: "Dashboard", href: "/dashboard/rt", icon: <Home className="w-5 h-5" /> },

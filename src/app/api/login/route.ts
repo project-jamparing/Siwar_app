@@ -26,6 +26,7 @@ export async function POST(req: Request) {
     if (!valid) {
       return NextResponse.json({ error: 'Password salah' }, { status: 401 });
     }
+    
 
     const roleRedirect: Record<number, string> = {
       1: 'dashboard/admin',
@@ -45,6 +46,9 @@ export async function POST(req: Request) {
     res.cookies.set('role_id', String(user.role_id), { httpOnly: true });
     res.cookies.set('nik', String(user.nik), { httpOnly: true });
 
+    if (user.role_id === 3 && user?.warga?.kk?.rt_id) {
+      res.cookies.set('rt_id', String(user.warga.kk.rt_id), { httpOnly: true });
+    }
     return res;
   } catch (error) {
     console.error('🔥 Login Error:', error);
