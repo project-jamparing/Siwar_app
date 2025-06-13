@@ -194,35 +194,6 @@ export default function EditWargaPage() {
           </select>
         </div>
 
-        {/* Khusus Kepala Keluarga */}
-        {form.status_hubungan_dalam_keluarga === 'Kepala Keluarga' && (
-          <>
-            <div>
-              <label className="block font-medium mb-1">RT</label>
-              <input
-                type="text"
-                name="rt_id"
-                value={form.rt_id || ''}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">Kategori</label>
-              <select
-                name="kategori"
-                value={form.kategori || ''}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              >
-                <option value="">Pilih</option>
-                <option value="Kavling">Kavling</option>
-                <option value="Kampung">Kampung</option>
-              </select>
-            </div>
-          </>
-        )}
-
         <button
           type="submit"
           className="col-span-1 md:col-span-2 mt-4 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
