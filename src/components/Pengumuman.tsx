@@ -1,35 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import CardPengumuman from '@/components/CardPengumuman';
-import type { Pengumuman } from '@/lib/type/pengumuman';
+import type { Pengumuman } from '@/lib/type/pengumuman'; // pastikan sama dengan prisma client
 import { Plus } from 'lucide-react';
 
+type Props = {
+  data: Pengumuman[];
+};
 
-export default function Pengumuman() {
-  const [data, setData] = useState<Pengumuman[]>([]);
+export default function PengumumanComponent({ data: initialData }: Props) {
+  const [data, setData] = useState<Pengumuman[]>(initialData);
   const [selected, setSelected] = useState<Pengumuman | null>(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [pengumumanToDelete, setPengumumanToDelete] = useState<Pengumuman | null>(null);
-
-  useEffect(() => {
-    const role = localStorage.getItem('role');
-    const nik = localStorage.getItem('nik');
-
-    const fetchPengumuman = async () => {
-      try {
-        const res = await fetch(`/api/pengumuman?role=${role}&nik=${nik}`);
-        const json = await res.json();
-        setData(json);
-      } catch (err) {
-        console.error('Gagal fetch pengumuman:', err);
-      }
-    };
-
-    fetchPengumuman();
-  }, []);
-  // === Selesai perubahan ===
 
   async function handleDelete(id: number) {
     try {
@@ -60,7 +45,7 @@ export default function Pengumuman() {
           <CardPengumuman
             key={item.id}
             item={item}
-            onDelete={(id) => {
+            onDelete={() => {
               setShowConfirmDelete(true);
               setPengumumanToDelete(item);
             }}
@@ -69,7 +54,7 @@ export default function Pengumuman() {
         ))}
       </div>
 
-      {/* Modal detail pengumuman */}
+      {/* Modal detail */}
       {selected && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full relative animate-fade-in">
@@ -95,12 +80,12 @@ export default function Pengumuman() {
         </div>
       )}
 
-      {/* Modal konfirmasi hapus pengumuman */}
+      {/* Modal konfirmasi hapus */}
       {showConfirmDelete && pengumumanToDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-5 rounded-2xl max-w-sm w-full shadow-lg animate-fade-in">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Yakin ingin menghapus pengumuman ini? yang bener
+              Yakin ingin menghapus pengumuman ini?
             </h3>
             <p className="text-sm text-gray-600 mb-6">{pengumumanToDelete.judul}</p>
             <div className="flex justify-end gap-2">

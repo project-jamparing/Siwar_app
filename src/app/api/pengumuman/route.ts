@@ -1,8 +1,7 @@
-// File: app/api/pengumuman/route.ts
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// GET: Ambil daftar pengumuman
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -48,7 +47,7 @@ export async function GET(request: Request) {
   }
 }
 
-// POST: Tambah pengumuman baru
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();

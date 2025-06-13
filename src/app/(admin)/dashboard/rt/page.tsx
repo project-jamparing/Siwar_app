@@ -24,10 +24,11 @@ export default async function RTPage() {
     redirect('/login');
   }
 
-  // ✅ Ambil pengumuman 2 hari terakhir via fetch API
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?terbaru=true`, {
+  
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?terbaru=true&role=rt&nik=${nik}`, {
     cache: 'no-store',
   });
+
   const pengumumanTerbaru = await res.json();
 
   return (

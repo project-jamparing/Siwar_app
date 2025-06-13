@@ -9,7 +9,6 @@ async function getData(): Promise<Pengumuman[]> {
   const nik = cookieStore.get('nik')?.value;
 
   if (!nik) {
-    // Jika nik tidak ada di cookie, return array kosong atau handle error sesuai kebutuhan
     return [];
   }
 
@@ -19,7 +18,6 @@ async function getData(): Promise<Pengumuman[]> {
   );
 
   if (!res.ok) {
-    // Bisa handle error di sini misalnya log atau return []
     return [];
   }
 

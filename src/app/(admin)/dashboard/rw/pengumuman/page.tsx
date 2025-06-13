@@ -4,7 +4,7 @@ import PengumumanComponent from '@/components/Pengumuman';
 
 async function getData(): Promise<Pengumuman[]> {
   const role = 'rw';
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?role=${role}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?role=rw`, {
     cache: 'no-store',
   });
   return res.json();
