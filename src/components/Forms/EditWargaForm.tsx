@@ -5,9 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import BackButton from '../Buttons/BackButton';
 
 export default function EditWargaPage() {
-  const router = useRouter();
   const { nik } = useParams();
-  const [showSuccess, setShowSuccess] = useState(false);
+  const router = useRouter();
 
   const [form, setForm] = useState({
     nik: '',
@@ -32,6 +31,8 @@ export default function EditWargaPage() {
     kategori: '',
   });
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       const res = await fetch(`/api/warga/${nik}`);
@@ -42,12 +43,12 @@ export default function EditWargaPage() {
   }, [nik]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       const res = await fetch(`/api/warga/${nik}`, {
         method: 'PUT',
@@ -56,15 +57,15 @@ export default function EditWargaPage() {
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        alert('Gagal update: ' + err.message);
+        const errorData = await res.json();
+        alert('Gagal update: ' + errorData.message);
         return;
       }
 
       setShowSuccess(true);
-    } catch (error) {
-      console.error('Client error:', error);
-      alert('Terjadi kesalahan di sisi client.');
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan saat menyimpan data.');
     }
   };
 
@@ -73,8 +74,7 @@ export default function EditWargaPage() {
       <h1 className="text-2xl font-bold mb-4">Edit Data Warga</h1>
       <BackButton />
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        {/* Field input umum */}
+        {/* Input Umum */}
         {[
           ['NIK', 'nik'],
           ['Nama', 'nama'],
@@ -90,26 +90,26 @@ export default function EditWargaPage() {
           ['Ibu', 'ibu'],
         ].map(([label, name]) => (
           <div key={name}>
-            <label className="block text-sm font-semibold text-gray-800 mb-1">{label}</label>
+            <label className="block font-medium mb-1">{label}</label>
             <input
               type={name.includes('tanggal') ? 'date' : 'text'}
               name={name}
               value={(form as any)[name] || ''}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2"
               required={['nik', 'nama'].includes(name)}
             />
           </div>
         ))}
 
-        {/* Jenis Kelamin */}
+        {/* Select Box */}
         <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-1">Jenis Kelamin</label>
+          <label className="block font-medium mb-1">Jenis Kelamin</label>
           <select
             name="jenis_kelamin"
             value={form.jenis_kelamin}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            className="w-full border border-gray-300 rounded px-3 py-2"
             required
           >
             <option value="">Pilih</option>
@@ -118,65 +118,13 @@ export default function EditWargaPage() {
           </select>
         </div>
 
-        {/* Status Hubungan */}
         <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-1">Status Hubungan dalam Keluarga</label>
-          <select
-            name="status_hubungan_dalam_keluarga"
-            value={form.status_hubungan_dalam_keluarga}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            required
-          >
-            <option value="">Pilih</option>
-            <option value="Kepala Keluarga">Kepala Keluarga</option>
-            <option value="Istri">Istri</option>
-            <option value="Anak">Anak</option>
-          </select>
-        </div>
-
-        {/* Golongan Darah */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-1">Golongan Darah</label>
-          <select
-            name="golongan_darah"
-            value={form.golongan_darah}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            required
-          >
-            <option value="undefined">Pilih</option>
-            <option value="O">O</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="AB">AB</option>
-          </select>
-        </div>
-
-        {/* Kewarganegaraan */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-1">Kewarganegaraan</label>
-          <select
-            name="kewarganegaraan"
-            value={form.kewarganegaraan}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            required
-          >
-            <option value="">Pilih</option>
-            <option value="WNI">WNI</option>
-            <option value="WNA">WNA</option>
-          </select>
-        </div>
-
-        {/* Status Perkawinan */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-1">Status Perkawinan</label>
+          <label className="block font-medium mb-1">Status Perkawinan</label>
           <select
             name="status_perkawinan"
             value={form.status_perkawinan}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            className="w-full border border-gray-300 rounded px-3 py-2"
           >
             <option value="">Pilih</option>
             <option value="belum_kawin">Belum Kawin</option>
@@ -186,46 +134,92 @@ export default function EditWargaPage() {
           </select>
         </div>
 
-        {/* Tambahan jika Kepala Keluarga */}
+        {form.status_perkawinan !== 'belum_kawin' && (
+          <div>
+            <label className="block font-medium mb-1">Tanggal Kawin</label>
+            <input
+              type="date"
+              name="tanggal_perkawinan"
+              value={form.tanggal_perkawinan || ''}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+        )}
+
+        <div>
+          <label className="block font-medium mb-1">Golongan Darah</label>
+          <select
+            name="golongan_darah"
+            value={form.golongan_darah}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          >
+            <option value="">Pilih</option>
+            <option value="O">O</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="AB">AB</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Kewarganegaraan</label>
+          <select
+            name="kewarganegaraan"
+            value={form.kewarganegaraan}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="WNI">WNI</option>
+            <option value="WNA">WNA</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Status Hubungan dalam Keluarga</label>
+          <select
+            name="status_hubungan_dalam_keluarga"
+            value={form.status_hubungan_dalam_keluarga}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+            required
+          >
+            <option value="">Pilih</option>
+            <option value="Kepala Keluarga">Kepala Keluarga</option>
+            <option value="Istri">Istri</option>
+            <option value="Anak">Anak</option>
+          </select>
+        </div>
+
+        {/* Khusus Kepala Keluarga */}
         {form.status_hubungan_dalam_keluarga === 'Kepala Keluarga' && (
           <>
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1">RT</label>
+              <label className="block font-medium mb-1">RT</label>
               <input
                 type="text"
                 name="rt_id"
                 value={form.rt_id || ''}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                className="w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1">Kategori</label>
+              <label className="block font-medium mb-1">Kategori</label>
               <select
                 name="kategori"
                 value={form.kategori || ''}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                className="w-full border border-gray-300 rounded px-3 py-2"
               >
                 <option value="">Pilih</option>
-                <option value="Mampu">Mampu</option>
-                <option value="Tidak Mampu">Tidak Mampu</option>
+                <option value="Kavling">Kavling</option>
+                <option value="Kampung">Kampung</option>
               </select>
             </div>
-
-         {/* Tanggal Perkawinan (muncul jika sudah kawin) */}
-          {form.status_perkawinan !== 'belum_kawin' && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1">Tanggal Kawin</label>
-              <input
-                type="date"
-                name="tanggal_perkawinan"
-                value={form.tanggal_perkawinan || ''}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
-              />
-            </div>
-        )}
           </>
         )}
 
@@ -240,14 +234,14 @@ export default function EditWargaPage() {
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30">
           <div className="bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-md text-center">
-            <h2 className="text-lg font-semibold mb-2">Perubahan Berhasil</h2>
+            <h2 className="text-lg font-semibold mb-2">Berhasil Diperbarui</h2>
             <p className="text-sm text-gray-600 mb-4">Data warga berhasil diperbarui.</p>
             <button
               onClick={() => {
                 setShowSuccess(false);
                 router.push('/dashboard/rw/warga');
               }}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
               OK
             </button>

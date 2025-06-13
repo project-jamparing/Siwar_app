@@ -63,6 +63,29 @@ export default function TabelKeluarga() {
     fetchData();
   }, []);
 
+  const handleDelete = async (no_kk: string) => {
+    const konfirmasi = confirm(`Yakin ingin menghapus KK ${no_kk}? Data keluarga terkait juga akan dihapus!`)
+    if (!konfirmasi) return
+  
+    try {
+      const res = await fetch('/api/kk/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ no_kk }),
+      })
+  
+      const json = await res.json()
+      if (!res.ok) {
+        alert(`Gagal menghapus: ${json.error || 'Terjadi kesalahan'}`)
+      } else {
+        alert(`✅ ${json.message}`)
+        setData((prev) => prev.filter((kk) => kk.no_kk !== no_kk)) // Hapus dari tampilan
+      }
+    } catch (err: any) {
+      alert(`Gagal: ${err.message}`)
+    }
+  }  
+
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white rounded-xl shadow-md text-gray-800">
       <h2 className="text-3xl font-bold mb-6">📋 Daftar Kartu Keluarga</h2>
@@ -97,14 +120,25 @@ export default function TabelKeluarga() {
                     <td className="px-4 py-3 border-t border-gray-200">{item.nama}</td>
                     <td className="px-4 py-3 border-t border-gray-200">{item.rt}</td>
                     <td className="px-4 py-3 border-t border-gray-200 capitalize">{item.kategori}</td>
-                    <td className="px-4 py-3 border-t border-gray-200 text-center">
+                    <td className="px-4 py-3 border-t border-gray-200 text-center flex justify-center gap-2">
                       {role && (
-                        <Link href={`/dashboard/${role}/keluarga/${item.no_kk}`}>
-                          <button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm transition">
-                            <Eye className="w-4 h-4" />
-                            Lihat
-                          </button>
-                        </Link>
+                        <>
+                          <Link href={`/dashboard/${role}/keluarga/${item.no_kk}`}>
+                            <button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm transition">
+                              <Eye className="w-4 h-4" />
+                              Lihat
+                            </button>
+                          </Link>
+
+                          {(role === 'rw' || role === 'admin') && (
+                            <button
+                              onClick={() => handleDelete(item.no_kk)}
+                              className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm transition"
+                            >
+                              🗑️ Hapus
+                            </button>
+                          )}
+                        </>
                       )}
                     </td>
                   </tr>

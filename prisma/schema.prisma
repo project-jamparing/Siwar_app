@@ -47,6 +47,7 @@ model kk {
   warga               warga[]
 
   @@index([kategori_id], map: "kategori_id")
+  @@index([rt_id], map: "kk_ibfk_2")
 }
 
 model pengumuman {
@@ -123,7 +124,7 @@ model warga {
   jabatan                        jabatan[]
   kk_kk_nikTowarga               kk?                      @relation("kk_nikTowarga")
   user                           user?
-  kk                             kk?                      @relation(fields: [no_kk], references: [no_kk], onUpdate: Restrict, map: "warga_ibfk_1")
+  kk                             kk?                      @relation(fields: [no_kk], references: [no_kk], onDelete: Cascade, onUpdate: Restrict, map: "warga_ibfk_1")
 
   @@index([no_kk], map: "no_kk")
 }
