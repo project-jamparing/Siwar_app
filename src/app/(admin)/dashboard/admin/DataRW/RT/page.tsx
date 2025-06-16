@@ -64,7 +64,7 @@ export default function DataJabatanPage() {
     <div className="p-8 max-w-7xl mx-auto font-sans bg-gray-50 min-h-screen">
       <header className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-          Dashboard Jabatan
+          Data Masa Jabatan
         </h1>
         <button
           onClick={() => router.push("/dashboard/admin/tambah")}

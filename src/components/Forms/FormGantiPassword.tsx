@@ -54,52 +54,51 @@ export default function FormGantiPassword() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {message && (
-        <div
-          className={`mb-4 text-sm px-4 py-2 rounded ${
-            success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}
+    <div className="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {message && (
+          <div
+            className={`text-sm px-4 py-3 rounded-lg font-medium transition-all ${
+              success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }`}
+          >
+            {message}
+          </div>
+        )}
+
+        <PasswordInput
+          label="Password Lama"
+          value={passwordLama}
+          onChange={setPasswordLama}
+          show={showPasswordLama}
+          toggleShow={() => setShowPasswordLama(!showPasswordLama)}
+        />
+
+        <PasswordInput
+          label="Password Baru"
+          value={passwordBaru}
+          onChange={setPasswordBaru}
+          show={showPasswordBaru}
+          toggleShow={() => setShowPasswordBaru(!showPasswordBaru)}
+        />
+
+        <PasswordInput
+          label="Konfirmasi Password Baru"
+          value={konfirmasi}
+          onChange={setKonfirmasi}
+          show={showKonfirmasi}
+          toggleShow={() => setShowKonfirmasi(!showKonfirmasi)}
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2.5 rounded-xl hover:bg-blue-700 transition-all font-semibold disabled:opacity-60"
         >
-          {message}
-        </div>
-      )}
-
-      {/* Password Lama */}
-      <PasswordInput
-        label="Password Lama"
-        value={passwordLama}
-        onChange={setPasswordLama}
-        show={showPasswordLama}
-        toggleShow={() => setShowPasswordLama(!showPasswordLama)}
-      />
-
-      {/* Password Baru */}
-      <PasswordInput
-        label="Password Baru"
-        value={passwordBaru}
-        onChange={setPasswordBaru}
-        show={showPasswordBaru}
-        toggleShow={() => setShowPasswordBaru(!showPasswordBaru)}
-      />
-
-      {/* Konfirmasi */}
-      <PasswordInput
-        label="Konfirmasi Password Baru"
-        value={konfirmasi}
-        onChange={setKonfirmasi}
-        show={showKonfirmasi}
-        toggleShow={() => setShowKonfirmasi(!showKonfirmasi)}
-      />
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition font-semibold"
-      >
-        {loading ? 'Mengubah...' : 'Ganti Password'}
-      </button>
-    </form>
+          {loading ? 'Mengubah...' : 'Ganti Password'}
+        </button>
+      </form>
+    </div>
   );
 }
 
@@ -120,18 +119,18 @@ function PasswordInput({
 }: PasswordInputProps) {
   return (
     <div className="relative">
-      <label className="block mb-1 font-medium">{label}</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <input
         type={show ? 'text' : 'password'}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required
-        className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
       />
       <button
         type="button"
         onClick={toggleShow}
-        className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+        className="absolute right-3 top-[38px] text-gray-500 hover:text-gray-700"
         tabIndex={-1}
       >
         {show ? <EyeOff size={20} /> : <Eye size={20} />}

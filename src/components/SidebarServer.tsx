@@ -1,17 +1,7 @@
-import Link from "next/link";
-import {
-  Bell,
-  Home,
-  Megaphone,
-  Users,
-  History,
-  Crown,
-  Lock,
-  Users2,
-} from "lucide-react";
-import LogoutButton from "@/components/Buttons/LogoutButton";
+// app/components/SidebarServer.tsx
 import { cookies } from "next/headers";
-import Image from "next/image";
+import SidebarClient from "./SidebarClient";
+import { Crown, Home, Users, Users2, Megaphone, Bell, History, Lock } from "lucide-react";
 
 const menuItemsByRole: Record<
   string,
@@ -47,39 +37,10 @@ const menuItemsByRole: Record<
   ],
 };
 
-export default async function SideBar() {
+export default async function SidebarServer() {
   const cookieStore = await cookies();
   const role_id = cookieStore.get("role_id")?.value ?? "4";
   const menuItems = menuItemsByRole[role_id] || [];
 
-  return (
-    <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between shadow-sm hidden md:flex">
-      <div>
-      <div className="p-6 border-b border-gray-200 pb-4">
-          <Image
-            src="/images/logo/logo.png"
-            alt="SIWAR APP"
-            width={160}
-            height={50}
-            className="mx-auto"
-          />
-        </div>
-        <nav className="px-4 pt-6 space-y-3">
-          {menuItems.map((item, idx) => (
-            <Link
-              key={idx}
-              href={item.href}
-              className="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-blue-100 hover:text-blue-600 text-gray-800 font-medium"
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-      </div>
-      <div className="p-4 border-t border-gray-200">
-        <LogoutButton />
-      </div>
-    </aside>
-  );
+  return <SidebarClient menuItems={menuItems} />;
 }

@@ -81,11 +81,12 @@ export default function TabelKeluargaRT({ rt_id }: { rt_id: number }) {
                     <td className="px-4 py-3 border-t border-gray-200">{item.nama}</td>
                     <td className="px-4 py-3 border-t border-gray-200 capitalize">{item.kategori}</td>
                     <td className="px-4 py-3 border-t border-gray-200 text-center">
-                      <Link href={`/dashboard/rt/keluarga/${item.no_kk}`}>
-                        <button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm transition">
-                          <Eye className="w-4 h-4" />
-                          Lihat
-                        </button>
+                      <Link
+                        href={`/dashboard/rt/keluarga/${item.no_kk}`}
+                        title="Lihat Detail"
+                        className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition inline-flex items-center justify-center"
+                      >
+                        <Eye size={16} />
                       </Link>
                     </td>
                   </tr>

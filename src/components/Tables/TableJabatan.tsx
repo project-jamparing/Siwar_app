@@ -5,12 +5,14 @@ import React from "react";
 type Jabatan = {
   id: number;
   nik: string;
-  nama_rt: string;
+  nama_rt: string; // nama warga
   role_id: number;
   created_at: string;
   updated_at: string;
   status: "aktif" | "nonaktif";
+  rukun_tetangga_nama: string; // nama RT dari tabel rukun_tetangga
 };
+
 
 type Props = {
   data: Jabatan[];
@@ -25,11 +27,12 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
         <thead className="bg-indigo-600 text-white uppercase text-xs tracking-wider select-none">
           <tr>
             <th className="px-6 py-3">NIK</th>
-            <th className="px-6 py-3">Nama RT</th>
+            <th className="px-6 py-3">Nama</th>
             <th className="px-6 py-3">Jabatan</th>
             <th className="px-6 py-3">Dilantik</th>
             <th className="px-6 py-3">Pelengseran</th>
             <th className="px-6 py-3">Status</th>
+            <th className="px-6 py-3">RT</th>
             <th className="px-6 py-3 text-center">Aksi</th>
           </tr>
         </thead>
@@ -84,6 +87,9 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
                 >
                   {jabatan.status === "aktif" ? "Aktif" : "Nonaktif"}
                 </span>
+              </td>
+              <td className="px-6 py-4 text-gray-700 font-medium">
+                {jabatan.rukun_tetangga_nama}
               </td>
               <td className="px-6 py-4 text-center">
                 {jabatan.status === "aktif" ? (

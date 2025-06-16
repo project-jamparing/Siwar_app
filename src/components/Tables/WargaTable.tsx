@@ -1,6 +1,7 @@
 'use client';
+
 import { useState, useTransition } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 
 type Warga = {
   nik: string;
@@ -27,21 +28,19 @@ export default function WargaTable({
   const [selectedNik, setSelectedNik] = useState<string | null>(null);
   const [selectedNama, setSelectedNama] = useState<string | null>(null);
 
-  function handleDelete(nik: string, nama: string) {
+  const handleDelete = (nik: string, nama: string) => {
     setSelectedNik(nik);
     setSelectedNama(nama);
     setShowDeleteModal(true);
-  }
+  };
 
-  async function confirmDelete() {
+  const confirmDelete = async () => {
     if (!selectedNik) return;
-
     startTransition(async () => {
       try {
         const res = await fetch(`/api/warga/${selectedNik}`, {
           method: 'DELETE',
         });
-
         if (res.ok) {
           window.location.reload();
         } else {
@@ -49,115 +48,120 @@ export default function WargaTable({
           alert('Gagal hapus: ' + err.message);
         }
       } catch (error) {
-        console.error(error);
         alert('Terjadi kesalahan saat menghapus');
       } finally {
         setShowDeleteModal(false);
       }
     });
-  }
+  };
 
   const formatTanggal = (tanggal: string | null | undefined) => {
     if (!tanggal) return '-';
     const date = new Date(tanggal);
     return date.toLocaleDateString('id-ID', {
       day: '2-digit',
-      month: 'short',
+      month: 'long',
       year: 'numeric',
     });
   };
 
   return (
     <>
-      <div className="overflow-x-auto">
-        <div className="inline-block min-w-full overflow-hidden rounded-md border border-gray-300 shadow">
-          <table className="min-w-full text-sm text-left bg-white">
-            <thead className="bg-blue-100 text-gray-800">
-              <tr>
-                <th className="border px-4 py-2">NIK</th>
-                <th className="border px-4 py-2">Nama</th>
-                <th className="border px-4 py-2">Jenis Kelamin</th>
-                <th className="border px-4 py-2">Tempat Lahir</th>
-                <th className="border px-4 py-2">Tanggal Lahir</th>
-                <th className="border px-4 py-2">Agama</th>
-                <th className="border px-4 py-2">Status Kawin</th>
-                <th className="border px-4 py-2">Pekerjaan</th>
-                <th className="border px-4 py-2">Golongan Darah</th>
-                <th className="border px-4 py-2">Kewarganegaraan</th>
-                {showActions && <th className="border px-4 py-2">Aksi</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {warga.map((w) => (
-                <tr key={w.nik} className="hover:bg-yellow-50 transition-colors">
-                  <td className="border px-4 py-2">{w.nik}</td>
-                  <td className="border px-4 py-2">{w.nama}</td>
-                  <td className="border px-4 py-2">
-                    {w.jenis_kelamin === 'perempuan' ? 'Perempuan' : 'Laki-laki'}
-                  </td>
-                  <td className="border px-4 py-2">{w.tempat_lahir || '-'}</td>
-                  <td className="border px-4 py-2">{formatTanggal(w.tanggal_lahir)}</td>
-                  <td className="border px-4 py-2">{w.agama || '-'}</td>
-                  <td className="border px-4 py-2">
-                    {w.status_perkawinan === 'kawin_tercatat'
-                      ? 'Kawin'
-                      : w.status_perkawinan === 'belum_kawin'
-                      ? 'Belum Kawin'
-                      : w.status_perkawinan === 'cerai_hidup'
-                      ? 'Cerai Hidup'
-                      : w.status_perkawinan === 'cerai_mati'
-                      ? 'Cerai Mati'
-                      : '-'}
-                  </td>
-                  <td className="border px-4 py-2">{w.jenis_pekerjaan || '-'}</td>
-                  <td className="border px-4 py-2">{w.golongan_darah || '-'}</td>
-                  <td className="border px-4 py-2">{w.kewarganegaraan || '-'}</td>
-                  {showActions && (
-                    <td className="border px-4 py-2 space-x-2">
-                      <a
-                        href={`/dashboard/rw/warga/edit/${w.nik}`}
-                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
-                      >
-                        Edit
-                      </a>
-                      <button
-                        onClick={() => handleDelete(w.nik, w.nama)}
-                        className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 flex items-center gap-1"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Hapus
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="flex flex-col">
+        <div className="overflow-x-auto pb-4">
+          <div className="min-w-full inline-block align-middle">
+            <div className="overflow-hidden border rounded-lg border-gray-300">
+              <table className="table-auto min-w-full rounded-xl">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">NIK</th>
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Nama</th>
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Jenis Kelamin</th>
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Tempat Lahir</th>
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Tanggal Lahir</th>
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Agama</th>
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Status Kawin</th>
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Pekerjaan</th>
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Golongan Darah</th>
+                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Kewarganegaraan</th>
+                    {showActions && (
+                      <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Aksi</th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-300">
+                  {warga.map((w) => (
+                    <tr key={w.nik} className="bg-white hover:bg-gray-50 transition-all duration-300">
+                      <td className="p-5 text-sm font-medium text-gray-900">{w.nik}</td>
+                      <td className="p-5 text-sm text-gray-900">{w.nama}</td>
+                      <td className="p-5 text-sm text-gray-900">
+                        {w.jenis_kelamin === 'perempuan' ? 'Perempuan' : 'Laki-laki'}
+                      </td>
+                      <td className="p-5 text-sm text-gray-900">{w.tempat_lahir || '-'}</td>
+                      <td className="p-5 text-sm text-gray-900">{formatTanggal(w.tanggal_lahir)}</td>
+                      <td className="p-5 text-sm text-gray-900">{w.agama || '-'}</td>
+                      <td className="p-5 text-sm text-gray-900">
+                        {w.status_perkawinan === 'kawin_tercatat'
+                          ? 'Kawin'
+                          : w.status_perkawinan === 'belum_kawin'
+                          ? 'Belum Kawin'
+                          : w.status_perkawinan === 'cerai_hidup'
+                          ? 'Cerai Hidup'
+                          : w.status_perkawinan === 'cerai_mati'
+                          ? 'Cerai Mati'
+                          : '-'}
+                      </td>
+                      <td className="p-5 text-sm text-gray-900">{w.jenis_pekerjaan || '-'}</td>
+                      <td className="p-5 text-sm text-gray-900">{w.golongan_darah || '-'}</td>
+                      <td className="p-5 text-sm text-gray-900">{w.kewarganegaraan || '-'}</td>
+                      {showActions && (
+                        <td className="p-5 text-sm text-gray-900 flex gap-2">
+                          <a
+                            href={`/dashboard/rw/warga/edit/${w.nik}`}
+                            className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
+                            title="Edit"
+                          >
+                            <Pencil size={16} />
+                          </a>
+                          <button
+                            onClick={() => handleDelete(w.nik, w.nama)}
+                            className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition"
+                            title="Hapus"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Modal Konfirmasi Hapus */}
+      {/* Modal Hapus */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all">
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-[90%] max-w-md animate-fade-in text-center">
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Konfirmasi Hapus</h2>
-            <p className="text-sm text-gray-600 mb-6">
-              Apakah kamu yakin ingin menghapus data warga{' '}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-xl shadow-lg text-center max-w-md w-[90%]">
+            <h2 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Hapus</h2>
+            <p className="text-gray-600 mb-4">
+              Yakin ingin menghapus data{' '}
               <span className="font-semibold text-red-500">{selectedNama}</span>?
             </p>
-
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 rounded-lg text-gray-700 border border-gray-300 hover:bg-gray-100 transition"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
               >
                 Batal
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition"
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
               >
-                Yakin
+                Hapus
               </button>
             </div>
           </div>

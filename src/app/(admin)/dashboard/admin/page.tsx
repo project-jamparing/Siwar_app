@@ -16,6 +16,7 @@ export default async function AdminPage() {
   }
   
   const warga = await prisma.warga.findMany();
+  const userCount = await prisma.user.count();
   
   const user = await prisma.user.findFirst({
     where: { nik },
@@ -39,10 +40,10 @@ export default async function AdminPage() {
 
       <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-gray-700">Iuran Masuk</h3>
-          <FileCheck2 className="text-green-500" />
+          <h3 className="text-lg font-semibold text-gray-700">Jumlah Akun Pengguna</h3>
+          <Users className="text-blue-500" />
         </div>
-        <p className="text-3xl font-bold text-gray-800">Rp 1.200.000</p>
+        <p className="text-3xl font-bold text-gray-800">{userCount}</p>
       </div>
 
       <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
