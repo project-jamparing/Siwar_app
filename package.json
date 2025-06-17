@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
+    "@tanstack/react-table": "^8.21.3",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
+    "client": "^0.0.1",
     "lucide-react": "^0.511.0",
     "mysql2": "^3.14.1",
     "next": "15.3.2",
@@ -27,7 +29,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
-    "prisma": "^6.8.2",
+    "prisma": "^6.9.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

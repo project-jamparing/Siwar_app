@@ -28,6 +28,8 @@ export default async function RTPage() {
     redirect('/login');
   }
   
+  const userName = user.warga?.nama || user.nik;
+
   const rtId = user?.warga?.kk?.rt_id;
   if (!rtId) {
     throw new Error('RT ID tidak ditemukan');
@@ -50,9 +52,17 @@ export default async function RTPage() {
   const jumlahWarga = wargaRT.length;  
 
   return (
-    <main className="flex-1 p-6">
+    <main className="flex-1 p-6 space-y-6">
+      {/* Welcome Section */}
+      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+        <h2 className="text-2xl font-bold text-gray-800 mb-1">
+          Selamat Datang, <span className="text-blue-800">{userName}</span>
+        </h2>
+        <p className="text-sm text-gray-500">Semoga harimu menyenangkan! 🌞</p>
+      </div>
+
       {/* Statistik */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-semibold text-gray-700">Jumlah Warga</h3>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { Trash2, Pencil } from 'lucide-react';
 
 type Warga = {
@@ -65,6 +65,17 @@ export default function WargaTable({
     });
   };
 
+  // --- Pagination ---
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(warga.length / itemsPerPage);
+
+  const paginatedWarga = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return warga.slice(startIndex, startIndex + itemsPerPage);
+  }, [warga, currentPage]);
+
   return (
     <>
       <div className="flex flex-col">
@@ -90,7 +101,7 @@ export default function WargaTable({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-300">
-                  {warga.map((w) => (
+                  {paginatedWarga.map((w) => (
                     <tr key={w.nik} className="bg-white hover:bg-gray-50 transition-all duration-300">
                       <td className="p-5 text-sm font-medium text-gray-900">{w.nik}</td>
                       <td className="p-5 text-sm text-gray-900">{w.nama}</td>
@@ -136,6 +147,39 @@ export default function WargaTable({
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Pagination angka + Prev Next */}
+            <div className="flex justify-center items-center mt-4 space-x-2 flex-wrap">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+              >
+                Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+                <button
+                  key={pageNumber}
+                  onClick={() => setCurrentPage(pageNumber)}
+                  className={`px-3 py-1 rounded ${
+                    currentPage === pageNumber
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
