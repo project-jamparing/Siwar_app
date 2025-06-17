@@ -8,7 +8,7 @@ export default async function DaftarWargaPage() {
 
   return (
 <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">
-  <main className="flex-1 p-6 md:p-10 overflow-auto max-w-7xl mx-auto w-full">
+  <main className="flex-1 p-2 md:p-10 overflow-auto max-w-7xl mx-auto w-full">
     <header className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-6 md:gap-0">
       <div>
         <h1 className="text-4xl font-bold tracking-tight text-gray-800">📋 Daftar Warga Lengkap</h1>

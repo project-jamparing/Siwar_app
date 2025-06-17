@@ -36,7 +36,7 @@ export default async function DaftarWargaPage() {
 
   return (
     <div className="flex h-screen bg-gray-50 text-black">
-      <main className="flex-1 p-4 overflow-auto">
+      <main className="flex-1 p-2 overflow-auto">
         <div className="flex justify-between items-center mb-2">
           <h1 className="text-2xl font-bold">Anggota Keluarga</h1>
         </div>

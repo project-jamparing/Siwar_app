@@ -24,7 +24,7 @@ export default async function DetailKeluargaPage({ params }: { params: { no_kk: 
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-8">
+      <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-2">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-800">
             👪 Detail Keluarga

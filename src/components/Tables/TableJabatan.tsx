@@ -5,12 +5,12 @@ import React, { useMemo, useState } from "react";
 type Jabatan = {
   id: number;
   nik: string;
-  nama_rt: string; // nama warga
+  nama_rt: string;
   role_id: number;
   created_at: string;
   updated_at: string;
   status: "aktif" | "nonaktif";
-  rukun_tetangga_nama: string; // nama RT dari tabel rukun_tetangga
+  rukun_tetangga_nama: string;
 };
 
 type Props = {
@@ -32,17 +32,17 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
   return (
     <>
       <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-md bg-white">
-        <table className="w-full table-auto text-left text-sm text-gray-700">
+        <table className="w-full table-auto text-left text-sm text-gray-700 [&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2">
           <thead className="bg-indigo-600 text-white uppercase text-xs tracking-wider select-none">
             <tr>
-              <th className="px-6 py-3">NIK</th>
-              <th className="px-6 py-3">Nama</th>
-              <th className="px-6 py-3">Jabatan</th>
-              <th className="px-6 py-3">Dilantik</th>
-              <th className="px-6 py-3">Pelengseran</th>
-              <th className="px-6 py-3">Status</th>
-              <th className="px-6 py-3">RT</th>
-              <th className="px-6 py-3 text-center">Aksi</th>
+              <th>NIK</th>
+              <th>Nama</th>
+              <th>Jabatan</th>
+              <th>Dilantik</th>
+              <th>Pelengseran</th>
+              <th>Status</th>
+              <th>RT</th>
+              <th className="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -62,13 +62,9 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
                     jabatan.status === "nonaktif" ? "opacity-60 italic" : ""
                   } hover:bg-indigo-100 transition`}
                 >
-                  <td className="px-6 py-4 font-mono text-gray-900">
-                    {jabatan.nik}
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-gray-800">
-                    {jabatan.nama_rt}
-                  </td>
-                  <td className="px-6 py-4 text-center text-gray-700 font-medium">
+                  <td className="font-mono text-gray-900">{jabatan.nik}</td>
+                  <td className="font-semibold text-gray-800">{jabatan.nama_rt}</td>
+                  <td className="text-center text-gray-700 font-medium">
                     {jabatan.role_id === 1
                       ? "Admin"
                       : jabatan.role_id === 2
@@ -79,14 +75,14 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
                       ? "Warga"
                       : "-"}
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="text-gray-600">
                     {new Date(jabatan.created_at).toLocaleDateString("id-ID", {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
                     })}
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="text-gray-600">
                     {jabatan.status === "nonaktif"
                       ? new Date(jabatan.updated_at).toLocaleDateString(
                           "id-ID",
@@ -98,7 +94,7 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
                         )
                       : "-"}
                   </td>
-                  <td className="px-6 py-4">
+                  <td>
                     <span
                       className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
                         jabatan.status === "aktif"
@@ -109,10 +105,10 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
                       {jabatan.status === "aktif" ? "Aktif" : "Nonaktif"}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-700 font-medium">
+                  <td className="text-gray-700 font-medium">
                     {jabatan.rukun_tetangga_nama}
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="text-center">
                     {jabatan.status === "aktif" ? (
                       <button
                         disabled={updatingId === jabatan.id}

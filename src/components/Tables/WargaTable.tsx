@@ -122,36 +122,36 @@ export default function WargaTable({
       <div className="overflow-x-auto pb-4">
         <div className="min-w-full inline-block align-middle">
           <div className="overflow-hidden border rounded-lg border-gray-300">
-            <table className="table-auto min-w-full rounded-xl">
+            <table className="table-auto min-w-full rounded-xl [&_th]:p-2 [&_td]:p-2">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">NIK</th>
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Nama</th>
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Jenis Kelamin</th>
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Tempat Lahir</th>
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Tanggal Lahir</th>
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Agama</th>
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Status Kawin</th>
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Pekerjaan</th>
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Golongan Darah</th>
-                  <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Kewarganegaraan</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">NIK</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">Nama</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">Jenis Kelamin</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">Tempat Lahir</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">Tanggal Lahir</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">Agama</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">Status Kawin</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">Pekerjaan</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">Golongan Darah</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">Kewarganegaraan</th>
                   {showActions && (
-                    <th className="p-5 text-left text-sm font-semibold text-gray-900 capitalize">Aksi</th>
+                    <th className="text-left text-sm font-semibold text-gray-900 capitalize">Aksi</th>
                   )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-300">
                 {paginatedWarga.map((w) => (
                   <tr key={w.nik} className="bg-white hover:bg-gray-50 transition-all duration-300">
-                    <td className="p-5 text-sm font-medium text-gray-900">{w.nik}</td>
-                    <td className="p-5 text-sm text-gray-900">{w.nama}</td>
-                    <td className="p-5 text-sm text-gray-900">
+                    <td className="text-sm font-medium text-gray-900">{w.nik}</td>
+                    <td className="text-sm text-gray-900">{w.nama}</td>
+                    <td className="text-sm text-gray-900">
                       {w.jenis_kelamin === 'perempuan' ? 'Perempuan' : 'Laki-laki'}
                     </td>
-                    <td className="p-5 text-sm text-gray-900">{w.tempat_lahir || '-'}</td>
-                    <td className="p-5 text-sm text-gray-900">{formatTanggal(w.tanggal_lahir)}</td>
-                    <td className="p-5 text-sm text-gray-900">{w.agama || '-'}</td>
-                    <td className="p-5 text-sm text-gray-900">
+                    <td className="text-sm text-gray-900">{w.tempat_lahir || '-'}</td>
+                    <td className="text-sm text-gray-900">{formatTanggal(w.tanggal_lahir)}</td>
+                    <td className="text-sm text-gray-900">{w.agama || '-'}</td>
+                    <td className="text-sm text-gray-900">
                       {w.status_perkawinan === 'kawin_tercatat'
                         ? 'Kawin'
                         : w.status_perkawinan === 'belum_kawin'
@@ -162,11 +162,11 @@ export default function WargaTable({
                         ? 'Cerai Mati'
                         : '-'}
                     </td>
-                    <td className="p-5 text-sm text-gray-900">{w.jenis_pekerjaan || '-'}</td>
-                    <td className="p-5 text-sm text-gray-900">{w.golongan_darah || '-'}</td>
-                    <td className="p-5 text-sm text-gray-900">{w.kewarganegaraan || '-'}</td>
+                    <td className="text-sm text-gray-900">{w.jenis_pekerjaan || '-'}</td>
+                    <td className="text-sm text-gray-900">{w.golongan_darah || '-'}</td>
+                    <td className="text-sm text-gray-900">{w.kewarganegaraan || '-'}</td>
                     {showActions && (
-                      <td className="p-5 text-sm text-gray-900 flex gap-2">
+                      <td className="text-sm text-gray-900 flex gap-2">
                         <a
                           href={`/dashboard/rw/warga/edit/${w.nik}`}
                           className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition"

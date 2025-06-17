@@ -97,7 +97,6 @@ export default function FormTambahWarga() {
         });
       }
 
-      // Hanya buat akun user jika statusnya Kepala Keluarga
       if (form.status_hubungan_dalam_keluarga === 'Kepala Keluarga') {
         await fetch('/api/user/tambah-dari-nik', {
           method: 'POST',
@@ -119,14 +118,14 @@ export default function FormTambahWarga() {
   };
 
   const inputStyle =
-    'mt-1 block w-full rounded-lg border border-gray-300 p-2 text-sm text-gray-800 bg-white shadow-sm focus:ring-blue-500 focus:border-blue-500';
+    'mt-1 block w-full rounded-lg border border-gray-300 p-1.5 text-sm text-gray-800 bg-white shadow-sm focus:ring-blue-500 focus:border-blue-500';
 
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Tambah Warga</h2>
+    <div className="bg-gray-100 min-h-screen p-4">
+      <div className="max-w-4xl mx-auto bg-white p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Tambah Warga</h2>
         <BackButton />
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
             ['NIK', 'nik', 'text', true],
             ['Nama', 'nama', 'text', true],
@@ -307,7 +306,7 @@ function Select({
         value={value}
         onChange={onChange}
         title={label}
-        className="mt-1 block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-800 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        className="mt-1 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-sm text-gray-800 shadow-sm focus:ring-blue-500 focus:border-blue-500"
       >
         {options.map(([val, label]) => (
           <option key={val} value={val}>

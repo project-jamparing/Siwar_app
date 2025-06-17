@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -61,37 +61,39 @@ export default function DataJabatanPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto font-sans bg-gray-50 min-h-screen">
-      <header className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto font-sans bg-gray-50 min-h-screen">
+      <header className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
           Data Masa Jabatan
         </h1>
         <button
           onClick={() => router.push("/dashboard/admin/tambah")}
-          className="rounded-lg bg-indigo-600 px-6 py-3 text-white font-semibold shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition"
+          className="rounded-md bg-indigo-600 px-4 py-2.5 text-white font-semibold shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"
           aria-label="Tambah RW/RT"
         >
           + Tambah RW/RT
         </button>
       </header>
 
-      {loading && <Loading />}
-      {error && <ErrorMessage message={error} />}
-      {!loading && !error && data.length === 0 && <EmptyState />}
-      {!loading && !error && data.length > 0 && (
-        <TableJabatan
-          data={data}
-          onNonaktif={handleNonaktif}
-          updatingId={updatingId}
-        />
-      )}
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow">
+        {loading && <Loading />}
+        {error && <ErrorMessage message={error} />}
+        {!loading && !error && data.length === 0 && <EmptyState />}
+        {!loading && !error && data.length > 0 && (
+          <TableJabatan
+            data={data}
+            onNonaktif={handleNonaktif}
+            updatingId={updatingId}
+          />
+        )}
+      </div>
     </div>
   );
 }
 
 function Loading() {
   return (
-    <p className="text-indigo-600 font-semibold mb-6 animate-pulse text-center">
+    <p className="text-indigo-600 font-semibold text-center animate-pulse py-4">
       Loading data...
     </p>
   );
@@ -99,15 +101,15 @@ function Loading() {
 
 function ErrorMessage({ message }: { message: string }) {
   return (
-    <p className="text-red-700 font-semibold mb-6 bg-red-100 p-4 rounded-lg shadow-sm">
+    <div className="bg-red-100 border border-red-200 text-red-800 font-semibold p-4 rounded mb-4">
       {message}
-    </p>
+    </div>
   );
 }
 
 function EmptyState() {
   return (
-    <p className="text-gray-500 text-center text-lg">
+    <p className="text-gray-600 text-center text-base py-6">
       Belum ada data RT yang tersedia.
     </p>
   );
