@@ -264,6 +264,7 @@ export default function FormTambahWarga() {
                 className={inputStyle}
                 required
                 disabled={isSubmitting}
+                title='Tanggal Pernikahan'
               />
             </div>
           )}
@@ -305,6 +306,7 @@ function Select({
         name={name}
         value={value}
         onChange={onChange}
+        title={label}
         className="mt-1 block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-800 shadow-sm focus:ring-blue-500 focus:border-blue-500"
       >
         {options.map(([val, label]) => (

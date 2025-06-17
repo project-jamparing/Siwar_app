@@ -98,15 +98,21 @@ export default function TabelKeluarga() {
         />
       )}
 
-      <div className="p-6 max-w-7xl mx-auto bg-white rounded-2xl shadow-xl">
-        <h2 className="text-2xl md:text-3xl font-semibold mb-6 text-gray-800 flex items-center gap-2">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto bg-white rounded-2xl shadow-lg">
+        <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800 flex items-center gap-2">
           📋 Daftar Kartu Keluarga
         </h2>
 
         {loading ? (
-          <p className="text-center py-6 text-gray-500">Memuat data...</p>
+          <div className="flex justify-center items-center py-6 text-gray-500">
+            <svg className="animate-spin h-6 w-6 mr-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            Memuat data...
+          </div>
         ) : error ? (
-          <p className="text-center py-6 text-red-600">Error: {error}</p>
+          <p className="text-center py-6 text-red-600 font-medium">⚠️ {error}</p>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-gray-200">
             <table className="min-w-full text-sm text-left text-gray-700">
@@ -128,8 +134,8 @@ export default function TabelKeluarga() {
                   </tr>
                 ) : (
                   data.map((item) => (
-                    <tr key={item.no_kk} className="hover:bg-gray-50">
-                      <td className="px-5 py-3">{item.no_kk}</td>
+                    <tr key={item.no_kk} className="hover:bg-gray-50 transition">
+                      <td className="px-5 py-3 font-medium">{item.no_kk}</td>
                       <td className="px-5 py-3">{item.nama}</td>
                       <td className="px-5 py-3">{item.rt}</td>
                       <td className="px-5 py-3 capitalize">{item.kategori}</td>
@@ -137,8 +143,8 @@ export default function TabelKeluarga() {
                         <div className="flex justify-center gap-2">
                           <Link
                             href={`/dashboard/${role}/keluarga/${item.no_kk}`}
-                            title="Lihat"
-                            className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
+                            title="Lihat detail"
+                            className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 focus:ring-2 focus:ring-blue-300 focus:outline-none"
                           >
                             <Eye size={16} />
                           </Link>
@@ -147,16 +153,16 @@ export default function TabelKeluarga() {
                             <>
                               <button
                                 onClick={() => handleEdit(item)}
-                                className="p-2 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition"
-                                title="Edit"
+                                title="Edit KK"
+                                className="p-2 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 focus:ring-2 focus:ring-yellow-300 focus:outline-none"
                               >
                                 <Pencil size={16} />
                               </button>
 
                               <button
                                 onClick={() => handleDelete(item.no_kk)}
-                                className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition"
-                                title="Hapus"
+                                title="Hapus KK"
+                                className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 focus:ring-2 focus:ring-red-300 focus:outline-none"
                               >
                                 <Trash size={16} />
                               </button>

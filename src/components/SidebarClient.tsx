@@ -15,14 +15,29 @@ export default function SidebarClient({ menuItems }: SidebarClientProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
+  // Reset drawer on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
+  // Close with ESC key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  // Lock scroll when drawer is open
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+  }, [open]);
+
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between px-4 py-3 border-b transition-opacity duration-300 ${open ? 'opacity-0' : 'opacity-100">
+      <div className={`md:hidden flex items-center justify-between px-4 py-3 border-b transition-opacity duration-300 ${open ? 'opacity-0' : 'opacity-100'}`}>
         <Image
           src="/images/logo/logo.png"
           alt="SIWAR APP"
@@ -31,7 +46,7 @@ export default function SidebarClient({ menuItems }: SidebarClientProps) {
           className={`${open ? 'hidden' : 'block'}`}
         />
         <button onClick={() => setOpen(true)}>
-          <Menu className="w-6 h-6" />
+          <Menu className="w-6 h-6 text-gray-700" />
         </button>
       </div>
 
@@ -40,18 +55,26 @@ export default function SidebarClient({ menuItems }: SidebarClientProps) {
         <div className="flex items-center justify-between p-4 border-b">
           <Image src="/images/logo/logo.png" alt="SIWAR APP" width={140} height={40} />
           <button onClick={() => setOpen(false)}>
-            <X className="w-6 h-6" />
+            <X className="w-6 h-6 text-gray-700" />
           </button>
         </div>
         <nav className="px-4 pt-4 space-y-2">
-          {menuItems.map((item, idx) => (
-            <Link key={idx} href={item.href} className={`flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 text-gray-700 hover:text-blue-600 transition group ${pathname === item.href ? 'bg-blue-100 text-blue-600' : ''}`}>
-              <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition">
-                {item.icon}
-              </div>
-              <span className="font-medium">{item.label}</span>
-            </Link>
-          ))}
+          {menuItems.map((item, idx) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link key={idx} href={item.href} className="relative block group">
+                {isActive && (
+                  <span className="absolute left-0 top-0 h-full w-1 rounded-r-full bg-blue-500" />
+                )}
+                <div className={`flex items-center gap-3 px-4 py-2 rounded-lg transition group-hover:translate-x-[1px] duration-200 hover:bg-blue-100 text-gray-700 hover:text-blue-600 ${isActive ? 'bg-blue-100 text-blue-600' : ''}`}>
+                  <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition">
+                    {item.icon}
+                  </div>
+                  <span className="font-medium">{item.label}</span>
+                </div>
+              </Link>
+            );
+          })}
         </nav>
         <div className="p-4 border-t mt-auto">
           <LogoutButton />
@@ -70,14 +93,22 @@ export default function SidebarClient({ menuItems }: SidebarClientProps) {
             <Image src="/images/logo/logo.png" alt="SIWAR APP" width={160} height={50} className="mx-auto" />
           </div>
           <nav className="px-4 pt-6 space-y-2">
-            {menuItems.map((item, idx) => (
-              <Link key={idx} href={item.href} className={`flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 text-gray-700 hover:text-blue-600 transition group ${pathname === item.href ? 'bg-blue-100 text-blue-600' : ''}`}>
-                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition">
-                  {item.icon}
-                </div>
-                <span className="font-medium">{item.label}</span>
-              </Link>
-            ))}
+            {menuItems.map((item, idx) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link key={idx} href={item.href} className="relative block group">
+                  {isActive && (
+                    <span className="absolute left-0 top-0 h-full w-1 rounded-r-full bg-blue-500" />
+                  )}
+                  <div className={`flex items-center gap-3 px-4 py-2 rounded-lg transition group-hover:translate-x-[1px] duration-200 hover:bg-blue-100 text-gray-700 hover:text-blue-600 ${isActive ? 'bg-blue-100 text-blue-600' : ''}`}>
+                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition">
+                      {item.icon}
+                    </div>
+                    <span className="font-medium">{item.label}</span>
+                  </div>
+                </Link>
+              );
+            })}
           </nav>
         </div>
         <div className="p-4 border-t border-gray-200">
