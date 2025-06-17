@@ -1,6 +1,6 @@
 import SidebarServer from '@/components/SidebarServer';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function WargaLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100">
       {/* Sidebar */}

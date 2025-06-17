@@ -81,9 +81,12 @@ export default function SidebarClient({ menuItems }: SidebarClientProps) {
         </div>
       </div>
 
-      {/* Overlay */}
+      {/* Overlay with blur */}
       {open && (
-        <div className="fixed inset-0 z-30 bg-black bg-opacity-30 md:hidden" onClick={() => setOpen(false)} />
+        <div
+          className="fixed inset-0 z-30 backdrop-blur-sm bg-black/20 transition-opacity duration-300 md:hidden"
+          onClick={() => setOpen(false)}
+        />
       )}
 
       {/* Desktop Sidebar */}
