@@ -28,18 +28,21 @@ export async function POST(req: Request) {
     }
 
     const roleRedirect: Record<number, string> = {
-      1: 'dashboard/admin',
-      2: 'dashboard/rw',
-      3: 'dashboard/rt',
-      4: 'dashboard/warga',
+      1: '/dashboard/admin',
+      2: '/dashboard/rw',
+      3: '/dashboard/rt',
+      4: '/dashboard/warga',
     };
 
     const res = NextResponse.json({
       message: 'Login berhasil',
       redirect: roleRedirect[user.role_id],
-      role_id: user.role_id,
+      role: user.role.nama, // ← kirim role (misal: 'rw', 'rt', dsb)
+      nik: user.nik,
       rt_id: user?.warga?.kk?.rt_id ?? null,
     });
+
+
 
     res.cookies.set('token', 'dummy-token', { httpOnly: true });
     res.cookies.set('role_id', String(user.role_id), { httpOnly: true });

@@ -18,37 +18,67 @@ export default function PengumumanViewOnly({ data }: Props) {
   const [selected, setSelected] = useState<Pengumuman | null>(null);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">Daftar Pengumuman</h1>
+    <div className="relative min-h-screen overflow-hidden">
+      {/* BACKGROUND GRADIENT */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-200 via-white to-blue-100" />
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {data.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => setSelected(item)}
-            className="bg-white rounded-2xl shadow-md p-5 hover:shadow-lg hover:ring-2 hover:ring-blue-500 transition-all duration-200 cursor-pointer"
-          >
-            <h2 className="text-lg font-bold text-gray-800 mb-1">{item.judul}</h2>
+      {/* CONTAINER */}
+      <div className="px-6 py-12 max-w-7xl mx-auto">
+        <h1 className="text-4xl font-extrabold text-center text-gray-900 mb-12 tracking-tight">
+          📢 Daftar Pengumuman
+        </h1>
 
-            <p className="text-sm text-gray-600 mt-1 line-clamp-3">{item.isi}</p>
-            <p className="text-xs text-gray-400 mb-2">
-              {new Date(item.tanggal).toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </p>
-          </div>
-        ))}
+        {/* GRID */}
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {data.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => setSelected(item)}
+              className="bg-white rounded-xl shadow-lg hover:shadow-xl border border-gray-200 p-6 transition-all duration-300 cursor-pointer hover:ring-2 hover:ring-indigo-400 group"
+            >
+              <h2 className="text-xl font-semibold text-gray-800 mb-1 group-hover:underline">
+                {item.judul || 'Tanpa Judul'}
+              </h2>
+
+              <p className="text-xs text-gray-400 mb-2">
+                {new Date(item.tanggal).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </p>
+
+              <p className="text-sm text-gray-600 line-clamp-3">
+                {item.isi || 'Tidak ada isi'}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
+      {/* MODAL */}
       {selected && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full relative animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center px-4">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full relative animate-fade-in transition-all duration-300">
+            <button
+              onClick={() => setSelected(null)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-xl"
+              aria-label="Tutup"
+            >
+              ✕
+            </button>
+
             <h2 className="text-2xl font-bold text-gray-800 mb-2">{selected.judul}</h2>
-            <p className="text-sm text-gray-600 italic mb-2">{selected.subjek}</p>
-            <p className="text-gray-700 mt-3 whitespace-pre-line">{selected.isi}</p>
-            <p className="text-sm text-gray-500">
+
+            {selected.subjek && (
+              <p className="text-sm text-indigo-600 italic mb-2">{selected.subjek}</p>
+            )}
+
+            <p className="text-gray-700 mt-3 whitespace-pre-line leading-relaxed">
+              {selected.isi}
+            </p>
+
+            <p className="text-sm text-gray-500 mt-6 text-right">
               {new Date(selected.tanggal).toLocaleDateString('id-ID', {
                 weekday: 'long',
                 year: 'numeric',
@@ -56,13 +86,6 @@ export default function PengumumanViewOnly({ data }: Props) {
                 day: 'numeric',
               })}
             </p>
-            <button
-              onClick={() => setSelected(null)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
-              aria-label="Close"
-            >
-              ✕
-            </button>
           </div>
         </div>
       )}

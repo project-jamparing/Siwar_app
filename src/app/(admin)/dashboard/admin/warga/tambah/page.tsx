@@ -55,7 +55,7 @@ export default function TambahWargaPage() {
         return;
       }
 
-      router.push('/dashboard/admin/warga');
+      router.push('/warga');
     } catch (error) {
       console.error('Client error:', error);
       alert('Terjadi kesalahan di sisi client.');

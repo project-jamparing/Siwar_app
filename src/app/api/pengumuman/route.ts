@@ -1,78 +1,108 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-
-export async function GET(request: Request) {
+// GET: Ambil daftar pengumuman
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(req.url);
     const role = searchParams.get('role');
     const nik = searchParams.get('nik');
-    const filterTerbaru = searchParams.get('terbaru');
+    const terbaru = searchParams.get('terbaru');
+    const getRT = searchParams.get('get');
 
-    const whereCondition: any = {};
-
-    if (filterTerbaru === 'true') {
-      const duaHariLalu = new Date();
-      duaHariLalu.setDate(duaHariLalu.getDate() - 2);
-      whereCondition.tanggal = { gte: duaHariLalu };
+    // Ambil semua RT jika diminta
+    if (getRT === 'rt') {
+      const dataRT = await prisma.rukun_tetangga.findMany();
+      return NextResponse.json(dataRT);
     }
 
-    if (role === 'warga' || role === 'rt') {
-      if (!nik) {
-        return NextResponse.json({ message: 'NIK tidak ditemukan' }, { status: 400 });
+    const whereCondition: Record<string, any> = {};
+
+    if ((role === 'rt' || role === 'warga') && nik) {
+      const warga = await prisma.warga.findUnique({ where: { nik } });
+      if (!warga) {
+        return NextResponse.json({ error: 'Warga tidak ditemukan' }, { status: 404 });
       }
 
-      const warga = await prisma.warga.findUnique({
-        where: { nik },
-        include: { kk: true },
-      });
-
-      if (!warga || !warga.kk || !warga.kk.rt_id) {
-        return NextResponse.json({ message: 'RT tidak ditemukan' }, { status: 400 });
-      }
-
-      whereCondition.rt_id = warga.kk.rt_id;
+      whereCondition.OR = [
+        { rt_id: null }, // pengumuman RW
+        { rt_id: warga.rt_id } // pengumuman RT sesuai warga
+      ];
     }
+
+    const orderBy = terbaru
+      ? [{ tanggal: 'desc' as const }]
+      : [{ tanggal: 'asc' as const }];
 
     const pengumuman = await prisma.pengumuman.findMany({
       where: whereCondition,
-      orderBy: { tanggal: 'desc' },
-      include: { rukun_tetangga: true },
+      orderBy,
     });
 
     return NextResponse.json(pengumuman);
-  } catch (error) {
-    console.error('Gagal ambil data pengumuman:', error);
-    return NextResponse.json({ message: 'Gagal ambil data pengumuman' }, { status: 500 });
+  } catch (err: any) {
+    console.error('🔥 ERROR GET /api/pengumuman:', err.message, err);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
-
-export async function POST(request: Request) {
+// POST: Tambah pengumuman
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
-    const { judul, isi, tanggal, rt_id, subjek } = body;
+    const body = await req.json();
+    const { judul, subjek, isi, tanggal, role, rt_id } = body;
 
-    if (!judul || !isi || !tanggal || !rt_id) {
-      return NextResponse.json({ message: 'Field tidak lengkap' }, { status: 400 });
+    console.log('📥 POST Body:', body); // bantu debug
+
+    // Validasi input
+    if (!judul || !isi || !tanggal || !role) {
+      return NextResponse.json({ error: 'Data tidak lengkap' }, { status: 400 });
+    }
+
+    if (role === 'rt' && !rt_id) {
+      return NextResponse.json({ error: 'rt_id wajib untuk role RT' }, { status: 400 });
     }
 
     const newPengumuman = await prisma.pengumuman.create({
       data: {
         judul,
+        subjek,
         isi,
         tanggal: new Date(tanggal),
-        rt_id: parseInt(rt_id),
-        subjek: subjek ?? '',
-      },
-      include: {
-        rukun_tetangga: true,
+        rt_id: role === 'rt' ? rt_id : null,
       },
     });
 
-    return NextResponse.json(newPengumuman);
-  } catch (error) {
-    console.error('Gagal tambah pengumuman:', error);
-    return NextResponse.json({ message: 'Gagal menambahkan pengumuman' }, { status: 500 });
+    return NextResponse.json(newPengumuman, { status: 201 });
+  } catch (err: any) {
+    console.error('🔥 ERROR POST /api/pengumuman:', err.message, err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+// PUT: Edit pengumuman
+export async function PUT(req: Request) {
+  try {
+    const { id, judul, subjek, isi, tanggal, rt_id } = await req.json();
+
+    if (!id || !judul || !isi || !tanggal) {
+      return NextResponse.json({ error: 'Data tidak lengkap' }, { status: 400 });
+    }
+
+    const updated = await prisma.pengumuman.update({
+      where: { id },
+      data: {
+        judul,
+        subjek,
+        isi,
+        tanggal: new Date(tanggal),
+        rt_id: rt_id ?? undefined,
+      },
+    });
+
+    return NextResponse.json(updated);
+  } catch (err: any) {
+    console.error('🔥 ERROR PUT /api/pengumuman:', err.message, err);
+    return NextResponse.json({ error: 'Gagal update pengumuman' }, { status: 500 });
   }
 }

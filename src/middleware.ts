@@ -8,11 +8,11 @@ export function middleware(req: NextRequest) {
     const role_id = Number(req.cookies.get('role_id')?.value);
 
     if (token && role_id) {
-      let destination = '/dashboard/warga'; // default
-      if (role_id === 1) destination = '/dashboard/admin';
-      else if (role_id === 2) destination = '/dashboard/rw';
-      else if (role_id === 3) destination = '/dashboard/rt';
-      else if (role_id === 4) destination = '/dashboard/warga';
+      let destination = '/warga'; // default
+      if (role_id === 1) destination = '/admin';
+      else if (role_id === 2) destination = '/rw';
+      else if (role_id === 3) destination = '/rt';
+      else if (role_id === 4) destination = '/warga';
 
       return NextResponse.redirect(new URL(destination, req.url));
     }

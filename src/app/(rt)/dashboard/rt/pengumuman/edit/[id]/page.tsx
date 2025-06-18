@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
 export default function EditPengumumanPage() {
   const { id } = useParams();
@@ -20,7 +19,7 @@ export default function EditPengumumanPage() {
       setJudul(data.judul);
       setSubjek(data.subjek);
       setIsi(data.isi);
-      setTanggal(data.tanggal.slice(0, 10)); // yyyy-mm-dd
+      setTanggal(data.tanggal.slice(0, 10));
     }
 
     fetchData();

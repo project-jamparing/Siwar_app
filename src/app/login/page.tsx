@@ -29,7 +29,7 @@ export default function LoginPage() {
       localStorage.setItem('isLoggedIn', 'true'); 
       localStorage.setItem('nik', data.nik);
       localStorage.setItem('role', data.role);
-      router.push(data.redirect);
+      router.push(data.redirect); 
     } else {
       setError(data.error || 'Login gagal');
     }

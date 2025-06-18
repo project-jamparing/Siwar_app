@@ -17,15 +17,24 @@ export default function TambahPengumuman() {
     const res = await fetch('/api/pengumuman', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ judul, subjek, isi, tanggal, rt_id: 3 }),
+      body: JSON.stringify({
+        judul,
+        subjek,
+        isi,
+        tanggal,
+        rt_id: 3,
+        role: 'rt', // ✅ ini WAJIB
+      }),
     });
 
     if (res.ok) {
-      router.push('/dashboard/rt/pengumuman');  // langsung balik ke halaman pengumuman
+      router.push('/dashboard/rt/pengumuman');
+
     } else {
       alert('Gagal tambah pengumuman');
     }
   }
+
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4">

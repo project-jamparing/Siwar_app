@@ -1,12 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { redirect } from 'next/navigation';
 import { Users, FileCheck2, Megaphone } from 'lucide-react';
+
+type Pengumuman = {
+  id: number;
+  judul: string;
+  tanggal: string;
+  isi: string;
+};
 
 export default function RWPage() {
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState('');
+  const [pengumuman, setPengumuman] = useState<Pengumuman[]>([]);
 
   const simpanIuran = async () => {
     setIsSending(true);
@@ -14,9 +21,7 @@ export default function RWPage() {
     try {
       const res = await fetch('/api/iuran', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nama: 'Faris cukurukuk',
           nominal: 100000,
@@ -35,6 +40,19 @@ export default function RWPage() {
       setIsSending(false);
     }
   };
+
+  useEffect(() => {
+    fetch('/api/pengumuman?role=rw&terbaru=true')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setPengumuman(data);
+        } else {
+          console.error('Format pengumuman salah:', data);
+        }
+      })
+      .catch(err => console.error('Gagal fetch pengumuman:', err));
+  }, []);
 
   return (
     <main className="flex-1 p-6">
@@ -61,7 +79,7 @@ export default function RWPage() {
             <h3 className="text-lg font-semibold text-gray-700">Pengumuman RW</h3>
             <Megaphone className="text-yellow-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">4</p>
+          <p className="text-3xl font-bold text-gray-800">{pengumuman.length}</p>
         </div>
       </div>
 
@@ -77,20 +95,25 @@ export default function RWPage() {
         {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}
       </div>
 
-      {/* Pengumuman */}
+      {/* Pengumuman Terbaru */}
       <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Pengumuman RW Terbaru</h2>
-        <div className="space-y-3">
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Musyawarah Warga RW</h3>
-            <p className="text-gray-600 text-sm">Sabtu, 20.00 WIB di Aula RW</p>
+        {pengumuman.length === 0 ? (
+          <p className="text-gray-500">Belum ada pengumuman.</p>
+        ) : (
+          <div className="space-y-3">
+            {pengumuman.map((item) => (
+              <div key={item.id} className="p-4 bg-indigo-50 rounded-lg">
+                <h3 className="font-semibold text-indigo-700">{item.judul}</h3>
+                <p className="text-gray-600 text-sm">{new Date(item.tanggal).toLocaleDateString()}</p>
+                <p className="text-gray-700 text-sm mt-1">{item.isi}</p>
+              </div>
+            ))}
           </div>
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Gotong Royong Mingguan</h3>
-            <p className="text-gray-600 text-sm">Minggu, 06.00 pagi – lingkungan RW</p>
-          </div>
-        </div>
+        )}
       </div>
-    </main>
-  );
+    </main>
+  );
 }
+
+
