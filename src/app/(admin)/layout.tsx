@@ -1,7 +1,10 @@
+// src/app/(admin)/layout.tsx
+
 import type { Metadata } from "next";
 import "../globals.css";
 import SideBar from "@/components/sidebar";
 import Navbar from "@/components/navbar";
+import "@/lib/cron";
 
 
 export const metadata: Metadata = {
