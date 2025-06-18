@@ -24,7 +24,7 @@ export default function TambahPengumumanRW() {
           subjek,
           isi,
           tanggal,
-          role: 'rw', // ⬅️ WAJIB ADA!
+          role: 'rw',
         }),
       });
 
@@ -37,55 +37,67 @@ export default function TambahPengumumanRW() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">Tambah Pengumuman RW</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700 mb-1">Judul</label>
-          <input
-            type="text"
-            value={judul}
-            onChange={(e) => setJudul(e.target.value)}
-            className="w-full border text-gray-600 border-gray-300 rounded-lg px-4 py-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700 mb-1">Subjek</label>
-          <input
-            type="text"
-            value={subjek}
-            onChange={(e) => setSubjek(e.target.value)}
-            className="w-full border text-gray-600 border-gray-300 rounded-lg px-4 py-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700 mb-1">Isi</label>
-          <textarea
-            value={isi}
-            onChange={(e) => setIsi(e.target.value)}
-            className="w-full border text-gray-600 border-gray-300 rounded-lg px-4 py-2"
-            rows={6}
-            required
-          />
-          <input
-            type="date"
-            value={tanggal}
-            onChange={(e) => setTanggal(e.target.value)}
-            required
-            className="border p-2 text-sm w-full mb-3 text-gray-600"
-          />  
-        </div>
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-          >
-            Simpan
-          </button>
-        </div>
-      </form>
+    <div className="min-h-screen bg-gradient-to-br from-blue-200 via-indigo-100 to-white py-10 px-4 flex items-center justify-center">
+      <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl p-6 sm:p-8 w-full max-w-2xl">
+        <h1 className="text-2xl sm:text-3xl font-bold text-blue-900 mb-6 text-center">
+          Tambah Pengumuman RW
+        </h1>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-gray-700 mb-1 font-medium">Judul</label>
+            <input
+              type="text"
+              value={judul}
+              onChange={(e) => setJudul(e.target.value)}
+              required
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 text-gray-800"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-1 font-medium">Subjek</label>
+            <input
+              type="text"
+              value={subjek}
+              onChange={(e) => setSubjek(e.target.value)}
+              required
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 text-gray-800"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-1 font-medium">Isi</label>
+            <textarea
+              value={isi}
+              onChange={(e) => setIsi(e.target.value)}
+              rows={5}
+              required
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 text-gray-800"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-1 font-medium">Tanggal</label>
+            <input
+              type="date"
+              value={tanggal}
+              onChange={(e) => setTanggal(e.target.value)}
+              required
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 text-gray-800"
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-200"
+            >
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

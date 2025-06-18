@@ -23,39 +23,48 @@ export default function PengumumanViewOnly({ data }: Props) {
   const [selected, setSelected] = useState<Pengumuman | null>(null);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">Daftar Pengumuman</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-200 via-indigo-100 to-white py-10 px-4 sm:px-6">
+      <h1 className="text-2xl sm:text-4xl font-extrabold text-blue-900 text-center sm:text-left mb-10 drop-shadow">
+         Daftar Pengumuman
+      </h1>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
         {data.map((item) => (
           <div
             key={item.id}
             onClick={() => setSelected(item)}
-            className="bg-white rounded-2xl shadow-md p-5 hover:shadow-lg hover:ring-2 hover:ring-blue-500 transition-all duration-200 cursor-pointer"
+            className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 hover:shadow-2xl hover:ring-2 hover:ring-blue-500 transition-all duration-300 cursor-pointer"
           >
-            <h2 className="text-lg font-bold text-gray-800 mb-1">{item.judul}</h2>
-
-            <p className="text-sm text-gray-600 mt-1 line-clamp-3">{item.isi}</p>
-            <p className="text-xs text-gray-400 mb-2">
+            <h2 className="text-lg font-semibold text-blue-800 mb-2">{item.judul}</h2>
+            <p className="text-sm text-gray-600 line-clamp-3 mb-3">{item.isi}</p>
+            <p className="text-xs text-gray-500 mb-1">
               {new Date(item.tanggal).toLocaleDateString('id-ID', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
               })}
             </p>
-            <p className="text-sm text-gray-500">
-              {item.rt_id === null ? 'Dari: RW' : `Dari: RT ${item.rukun_tetangga?.nama || item.rt_id}`}
+            <p className="text-sm text-gray-600">
+             {item.rt_id === null ? 'Dari: RW' : `Dari: RT ${item.rukun_tetangga?.nama || item.rt_id}`}
             </p>
           </div>
         ))}
       </div>
 
       {selected && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full relative animate-fade-in">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">{selected.judul}</h2>
-            <p className="text-sm text-gray-600 italic mb-2">{selected.subjek}</p>
-            <p className="text-gray-700 mt-3 whitespace-pre-line">{selected.isi}</p>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full relative max-h-[80vh] overflow-y-auto animate-fade-in">
+            <button
+              onClick={() => setSelected(null)}
+              className="absolute top-3 right-4 text-gray-400 hover:text-red-500 text-xl"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-xl sm:text-2xl font-bold text-blue-900 mb-2">{selected.judul}</h2>
+            <p className="text-sm italic text-gray-500 mb-3">{selected.subjek}</p>
+            <div className="text-gray-700 whitespace-pre-line mb-4">{selected.isi}</div>
             <p className="text-sm text-gray-500">
               {new Date(selected.tanggal).toLocaleDateString('id-ID', {
                 weekday: 'long',
@@ -64,13 +73,9 @@ export default function PengumumanViewOnly({ data }: Props) {
                 day: 'numeric',
               })}
             </p>
-            <button
-              onClick={() => setSelected(null)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
-              aria-label="Close"
-            >
-              ✕
-            </button>
+            <p className="text-sm text-gray-600 mt-1">
+              {selected.rt_id === null ? 'Dari: RW' : `Dari: RT ${selected.rukun_tetangga?.nama || selected.rt_id}`}
+            </p>
           </div>
         </div>
       )}

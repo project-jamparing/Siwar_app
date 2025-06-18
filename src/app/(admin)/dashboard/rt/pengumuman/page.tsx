@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 async function getData(): Promise<Pengumuman[]> {
   const role = 'rt';
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const nik = cookieStore.get('nik')?.value;
 
   if (!nik) {

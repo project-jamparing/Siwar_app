@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { cookies } from 'next/headers';
 
 // GET: Ambil daftar pengumuman
 export async function GET(request: Request) {
@@ -8,6 +9,27 @@ export async function GET(request: Request) {
     const role = searchParams.get('role');
     const nik = searchParams.get('nik'); // untuk cari rt_id warga
     const filterTerbaru = searchParams.get('terbaru');
+    const getRt = searchParams.get('get'); // untuk ambil rt_id langsung
+
+    // 🔥 NEW: kalau GET rt_id doang
+    if (getRt === 'rt') {
+      const nik = cookies().get('nik')?.value;
+
+      if (!nik) {
+        return NextResponse.json({ message: 'NIK tidak ditemukan di cookie' }, { status: 400 });
+      }
+
+      const warga = await prisma.warga.findUnique({
+        where: { nik },
+        include: { kk: true },
+      });
+
+      if (!warga || !warga.kk || !warga.kk.rt_id) {
+        return NextResponse.json({ message: 'RT tidak ditemukan' }, { status: 404 });
+      }
+
+      return NextResponse.json({ rt_id: warga.kk.rt_id });
+    }
 
     const whereCondition: any = {};
 
@@ -26,9 +48,10 @@ export async function GET(request: Request) {
         { rt_id: null }, // pengumuman dari RW
       ];
     } else if (role === 'rw') {
-      // RW melihat semua pengumuman
-    } else if (role === 'rt') {
-      // untuk RT jika tidak lewat nik
+      whereCondition.OR = [
+        { rt_id: null },
+        { NOT: { rt_id: null } }
+      ];
     }
 
     const orderBy = filterTerbaru === 'true' ? { tanggal: 'desc' } : undefined;
