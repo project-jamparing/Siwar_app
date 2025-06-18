@@ -3,14 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import CardPengumuman from '@/components/CardPengumuman';
-import type { Pengumuman } from '@/lib/type/pengumuman'; // pastikan sama dengan prisma client
+import type { Pengumuman } from '@/lib/type/pengumuman';
 import { Plus } from 'lucide-react';
 
 type Props = {
   data: Pengumuman[];
+  role: 'rt' | 'rw'; // ditambahkan
 };
 
-export default function PengumumanComponent({ data: initialData }: Props) {
+export default function Pengumuman({ data: initialData, role }: Props) {
   const [data, setData] = useState<Pengumuman[]>(initialData);
   const [selected, setSelected] = useState<Pengumuman | null>(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -31,7 +32,7 @@ export default function PengumumanComponent({ data: initialData }: Props) {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Daftar Pengumuman</h1>
-        <Link href="/dashboard/rt/pengumuman/tambah">
+        <Link href={`/dashboard/${role}/pengumuman/tambah`}>
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow transition">
             <Plus size={18} />
             Tambah
@@ -45,6 +46,7 @@ export default function PengumumanComponent({ data: initialData }: Props) {
           <CardPengumuman
             key={item.id}
             item={item}
+            role={role}
             onDelete={() => {
               setShowConfirmDelete(true);
               setPengumumanToDelete(item);
@@ -55,18 +57,26 @@ export default function PengumumanComponent({ data: initialData }: Props) {
       </div>
 
       {/* Modal detail */}
-      {selected && (
+       {selected && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full relative animate-fade-in">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full relative animate-fade-in transition-all duration-300">
             <button
               onClick={() => setSelected(null)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
+              className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition"
               aria-label="Tutup"
             >
               ✕
             </button>
-            <h2 className="text-2xl font-bold text-gray-800 mb-1">{selected.judul}</h2>
-            <p className="text-sm text-gray-500">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              {selected.judul}
+            </h2>
+            {selected.subjek && (
+              <p className="text-sm text-blue-600 italic mb-2">{selected.subjek}</p>
+            )}
+            <p className="text-gray-700 mt-3 whitespace-pre-line leading-relaxed">
+              {selected.isi}
+            </p>
+            <p className="text-sm text-gray-500 mt-6 text-right">
               {new Date(selected.tanggal).toLocaleDateString('id-ID', {
                 weekday: 'long',
                 year: 'numeric',
@@ -74,8 +84,6 @@ export default function PengumumanComponent({ data: initialData }: Props) {
                 day: 'numeric',
               })}
             </p>
-            <p className="text-sm text-gray-500 italic mb-2">{selected.subjek}</p>
-            <p className="text-gray-700 mt-3 whitespace-pre-line">{selected.isi}</p>
           </div>
         </div>
       )}

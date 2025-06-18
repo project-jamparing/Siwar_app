@@ -27,5 +27,5 @@ async function getData(): Promise<Pengumuman[]> {
 export default async function Page() {
   const data = await getData();
 
-  return <PengumumanComponent data={data} />;
+  return <PengumumanComponent data={data} role='rt' />;
 }

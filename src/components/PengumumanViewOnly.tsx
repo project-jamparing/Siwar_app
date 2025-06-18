@@ -8,6 +8,11 @@ type Pengumuman = {
   subjek: string;
   isi: string;
   tanggal: Date;
+  rt_id: number;
+  rukun_tetangga?: {
+    id: number;
+    nama: string;
+  };
 };
 
 type Props = {
@@ -37,6 +42,9 @@ export default function PengumumanViewOnly({ data }: Props) {
                 month: 'long',
                 year: 'numeric',
               })}
+            </p>
+            <p className="text-sm text-gray-500">
+              {item.rt_id === null ? 'Dari: RW' : `Dari: RT ${item.rukun_tetangga?.nama || item.rt_id}`}
             </p>
           </div>
         ))}
