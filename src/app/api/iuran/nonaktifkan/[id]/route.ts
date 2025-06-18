@@ -1,25 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const id = await parseInt(params.id);
+  const id = Number(params.id)
 
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'ID tidak valid' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'ID tidak valid' }, { status: 400 })
   }
 
   try {
-    const iuran = await prisma.iuran.update({
+    const updated = await prisma.iuran.update({
       where: { id },
-      data: { status: 'nonaktif' }, // pastikan kolom status ada di DB
-    });
+      data: {
+        status: 'nonaktif',
+      },
+    })
 
-    return NextResponse.json(iuran, { status: 200 });
+    return NextResponse.json({
+      success: true,
+      message: 'Iuran berhasil dinonaktifkan',
+      data: updated,
+    })
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: 'Gagal menonaktifkan iuran' }, { status: 500 });
+    console.error('❌ Gagal nonaktifkan iuran:', error)
+    return NextResponse.json(
+      { success: false, message: 'Terjadi kesalahan saat menonaktifkan iuran' },
+      { status: 500 }
+    )
   }
 }
