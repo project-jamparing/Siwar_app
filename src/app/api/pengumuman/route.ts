@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
     // 🔥 NEW: kalau GET rt_id doang
     if (getRt === 'rt') {
-      const cookieStore = await cookies(); // ✅
+      const cookieStore = await cookies(); 
       const nik = cookieStore.get('nik')?.value;
 
 
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ rt_id: warga.kk.rt_id });
     }
 
-    const whereCondition: Record<string, any> = {}; // ✅ lebih aman
+    const whereCondition: Record<string, any> = {}; 
 
     if ((role === 'rt' || role === 'warga') && nik) {
       const warga = await prisma.warga.findUnique({

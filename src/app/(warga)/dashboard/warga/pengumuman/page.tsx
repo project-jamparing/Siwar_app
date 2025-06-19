@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { Pengumuman } from '@/lib/type/pengumuman';
 
 export default async function PengumumanPage() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const nik = cookieStore.get('nik')?.value?.trim() || '';
   const role = 'warga';
 
