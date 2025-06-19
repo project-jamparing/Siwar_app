@@ -7,13 +7,15 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const role = searchParams.get('role');
-    const nik = searchParams.get('nik'); // untuk cari rt_id warga
+    const nik = searchParams.get('nik'); 
     const filterTerbaru = searchParams.get('terbaru');
-    const getRt = searchParams.get('get'); // untuk ambil rt_id langsung
+    const getRt = searchParams.get('get'); 
 
     // 🔥 NEW: kalau GET rt_id doang
     if (getRt === 'rt') {
-      const nik = cookies().get('nik')?.value;
+      const cookieStore = await cookies(); // ✅
+      const nik = cookieStore.get('nik')?.value;
+
 
       if (!nik) {
         return NextResponse.json({ message: 'NIK tidak ditemukan di cookie' }, { status: 400 });
@@ -31,7 +33,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ rt_id: warga.kk.rt_id });
     }
 
-    const whereCondition: any = {};
+    const whereCondition: Record<string, any> = {}; // ✅ lebih aman
 
     if ((role === 'rt' || role === 'warga') && nik) {
       const warga = await prisma.warga.findUnique({
@@ -45,7 +47,7 @@ export async function GET(request: Request) {
 
       whereCondition.OR = [
         { rt_id: warga.kk.rt_id },
-        { rt_id: null }, // pengumuman dari RW
+        { rt_id: null }, 
       ];
     } else if (role === 'rw') {
       whereCondition.OR = [

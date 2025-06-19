@@ -22,7 +22,7 @@ export default function Pengumuman({ data: initialData, role }: Props) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10 max-w-7xl mx-auto">
         <h1 className="text-2xl sm:text-3xl text-center sm:text-left font-extrabold text-blue-900">
-           Daftar Pengumuman
+          Daftar Pengumuman
         </h1>
         <Link href={`/dashboard/${role}/pengumuman/tambah`}>
           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow transition-all duration-200">
@@ -66,15 +66,17 @@ export default function Pengumuman({ data: initialData, role }: Props) {
               <p className="text-sm text-blue-600 italic mb-3">{selected.subjek}</p>
             )}
             <p className="text-gray-700 whitespace-pre-line leading-relaxed mb-4">
-              {selected.isi}
+              {selected.isi || '-'}
             </p>
             <p className="text-sm text-gray-500 text-right">
-              {new Date(selected.tanggal).toLocaleDateString('id-ID', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              {selected.tanggal
+                ? new Date(selected.tanggal).toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })
+                : 'Tanggal tidak tersedia'}
             </p>
           </div>
         </div>

@@ -14,6 +14,8 @@ export default function TambahPengumumanRW() {
     e.preventDefault();
 
     try {
+      const fullTanggal = new Date(`${tanggal}T${new Date().toTimeString().slice(0, 8)}`);
+
       const res = await fetch('/api/pengumuman', {
         method: 'POST',
         headers: {
@@ -23,10 +25,11 @@ export default function TambahPengumumanRW() {
           judul,
           subjek,
           isi,
-          tanggal,
+          tanggal: fullTanggal,
           role: 'rw',
         }),
       });
+
 
       if (!res.ok) throw new Error('Gagal tambah');
 

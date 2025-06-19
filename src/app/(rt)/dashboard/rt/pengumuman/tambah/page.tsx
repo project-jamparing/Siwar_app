@@ -33,6 +33,8 @@ export default function TambahPengumuman() {
       return;
     }
 
+const fullTanggal = new Date(`${tanggal}T${new Date().toTimeString().slice(0, 8)}`); // gabungkan tanggal input + jam saat ini
+
     const res = await fetch('/api/pengumuman', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -40,11 +42,12 @@ export default function TambahPengumuman() {
         judul,
         subjek,
         isi,
-        tanggal,
+        tanggal: fullTanggal,
         rt_id: rtId,
         role: 'rt',
       }),
     });
+
 
     if (res.ok) {
       router.push('/dashboard/rt/pengumuman');
