@@ -28,8 +28,9 @@ export default async function RTPage() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?terbaru=true&role=rt&nik=${nik}`, {
     cache: 'no-store',
   });
+  const json = await res.json();
+  const pengumumanTerbaru = json.data || [];
 
-  const pengumumanTerbaru = await res.json();
 
   return (
     <main className="flex-1 p-6">

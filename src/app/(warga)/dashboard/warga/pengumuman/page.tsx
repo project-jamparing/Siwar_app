@@ -1,27 +1,42 @@
-import PengumumanViewOnly from '@/components/PengumumanViewOnly';
 import { cookies } from 'next/headers';
-import { Pengumuman } from '@/lib/type/pengumuman';
+import PengumumanComponent from '@/components/PengumumanViewOnly';
+import type { pengumuman as Pengumuman } from '@prisma/client';
 
-export default async function PengumumanPage() {
-  const cookieStore = await cookies();
-  const nik = cookieStore.get('nik')?.value?.trim() || '';
-  const role = 'warga';
+export const dynamic = 'force-dynamic';
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  if (!baseUrl) {
-    throw new Error('ENV NEXT_PUBLIC_BASE_URL tidak ditemukan');
-  }
+async function getData() {
+  const cookieStore = cookies();
+  const nik = cookieStore.get('nik')?.value;
 
-  const url = `${baseUrl}/api/pengumuman?role=${encodeURIComponent(role)}&nik=${encodeURIComponent(nik)}`;
-  console.log("FETCH URL:", url);
+  const page = 1;
+  const limit = 5;
 
-  const res = await fetch(url, { cache: 'no-store' });
+  let query = `?role=warga&terbaru=true&page=${page}&limit=${limit}`;
+  if (nik) query += `&nik=${nik}`;
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman${query}`,
+    { cache: 'no-store' }
+  );
 
   if (!res.ok) {
-    throw new Error(`Gagal fetch pengumuman: ${res.status}`);
+    return { data: [], error: true };
   }
 
-  const data: Pengumuman[] = await res.json();
+  const result = await res.json();
+  return {
+    data: result.data as Pengumuman[],
+    total: result.total,
+    error: false
+  };
+}
 
-  return <PengumumanViewOnly data={data} />;
+export default async function Page() {
+  const { data, total, error } = await getData();
+
+  if (error) {
+    return <div className="p-4 text-red-500">Gagal fetch data pengumuman.</div>;
+  }
+
+  return <PengumumanComponent data={data} role="warga" total={total} perPage={5} />;
 }

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 type Pengumuman = {
   id: number;
@@ -21,11 +22,24 @@ type Props = {
 
 export default function PengumumanViewOnly({ data }: Props) {
   const [selected, setSelected] = useState<Pengumuman | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const selectedId = searchParams.get('selected');
+
+  useEffect(() => {
+    if (selectedId) {
+      const found = data.find((item) => item.id === Number(selectedId));
+      if (found) {
+        setSelected(found);
+        router.replace('/dashboard/warga/pengumuman', { scroll: false });
+      }
+    }
+  }, [selectedId, data, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-200 via-indigo-100 to-white py-10 px-4 sm:px-6">
       <h1 className="text-2xl sm:text-4xl font-extrabold text-blue-900 text-center sm:text-left mb-10 drop-shadow">
-         Daftar Pengumuman
+        Daftar Pengumuman
       </h1>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
@@ -45,7 +59,7 @@ export default function PengumumanViewOnly({ data }: Props) {
               })}
             </p>
             <p className="text-sm text-gray-600">
-             {item.rt_id === null ? 'Dari: RW' : `Dari: RT ${item.rukun_tetangga?.nama || item.rt_id}`}
+              {item.rt_id === null ? 'Dari: RW' : `Dari: RT ${item.rukun_tetangga?.nama || item.rt_id}`}
             </p>
           </div>
         ))}

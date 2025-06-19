@@ -23,7 +23,7 @@ export default async function RWPage() {
     { cache: 'no-store' }
   );
 
-  const pengumumanTerbaru = await res.json();
+  const { data: pengumumanTerbaru } = await res.json();
 
   return (
     <main className="flex-1 p-6">

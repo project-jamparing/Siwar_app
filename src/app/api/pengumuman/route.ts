@@ -2,20 +2,22 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
 
-// GET: Ambil daftar pengumuman
+// GET: Ambil daftar pengumuman (dengan pagination)
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const role = searchParams.get('role');
-    const nik = searchParams.get('nik'); 
+    const nik = searchParams.get('nik');
     const filterTerbaru = searchParams.get('terbaru');
-    const getRt = searchParams.get('get'); 
+    const getRt = searchParams.get('get');
 
-    // 🔥 NEW: kalau GET rt_id doang
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '5');
+    const skip = (page - 1) * limit;
+
+    // GET rt_id dari cookies
     if (getRt === 'rt') {
-      const cookieStore = await cookies(); 
-      const nik = cookieStore.get('nik')?.value;
-
+      const nik = cookies().get('nik')?.value;
 
       if (!nik) {
         return NextResponse.json({ message: 'NIK tidak ditemukan di cookie' }, { status: 400 });
@@ -33,7 +35,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ rt_id: warga.kk.rt_id });
     }
 
-    const whereCondition: Record<string, any> = {}; 
+    const whereCondition: Record<string, any> = {};
 
     if ((role === 'rt' || role === 'warga') && nik) {
       const warga = await prisma.warga.findUnique({
@@ -47,7 +49,7 @@ export async function GET(request: Request) {
 
       whereCondition.OR = [
         { rt_id: warga.kk.rt_id },
-        { rt_id: null }, 
+        { rt_id: null },
       ];
     } else if (role === 'rw') {
       whereCondition.OR = [
@@ -58,13 +60,18 @@ export async function GET(request: Request) {
 
     const orderBy = filterTerbaru === 'true' ? { tanggal: 'desc' } : undefined;
 
+    // Hitung total pengumuman untuk pagination
+    const total = await prisma.pengumuman.count({ where: whereCondition });
+
     const pengumuman = await prisma.pengumuman.findMany({
       where: whereCondition,
       include: { rukun_tetangga: true },
       orderBy,
+      skip,
+      take: limit,
     });
 
-    return NextResponse.json(pengumuman);
+    return NextResponse.json({ data: pengumuman, total });
   } catch (error) {
     console.error('Gagal ambil pengumuman:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
