@@ -4,10 +4,10 @@ import TabelIuranRT from '@/components/Tables/TabelIuranRT'
 
 export default function PageRT() {
   return (
-    <main className="p-6 bg-gray-50 min-h-screen">
+    <main className="p-2 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">
-          Daftar Iuran Bulanan RT
+          Daftar Iuran RT
         </h1>
         <Link
           href="/dashboard/rt/iuran/tambah"

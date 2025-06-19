@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import BackButton from '../Buttons/BackButton'
 
 interface Kategori {
   id: number
@@ -9,6 +11,8 @@ interface Kategori {
 }
 
 export default function FormTambahIuranSekali() {
+  const router = useRouter()
+
   const [kategoriList, setKategoriList] = useState<Kategori[]>([])
   const [form, setForm] = useState({
     nama: '',
@@ -33,7 +37,14 @@ export default function FormTambahIuranSekali() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+
+    if (name === 'nominal') {
+      const raw = value.replace(/\./g, '').replace(/[^0-9]/g, '')
+      setForm({ ...form, nominal: raw })
+    } else {
+      setForm({ ...form, [name]: value })
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,92 +57,96 @@ export default function FormTambahIuranSekali() {
         ...form,
         nominal: parseFloat(form.nominal),
       })
-      setMessage('✅ Iuran berhasil ditambahkan!')
-      setForm({
-        nama: '',
-        deskripsi: '',
-        nominal: '',
-        tanggal_nagih: '',
-        tanggal_tempo: '',
-        kategori_id: '',
-      })
+
+      router.push('/dashboard/rt/iuran')
     } catch (error: any) {
       setMessage(`❌ Gagal tambah iuran: ${error?.response?.data?.message || 'Error'}`)
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   return (
-    <div className="max-w-xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-lg text-gray-800 dark:text-white">
-      <h2 className="text-2xl font-bold mb-4">Tambah Iuran Sekali Pakai</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-2xl mx-auto p-6 sm:p-8 bg-white rounded-lg shadow border border-gray-200 text-gray-800">
+      <h2 className="text-xl sm:text-2xl font-bold mb-6">Tambah Iuran Sekali Pakai</h2>
+      <BackButton />
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Nama Iuran */}
         <div>
-          <label className="block mb-1 font-medium">Nama Iuran</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Nama Iuran</label>
           <input
             type="text"
             name="nama"
             value={form.nama}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+            placeholder="Masukkan nama iuran"
+            className="w-full px-3 py-2 rounded border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
+        {/* Deskripsi */}
         <div>
-          <label className="block mb-1 font-medium">Deskripsi</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Deskripsi</label>
           <textarea
             name="deskripsi"
             value={form.deskripsi}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+            placeholder="Contoh: Iuran pembangunan pos ronda"
+            rows={3}
+            className="w-full px-3 py-2 rounded border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
+        {/* Nominal */}
         <div>
-          <label className="block mb-1 font-medium">Nominal (contoh: 10000)</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Nominal</label>
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             name="nominal"
-            value={form.nominal}
+            value={form.nominal ? Number(form.nominal).toLocaleString('id-ID') : ''}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+            placeholder="100.000"
+            className="w-full px-3 py-2 rounded border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
-        <div>
-          <label className="block mb-1 font-medium">Tanggal Nagih</label>
-          <input
-            type="date"
-            name="tanggal_nagih"
-            value={form.tanggal_nagih}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-            required
-          />
+        {/* Tanggal */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Tanggal Nagih</label>
+            <input
+              type="date"
+              name="tanggal_nagih"
+              value={form.tanggal_nagih}
+              onChange={handleChange}
+              className="w-full px-3 py-2 rounded border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Tanggal Tempo</label>
+            <input
+              type="date"
+              name="tanggal_tempo"
+              value={form.tanggal_tempo}
+              onChange={handleChange}
+              className="w-full px-3 py-2 rounded border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
         </div>
 
+        {/* Kategori */}
         <div>
-          <label className="block mb-1 font-medium">Tanggal Tempo</label>
-          <input
-            type="date"
-            name="tanggal_tempo"
-            value={form.tanggal_tempo}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Kategori</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Kategori</label>
           <select
             name="kategori_id"
             value={form.kategori_id}
             onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+            className="w-full px-3 py-2 rounded border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
             <option value="">Pilih Kategori</option>
@@ -143,16 +158,17 @@ export default function FormTambahIuranSekali() {
           </select>
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold transition duration-200 disabled:opacity-50"
+          className="w-full py-2 px-4 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-200 disabled:opacity-50"
           disabled={loading}
         >
           {loading ? 'Menyimpan...' : 'Simpan Iuran'}
         </button>
 
         {message && (
-          <p className="text-sm mt-2 font-medium text-center">{message}</p>
+          <p className="text-sm mt-2 text-center text-red-500 font-medium">{message}</p>
         )}
       </form>
     </div>

@@ -23,7 +23,15 @@ export async function GET() {
 
     const tagihan = await prisma.tagihan.findMany({
       where: { no_kk: warga.no_kk },
-      include: {
+      orderBy: {
+        iuran: {
+          tanggal_tempo: 'desc',
+        },
+      },
+      select: {
+        id: true,
+        status: true,
+        tanggal_bayar: true,
         iuran: {
           select: {
             nama: true,
@@ -31,11 +39,6 @@ export async function GET() {
             nominal: true,
             tanggal_tempo: true,
           },
-        },
-      },
-      orderBy: {
-        iuran: {
-          tanggal_tempo: 'desc',
         },
       },
     })
