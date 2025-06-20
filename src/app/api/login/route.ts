@@ -44,8 +44,8 @@ export async function POST(req: Request) {
     res.cookies.set('token', 'dummy-token', { httpOnly: true });
     res.cookies.set('role_id', String(user.role_id), { httpOnly: true });
     res.cookies.set('nik', String(user.nik), { httpOnly: true });
-
-    return res;
+    
+    return res;    
   } catch (error) {
     console.error('🔥 Login Error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

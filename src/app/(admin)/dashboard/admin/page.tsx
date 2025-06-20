@@ -1,25 +1,29 @@
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
-import {
-  Users,
-  Megaphone,
-} from 'lucide-react';
+import { Users, Megaphone } from 'lucide-react';
+import Link from 'next/link';
 
-export default async function AdminPage() {
+export default async function WargaPage() {
   const cookie = await cookies();
   const nik = cookie.get('nik')?.value;
-  
+
   if (!nik) {
     redirect('/login');
   }
-  
+
   const warga = await prisma.warga.findMany();
   const userCount = await prisma.user.count();
-  
+
   const user = await prisma.user.findFirst({
     where: { nik },
-    include: { warga: true },
+    include: {
+      warga: {
+        include: {
+          kk: true,
+        },
+      },
+    },
   });
 
   if (!user || user.role_id !== 1) {
@@ -27,6 +31,21 @@ export default async function AdminPage() {
   }
 
   const userName = user.warga?.nama || user.nik;
+  const kategoriId = user.warga?.kk?.kategori_id;
+
+  let kategori = null;
+  if (kategoriId) {
+    kategori = await prisma.kategori.findUnique({ where: { id: kategoriId } });
+  }
+
+  // Ambil pengumuman terbaru
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?terbaru=true&role=warga&nik=${nik}`,
+    { cache: 'no-store' }
+  );
+
+  const json = await res.json();
+  const pengumuman = json.data || [];
 
   return (
     <main className="flex-1 p-6 space-y-6">
@@ -61,22 +80,16 @@ export default async function AdminPage() {
             <h3 className="text-lg font-semibold text-gray-700">Pengumuman Aktif</h3>
             <Megaphone className="text-yellow-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">2</p>
+          <p className="text-3xl font-bold text-gray-800">{pengumuman.length}</p>
         </div>
       </div>
 
-      {/* Pengumuman */}
-      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Pengumuman Terbaru</h2>
-        <div className="space-y-3">
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Rapat RT Jumat</h3>
-            <p className="text-gray-600 text-sm">19.30 WIB di Balai Warga</p>
-          </div>
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Kerja Bakti Minggu</h3>
-            <p className="text-gray-600 text-sm">Minggu, 07.00 pagi – saluran air</p>
-          </div>
+      {/* Pengumuman Section */}
+      <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 flex items-center gap-4 hover:shadow-lg transition">
+        <Megaphone className="w-10 h-10 text-yellow-500" />
+        <div>
+          <h3 className="text-sm text-gray-500 mb-1">Pengumuman Aktif</h3>
+          <p className="text-lg font-semibold text-gray-700">{pengumuman.length}</p>
         </div>
       </div>
     </main>

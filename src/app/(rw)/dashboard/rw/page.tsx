@@ -1,28 +1,24 @@
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
-import {
-  Users,
-  FileCheck2,
-  Megaphone,
-} from 'lucide-react';
+import { Users, FileCheck2, Megaphone } from 'lucide-react';
+import Link from 'next/link';
+import type { Pengumuman } from '@/lib/type/pengumuman'; // ✅ Tambahkan ini
 
 export default async function RWPage() {
   const cookie = await cookies();
   const nik = cookie.get('nik')?.value;
 
-  if (!nik) {
-    redirect('/login');
-  }
+  if (!nik) redirect('/login');
 
-  const user = await prisma.user.findFirst({
-    where: { nik },
-    include: { warga: true },
-  });
+  const user = await prisma.user.findFirst({ where: { nik } });
+  if (!user || user.role_id !== 2) redirect('/login');
 
-  if (!user || user.role_id !== 2) {
-    redirect('/login');
-  }
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?terbaru=true&role=rw&nik=${nik}`,
+    { cache: 'no-store' }
+  );
+  const { data: pengumumanTerbaru } = await res.json();
 
   const userName = user.warga?.nama || user.nik;
 
@@ -58,25 +54,33 @@ export default async function RWPage() {
 
         <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold text-gray-700">Pengumuman RW</h3>
+            <h3 className="text-lg font-semibold text-gray-700">Pengumuman Aktif</h3>
             <Megaphone className="text-yellow-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">4</p>
+          <p className="text-3xl font-bold text-gray-800">{pengumumanTerbaru.length}</p>
         </div>
       </div>
 
-      {/* Pengumuman */}
+      {/* Pengumuman Terbaru */}
       <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Pengumuman RW Terbaru</h2>
         <div className="space-y-3">
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Musyawarah Warga RW</h3>
-            <p className="text-gray-600 text-sm">Sabtu, 20.00 WIB di Aula RW</p>
-          </div>
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Gotong Royong Mingguan</h3>
-            <p className="text-gray-600 text-sm">Minggu, 06.00 pagi – lingkungan RW</p>
-          </div>
+          {pengumumanTerbaru.length === 0 ? (
+            <p className="text-gray-500">Tidak ada pengumuman 2 hari terakhir</p>
+          ) : (
+            pengumumanTerbaru.map((item: Pengumuman) => (
+              <Link
+                key={item.id}
+                href={`/dashboard/rw/pengumuman?selected=${item.id}`}
+                className="block"
+              >
+                <div className="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
+                  <h3 className="font-semibold text-indigo-700">{item.judul}</h3>
+                  <p className="text-gray-600 text-sm">{item.subjek}</p>
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </main>

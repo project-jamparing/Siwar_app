@@ -26,6 +26,7 @@ const menuItemsByRole: Record<
     { label: "Data KK", href: "/dashboard/rt/kepala-keluarga", icon: <Crown className="w-5 h-5" /> },
     { label: "Data Iuran RT", href: "/dashboard/rt/iuran", icon: <Bell className="w-5 h-5" /> },
     { label: "Riwayat Iuran", href: "/dashboard/rt/riwayat", icon: <History className="w-5 h-5" /> },
+    { label: "Riwayat Iuran", href: "/dashboard/rt/riwayat", icon: <History className="w-5 h-5" /> },
     { label: "Pengumuman", href: "/dashboard/rt/pengumuman", icon: <Megaphone className="w-5 h-5" /> },
   ],
   "4": [
@@ -44,3 +45,4 @@ export default async function SidebarServer() {
 
   return <SidebarClient menuItems={menuItems} />;
 }
+
