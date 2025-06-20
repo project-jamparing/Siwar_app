@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import PengumumanComponent from '@/components/Pengumuman';
+import PengumumanComponent from '@/components/Pengumuman/Pengumuman';
 import type { pengumuman as Pengumuman } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';

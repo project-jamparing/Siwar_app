@@ -12,6 +12,7 @@ const menuItemsByRole: Record<
     { label: "Data RW/RT", href: "/dashboard/admin/DataRW/RT", icon: <Users className="w-5 h-5" /> },
     { label: "Data Warga", href: "/dashboard/admin/warga", icon: <Users2 className="w-5 h-5" /> },
     { label: "Data KK", href: "/dashboard/admin/kepala-keluarga", icon: <Crown className="w-5 h-5" /> },
+    { label: "Pengumuman", href: "/dashboard/admin/pengumuman", icon: <Megaphone className="w-5 h-5" /> },
   ],
   "2": [
     { label: "Dashboard", href: "/dashboard/rw", icon: <Home className="w-5 h-5" /> },
@@ -25,7 +26,6 @@ const menuItemsByRole: Record<
     { label: "Data Warga", href: "/dashboard/rt/warga", icon: <Users className="w-5 h-5" /> },
     { label: "Data KK", href: "/dashboard/rt/kepala-keluarga", icon: <Crown className="w-5 h-5" /> },
     { label: "Data Iuran RT", href: "/dashboard/rt/iuran", icon: <Bell className="w-5 h-5" /> },
-    { label: "Riwayat Iuran", href: "/dashboard/rt/riwayat", icon: <History className="w-5 h-5" /> },
     { label: "Riwayat Iuran", href: "/dashboard/rt/riwayat", icon: <History className="w-5 h-5" /> },
     { label: "Pengumuman", href: "/dashboard/rt/pengumuman", icon: <Megaphone className="w-5 h-5" /> },
   ],

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import CardPengumuman from '@/components/CardPengumuman';
+import CardPengumuman from '@/components/Pengumuman/CardPengumuman';
 import type { Pengumuman } from '@/lib/type/pengumuman';
 import { Plus } from 'lucide-react';
 

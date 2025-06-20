@@ -2,9 +2,9 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Users, Megaphone } from 'lucide-react';
-import Link from 'next/link';
 
-export default async function WargaPage() {
+
+export default async function AdminPage() {
   const cookie = await cookies();
   const nik = cookie.get('nik')?.value;
 

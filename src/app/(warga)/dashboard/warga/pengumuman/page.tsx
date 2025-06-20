@@ -1,11 +1,11 @@
 import { cookies } from 'next/headers';
-import PengumumanComponent from '@/components/PengumumanViewOnly';
+import PengumumanComponent from '@/components/Pengumuman/PengumumanViewOnly';
 import type { pengumuman as Pengumuman } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
 async function getData() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const nik = cookieStore.get('nik')?.value;
 
   const page = 1;

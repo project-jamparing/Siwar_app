@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Users, FileCheck2, Megaphone } from 'lucide-react';
 import Link from 'next/link';
-import type { Pengumuman } from '@/lib/type/pengumuman'; // ✅ Tambahkan ini
+import type { Pengumuman } from '@/lib/type/pengumuman';
 
 export default async function RWPage() {
   const cookie = await cookies();
@@ -11,18 +11,25 @@ export default async function RWPage() {
 
   if (!nik) redirect('/login');
 
-  const user = await prisma.user.findFirst({ where: { nik } });
+  const user = await prisma.user.findFirst({
+    where: { nik },
+    include: { warga: true },
+  });
+
   if (!user || user.role_id !== 2) redirect('/login');
+
+  const userName =
+    user.warga?.nama && user.warga.nama.trim() !== ''
+      ? user.warga.nama
+      : 'Warga ' + user.nik;
+
+  const warga = await prisma.warga.findMany();
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?terbaru=true&role=rw&nik=${nik}`,
     { cache: 'no-store' }
   );
   const { data: pengumumanTerbaru } = await res.json();
-
-  const userName = user.warga?.nama || user.nik;
-
-  const warga = await prisma.warga.findMany();
 
   return (
     <main className="flex-1 p-6 space-y-6">

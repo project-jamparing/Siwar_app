@@ -1,4 +1,4 @@
-import PengumumanViewOnly from '@/components/PengumumanViewOnly';
+import PengumumanViewOnly from '@/components/Pengumuman/PengumumanViewOnly';
 import prisma from '@/lib/prisma';
 
 export default async function PengumumanPage() {
