@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
+import type { Prisma } from '@prisma/client';
 
 // GET: Ambil daftar pengumuman (dengan pagination)
 export async function GET(request: Request) {
@@ -8,16 +9,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const role = searchParams.get('role');
     const nik = searchParams.get('nik');
-    const filterTerbaru = searchParams.get('terbaru');
     const getRt = searchParams.get('get');
 
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '5');
     const skip = (page - 1) * limit;
 
-    // GET rt_id dari cookies
+    // GET rt_id dari cookies (khusus request get=rt)
     if (getRt === 'rt') {
-      const nik = cookies().get('nik')?.value;
+      const cookieStore = await cookies();
+      const nik = cookieStore.get('nik')?.value;
 
       if (!nik) {
         return NextResponse.json({ message: 'NIK tidak ditemukan di cookie' }, { status: 400 });
@@ -35,7 +36,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ rt_id: warga.kk.rt_id });
     }
 
-    const whereCondition: Record<string, any> = {};
+    // Filter berdasarkan role
+    const whereCondition: Record<string, unknown> = {};
 
     if ((role === 'rt' || role === 'warga') && nik) {
       const warga = await prisma.warga.findUnique({
@@ -58,7 +60,10 @@ export async function GET(request: Request) {
       ];
     }
 
-    const orderBy = filterTerbaru === 'true' ? { tanggal: 'desc' } : undefined;
+    // Urutkan berdasarkan tanggal terbaru
+    const orderBy: Prisma.pengumumanOrderByWithRelationInput = {
+      tanggal: 'desc',
+    };
 
     // Hitung total pengumuman untuk pagination
     const total = await prisma.pengumuman.count({ where: whereCondition });

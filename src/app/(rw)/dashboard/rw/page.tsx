@@ -2,6 +2,8 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Users, FileCheck2, Megaphone } from 'lucide-react';
+import Link from 'next/link';
+import type { Pengumuman } from '@/lib/type/pengumuman'; // ✅ Tambahkan ini
 
 export default async function RWPage() {
   const cookie = await cookies();
@@ -9,20 +11,13 @@ export default async function RWPage() {
 
   if (!nik) redirect('/login');
 
-  const user = await prisma.user.findFirst({
-    where: { nik },
-  });
+  const user = await prisma.user.findFirst({ where: { nik } });
+  if (!user || user.role_id !== 2) redirect('/login');
 
-  if (!user || user.role_id !== 2) {
-    redirect('/login');
-  }
-
-  // Ambil pengumuman terbaru untuk RW
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/pengumuman?terbaru=true&role=rw&nik=${nik}`,
     { cache: 'no-store' }
   );
-
   const { data: pengumumanTerbaru } = await res.json();
 
   return (
@@ -61,11 +56,17 @@ export default async function RWPage() {
           {pengumumanTerbaru.length === 0 ? (
             <p className="text-gray-500">Tidak ada pengumuman 2 hari terakhir</p>
           ) : (
-            pengumumanTerbaru.map((item: any) => (
-              <div key={item.id} className="p-4 bg-indigo-50 rounded-lg">
-                <h3 className="font-semibold text-indigo-700">{item.judul}</h3>
-                <p className="text-gray-600 text-sm">{item.subjek}</p>
-              </div>
+            pengumumanTerbaru.map((item: Pengumuman) => (
+              <Link
+                key={item.id}
+                href={`/dashboard/rw/pengumuman?selected=${item.id}`}
+                className="block"
+              >
+                <div className="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
+                  <h3 className="font-semibold text-indigo-700">{item.judul}</h3>
+                  <p className="text-gray-600 text-sm">{item.subjek}</p>
+                </div>
+              </Link>
             ))
           )}
         </div>

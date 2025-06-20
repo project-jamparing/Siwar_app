@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { Megaphone, CheckCircle, AlertCircle, Layers3 } from 'lucide-react';
 import Link from 'next/link';
+import { pengumuman } from '@prisma/client';
 
 export default async function WargaPage() {
   const cookie = await cookies();
@@ -93,7 +94,7 @@ export default async function WargaPage() {
           {pengumuman.length === 0 ? (
             <p className="text-gray-500">Tidak ada pengumuman 2 hari terakhir</p>
           ) : (
-            pengumuman.map((item: any) => (
+            pengumuman.map((item: pengumuman) => (
               <Link
                 key={item.id}
                 href={`/dashboard/warga/pengumuman?selected=${item.id}`}

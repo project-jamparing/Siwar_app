@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 import CardPengumuman from '@/components/CardPengumuman';
 import type { Pengumuman } from '@/lib/type/pengumuman';
 import { Plus } from 'lucide-react';
@@ -21,12 +22,33 @@ export default function Pengumuman({ data: initialData, role }: Props) {
   const [perPage, setPerPage] = useState(6);
   const [totalPages, setTotalPages] = useState(1);
 
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const fetchData = async () => {
     try {
       const res = await fetch(`/api/pengumuman?page=${currentPage}&limit=${perPage}&role=${role}`);
       const json = await res.json();
       setData(json.data);
       setTotalPages(Math.ceil(json.total / perPage));
+
+      // Cek dan buka pengumuman jika ada query selected
+      const selectedId = searchParams.get('selected');
+      if (selectedId) {
+        const found = json.data.find((item: Pengumuman) => item.id === Number(selectedId));
+        if (found) {
+          setSelected(found);
+        } else {
+          // Jika tidak ditemukan, fetch pengumuman secara langsung
+          try {
+            const detailRes = await fetch(`/api/pengumuman/${selectedId}`);
+            const detailJson = await detailRes.json();
+            if (detailJson?.data) setSelected(detailJson.data);
+          } catch (err) {
+            console.error('Gagal fetch pengumuman by ID:', err);
+          }
+        }
+      }
     } catch (err) {
       console.error('Gagal ambil data:', err);
     }
@@ -34,6 +56,7 @@ export default function Pengumuman({ data: initialData, role }: Props) {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, perPage]);
 
   return (
@@ -126,13 +149,15 @@ export default function Pengumuman({ data: initialData, role }: Props) {
         </ul>
       </div>
 
-
       {/* Modal detail pengumuman */}
       {selected && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl max-w-md w-full relative max-h-[80vh] overflow-y-auto animate-fade-in">
             <button
-              onClick={() => setSelected(null)}
+              onClick={() => {
+                setSelected(null);
+                router.replace(`/dashboard/${role}/pengumuman`, { scroll: false });
+              }}
               className="absolute top-3 right-4 text-gray-400 hover:text-red-500 text-xl transition"
               aria-label="Tutup"
             >
