@@ -32,14 +32,12 @@ export default function Pengumuman({ data: initialData, role }: Props) {
       setData(json.data);
       setTotalPages(Math.ceil(json.total / perPage));
 
-      // Cek dan buka pengumuman jika ada query selected
       const selectedId = searchParams.get('selected');
       if (selectedId) {
         const found = json.data.find((item: Pengumuman) => item.id === Number(selectedId));
         if (found) {
           setSelected(found);
         } else {
-          // Jika tidak ditemukan, fetch pengumuman secara langsung
           try {
             const detailRes = await fetch(`/api/pengumuman/${selectedId}`);
             const detailJson = await detailRes.json();
@@ -60,18 +58,27 @@ export default function Pengumuman({ data: initialData, role }: Props) {
   }, [currentPage, perPage]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-200 via-indigo-100 to-white py-10 px-4 sm:px-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10 max-w-7xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-blue-900">
-          Daftar Pengumuman
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 text-gray-900 py-10 px-4 sm:px-6">
+      
+        {/* Header */}
+        <div className="max-w-7xl mx-auto mb-10 space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h1 className="text-3xl font-extrabold text-gray-800">
+              📢 Daftar Pengumuman
+            </h1>
+            <Link href={`/dashboard/${role}/pengumuman/tambah`}>
+              <button className="flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white px-5 py-2.5 rounded-xl shadow transition-all duration-200 w-full sm:w-auto">
+                <Plus size={18} />
+                Tambah Pengumuman
+              </button>
+            </Link>
+          </div>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-          <div className="text-sm text-gray-700">
-            Tampilkan:
+          {/* Filter */}
+          <div className="flex items-center gap-2 text-sm text-gray-700">
+            <span>Tampilkan:</span>
             <select
-              className="ml-2 px-2 py-1 border rounded"
+              className="px-3 py-1.5 bg-white border border-gray-300 rounded text-gray-800 focus:outline-none focus:ring focus:ring-sky-400"
               value={perPage}
               onChange={(e) => {
                 setPerPage(Number(e.target.value));
@@ -83,16 +90,7 @@ export default function Pengumuman({ data: initialData, role }: Props) {
               <option value={9}>9</option>
             </select>
           </div>
-
-          <Link href={`/dashboard/${role}/pengumuman/tambah`}>
-            <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow transition-all duration-200">
-              <Plus size={18} />
-              Tambah
-            </button>
-          </Link>
         </div>
-      </div>
-
       {/* Grid daftar pengumuman */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
         {data.map((item) => (
@@ -116,7 +114,7 @@ export default function Pengumuman({ data: initialData, role }: Props) {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+              className="px-3 py-2 ml-0 leading-tight text-gray-600 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 disabled:opacity-50"
             >
               Prev
             </button>
@@ -128,8 +126,8 @@ export default function Pengumuman({ data: initialData, role }: Props) {
                 onClick={() => setCurrentPage(page)}
                 className={`px-3 py-2 leading-tight border ${
                   currentPage === page
-                    ? 'bg-blue-500 text-white border-blue-500'
-                    : 'bg-white text-gray-500 border-gray-300 hover:bg-gray-100 hover:text-gray-700'
+                    ? 'bg-sky-500 text-white border-sky-500'
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'
                 }`}
               >
                 {page}
@@ -141,7 +139,7 @@ export default function Pengumuman({ data: initialData, role }: Props) {
             <button
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+              className="px-3 py-2 leading-tight text-gray-600 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 disabled:opacity-50"
             >
               Next
             </button>
@@ -152,7 +150,7 @@ export default function Pengumuman({ data: initialData, role }: Props) {
       {/* Modal detail pengumuman */}
       {selected && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl max-w-md w-full relative max-h-[80vh] overflow-y-auto animate-fade-in">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl max-w-md w-full relative max-h-[80vh] overflow-y-auto animate-fade-in border border-gray-200">
             <button
               onClick={() => {
                 setSelected(null);
@@ -163,11 +161,11 @@ export default function Pengumuman({ data: initialData, role }: Props) {
             >
               ✕
             </button>
-            <h2 className="text-xl sm:text-2xl font-bold text-blue-900 mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
               {selected.judul}
             </h2>
             {selected.subjek && (
-              <p className="text-sm text-blue-600 italic mb-3">{selected.subjek}</p>
+              <p className="text-sm text-sky-600 italic mb-3">{selected.subjek}</p>
             )}
             <p className="text-gray-700 whitespace-pre-line leading-relaxed mb-4">
               {selected.isi || '-'}
@@ -188,12 +186,12 @@ export default function Pengumuman({ data: initialData, role }: Props) {
 
       {/* Modal konfirmasi hapus */}
       {showConfirmDelete && pengumumanToDelete && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-2xl max-w-sm w-full shadow-xl animate-fade-in">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-2xl max-w-sm w-full shadow-xl animate-fade-in border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
               Yakin ingin menghapus pengumuman ini?
             </h3>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-red-500 mb-6">
               {pengumumanToDelete.judul}
             </p>
             <div className="flex justify-end gap-2">

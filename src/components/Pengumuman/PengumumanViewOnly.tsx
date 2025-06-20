@@ -55,20 +55,20 @@ export default function PengumumanViewOnly({ data }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-200 via-indigo-100 to-white py-10 px-4 sm:px-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 text-gray-900 py-10 px-4 sm:px-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 max-w-7xl mx-auto">
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-blue-900 text-center sm:text-left mb-4 sm:mb-0 drop-shadow">
-          Daftar Pengumuman
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-gray-800 text-center sm:text-left mb-4 sm:mb-0">
+          📢 Daftar Pengumuman
         </h1>
-        <div className="flex items-center gap-2 text-gray-600">
-          <label htmlFor="limit" className="text-sm text-gray-700">
+        <div className="flex items-center gap-2 text-gray-700">
+          <label htmlFor="limit" className="text-sm">
             Tampilkan:
           </label>
           <select
             id="limit"
             value={limit}
             onChange={handleLimitChange}
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
+            className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring focus:ring-sky-400"
           >
             {[3, 6, 9, 12].map((num) => (
               <option key={num} value={num}>
@@ -79,14 +79,15 @@ export default function PengumumanViewOnly({ data }: Props) {
         </div>
       </div>
 
+      {/* Grid daftar pengumuman */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
         {currentData.map((item) => (
           <div
             key={item.id}
             onClick={() => setSelected(item)}
-            className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 hover:shadow-2xl hover:ring-2 hover:ring-blue-500 transition-all duration-300 cursor-pointer"
+            className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 hover:shadow-2xl hover:ring-2 hover:ring-sky-500 transition-all duration-300 cursor-pointer"
           >
-            <h2 className="text-lg font-semibold text-blue-800 mb-2">{item.judul}</h2>
+            <h2 className="text-lg font-semibold text-sky-700 mb-2">{item.judul}</h2>
             <p className="text-sm text-gray-600 line-clamp-3 mb-3">{item.isi}</p>
             <p className="text-xs text-gray-500 mb-1">
               {new Date(item.tanggal).toLocaleDateString('id-ID', {
@@ -105,7 +106,7 @@ export default function PengumumanViewOnly({ data }: Props) {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-center mt-8 space-x-2 text-gray-600">
+      <div className="flex items-center justify-center mt-8 space-x-2 text-gray-700">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -120,7 +121,7 @@ export default function PengumumanViewOnly({ data }: Props) {
             onClick={() => handlePageChange(page)}
             className={`px-3 py-1 border rounded text-sm ${
               page === currentPage
-                ? 'bg-blue-500 text-white border-blue-500'
+                ? 'bg-sky-500 text-white border-sky-500'
                 : 'border-gray-300 hover:bg-gray-100'
             }`}
           >
@@ -140,7 +141,7 @@ export default function PengumumanViewOnly({ data }: Props) {
       {/* Modal View */}
       {selected && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full relative max-h-[80vh] overflow-y-auto animate-fade-in">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl max-w-md w-full relative max-h-[80vh] overflow-y-auto animate-fade-in border border-gray-200">
             <button
               onClick={() => setSelected(null)}
               className="absolute top-3 right-4 text-gray-400 hover:text-red-500 text-xl"
@@ -149,10 +150,10 @@ export default function PengumumanViewOnly({ data }: Props) {
               ✕
             </button>
 
-            <h2 className="text-xl sm:text-2xl font-bold text-blue-900 mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
               {selected.judul}
             </h2>
-            <p className="text-sm italic text-gray-500 mb-3">{selected.subjek}</p>
+            <p className="text-sm italic text-sky-600 mb-3">{selected.subjek}</p>
             <div className="text-gray-700 whitespace-pre-line mb-4">{selected.isi}</div>
             <p className="text-sm text-gray-500">
               {new Date(selected.tanggal).toLocaleDateString('id-ID', {

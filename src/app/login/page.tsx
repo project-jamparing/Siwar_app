@@ -45,6 +45,7 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
+            {/* NIK Input */}
             <div className="relative group">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-sky-500 group-hover:scale-110 transition-transform duration-200" size={20} />
               <input
@@ -55,12 +56,20 @@ export default function LoginPage() {
                 className="peer w-full pl-10 pr-4 py-3 rounded-xl bg-white/80 text-gray-800 placeholder-transparent border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:shadow-lg transition duration-200"
                 autoComplete="username"
                 required
+                minLength={1}
               />
-              <label className="absolute left-10 top-1/2 -translate-y-1/2 text-gray-400 text-sm transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-500">
+              <label className={`
+                absolute left-10 top-1/2 -translate-y-1/2 text-gray-400 text-sm 
+                transition-all 
+                peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 
+                peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-500 
+                peer-valid:top-2 peer-valid:text-xs peer-valid:text-sky-500
+              `}>
                 NIK
               </label>
             </div>
 
+            {/* Password Input */}
             <div className="relative group">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-sky-500 group-hover:scale-110 transition-transform duration-200" size={20} />
               <input
@@ -71,8 +80,15 @@ export default function LoginPage() {
                 className="peer w-full pl-10 pr-12 py-3 rounded-xl bg-white/80 text-gray-800 placeholder-transparent border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:shadow-lg transition duration-200"
                 autoComplete="current-password"
                 required
+                minLength={1}
               />
-              <label className="absolute left-10 top-1/2 -translate-y-1/2 text-gray-400 text-sm transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-500">
+              <label className={`
+                absolute left-10 top-1/2 -translate-y-1/2 text-gray-400 text-sm 
+                transition-all 
+                peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 
+                peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-500 
+                peer-valid:top-2 peer-valid:text-xs peer-valid:text-sky-500
+              `}>
                 Password
               </label>
               <button
@@ -85,12 +101,14 @@ export default function LoginPage() {
               </button>
             </div>
 
+            {/* Error */}
             {error && (
               <div className="bg-red-100 border border-red-300 text-red-700 text-center py-2 px-4 rounded-lg animate-pulse font-semibold text-sm shadow-inner">
                 {error}
               </div>
             )}
 
+            {/* Submit Button */}
             <button
               type="submit"
               className="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 text-white font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition duration-300 ease-in-out"

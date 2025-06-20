@@ -35,6 +35,7 @@ export default async function Page() {
   const { data, total, error } = await getData(role);
 
   if (error) {
+    
     return <div className="p-4 text-red-500">Gagal fetch data pengumuman.</div>;
   }
 
