@@ -2,17 +2,28 @@ import PengumumanViewOnly from '@/components/PengumumanViewOnly';
 import prisma from '@/lib/prisma';
 
 export default async function PengumumanPage() {
-  const data = await prisma.pengumuman.findMany({
-    select: {
-      id: true,
-      judul: true,
-      subjek: true,
-      isi: true,
-      tanggal: true,
+  const perPage = 6;
+
+  // Ambil semua pengumuman termasuk relasi RT
+  const pengumuman = await prisma.pengumuman.findMany({
+    include: {
+      rukun_tetangga: true,
     },
-    orderBy: { tanggal: 'desc' },
+    orderBy: {
+      tanggal: 'desc',
+    },
+    take: perPage,
+    skip: 0,
   });
 
-  return <PengumumanViewOnly data={data} />;
+  const total = await prisma.pengumuman.count();
+
+  return (
+    <PengumumanViewOnly
+      data={pengumuman}
+      total={total}
+      perPage={perPage}
+      role="admin"
+    />
+  );
 }
-    
