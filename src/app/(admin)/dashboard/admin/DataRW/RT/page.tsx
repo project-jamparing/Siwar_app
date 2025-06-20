@@ -1,3 +1,5 @@
+// app/dashboard/admin/DataRW/RT/page.tsx
+
 'use client';
 
 import React, { useEffect, useState } from "react";
@@ -41,7 +43,6 @@ export default function DataJabatanPage() {
   };
 
   const handleNonaktif = async (id: number) => {
-    if (!confirm("Yakin nonaktifkan RT ini?")) return;
     setUpdatingId(id);
 
     try {
@@ -51,7 +52,6 @@ export default function DataJabatanPage() {
         body: JSON.stringify({ id, status: "nonaktif" }),
       });
       if (!res.ok) throw new Error("Gagal update status");
-      alert("Status RT berhasil di nonaktifkan");
       fetchData();
     } catch (err: any) {
       alert(err.message || "Gagal update status");

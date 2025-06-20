@@ -21,16 +21,76 @@ type Props = {
 
 export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [search, setSearch] = useState("");
+
+  const getRoleName = (role_id: number) => {
+    switch (role_id) {
+      case 1:
+        return "Admin";
+      case 2:
+        return "RW";
+      case 3:
+        return "RT";
+      case 4:
+        return "Warga";
+      default:
+        return "-";
+    }
+  };
+
+  const filteredData = useMemo(() => {
+    return data.filter((item) =>
+      item.nik.toLowerCase().includes(search.toLowerCase()) ||
+      item.nama_rt.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [data, search]);
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return data.slice(startIndex, startIndex + itemsPerPage);
-  }, [data, currentPage]);
+    return filteredData.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredData, currentPage, itemsPerPage]);
 
   return (
     <>
+      {/* Search + Limit */}
+      <div className="flex flex-col space-y-4 mb-4 md:flex-row md:items-center md:justify-between md:space-y-0 text-gray-700">
+        <input
+          type="text"
+          placeholder="Cari NIK atau Nama ..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="border px-3 py-2 rounded-md text-sm w-full md:w-64"
+        />
+
+        <div className="flex items-center gap-2 text-gray-700">
+          <label htmlFor="limit" className="text-sm text-gray-700">
+            Tampilkan:
+          </label>
+          <select
+            id="limit"
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="border px-2 py-1 rounded-md text-sm"
+          >
+            {[5, 10, 20, 50, 100].map((limit) => (
+              <option key={limit} value={limit}>
+                {limit}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Table */}
       <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-md bg-white">
         <table className="w-full table-auto text-left text-sm text-gray-700 [&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2">
           <thead className="bg-indigo-600 text-white uppercase text-xs tracking-wider select-none">
@@ -39,7 +99,7 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
               <th>Nama</th>
               <th>Jabatan</th>
               <th>Dilantik</th>
-              <th>Pelengseran</th>
+              <th>Masa Bakti</th>
               <th>Status</th>
               <th>RT</th>
               <th className="text-center">Aksi</th>
@@ -65,15 +125,7 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
                   <td className="font-mono text-gray-900">{jabatan.nik}</td>
                   <td className="font-semibold text-gray-800">{jabatan.nama_rt}</td>
                   <td className="text-center text-gray-700 font-medium">
-                    {jabatan.role_id === 1
-                      ? "Admin"
-                      : jabatan.role_id === 2
-                      ? "RW"
-                      : jabatan.role_id === 3
-                      ? "RT"
-                      : jabatan.role_id === 4
-                      ? "Warga"
-                      : "-"}
+                    {getRoleName(jabatan.role_id)}
                   </td>
                   <td className="text-gray-600">
                     {new Date(jabatan.created_at).toLocaleDateString("id-ID", {
@@ -84,14 +136,11 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
                   </td>
                   <td className="text-gray-600">
                     {jabatan.status === "nonaktif"
-                      ? new Date(jabatan.updated_at).toLocaleDateString(
-                          "id-ID",
-                          {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          }
-                        )
+                      ? new Date(jabatan.updated_at).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
                       : "-"}
                   </td>
                   <td>
@@ -111,6 +160,7 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
                   <td className="text-center">
                     {jabatan.status === "aktif" ? (
                       <button
+                        type="button"
                         disabled={updatingId === jabatan.id}
                         onClick={() => onNonaktif(jabatan.id)}
                         className={`rounded-md px-4 py-2 text-white font-semibold transition duration-200 ${
@@ -136,10 +186,11 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
         </table>
       </div>
 
-      {/* Pagination angka + Prev Next */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-4 space-x-2 flex-wrap">
           <button
+            type="button"
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
@@ -150,6 +201,7 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
           {Array.from({ length: totalPages }, (_, index) => index + 1).map(
             (pageNumber) => (
               <button
+                type="button"
                 key={pageNumber}
                 onClick={() => setCurrentPage(pageNumber)}
                 className={`px-3 py-1 rounded ${
@@ -164,6 +216,7 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
           )}
 
           <button
+            type="button"
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }

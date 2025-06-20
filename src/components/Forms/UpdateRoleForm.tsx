@@ -4,6 +4,7 @@ import { useState } from "react";
 import BackButton from "../Buttons/BackButton";
 
 const roleOptions = [
+  { id: 1, label: "Admin" },
   { id: 2, label: "RW" },
   { id: 3, label: "RT" },
 ];

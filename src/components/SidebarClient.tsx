@@ -39,7 +39,7 @@ export default function SidebarClient({ menuItems }: SidebarClientProps) {
       {/* Mobile Header */}
       <div className={`md:hidden flex items-center justify-between px-4 py-3 border-b bg-white/80 backdrop-blur-md transition-opacity duration-300 sticky top-0 z-20 ${open ? 'opacity-0' : 'opacity-100'}`}>
         <Image
-          src="/images/logo/logo.png"
+          src="/images/logo/logo-dark.png"
           alt="SIWAR APP"
           width={120}
           height={40}
@@ -53,7 +53,7 @@ export default function SidebarClient({ menuItems }: SidebarClientProps) {
       {/* Mobile Drawer */}
       <div className={`fixed top-0 left-0 z-40 h-full w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${open ? "translate-x-0" : "-translate-x-full"} md:hidden flex flex-col`}>
         <div className="flex items-center justify-between p-4 border-b shadow-sm">
-          <Image src="/images/logo/logo.png" alt="SIWAR APP" width={140} height={40} />
+          <Image src="/images/logo/logo-dark.png" alt="SIWAR APP" width={140} height={40} />
           <button onClick={() => setOpen(false)}>
             <X className="w-6 h-6 text-gray-700" />
           </button>
@@ -76,7 +76,7 @@ export default function SidebarClient({ menuItems }: SidebarClientProps) {
             );
           })}
         </nav>
-        <div className="p-4 border-t mt-auto">
+        <div className="p-20 border-t mt-auto">
           <LogoutButton />
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function SidebarClient({ menuItems }: SidebarClientProps) {
       <aside className="hidden md:flex w-64 h-screen bg-white border-r border-gray-200 flex-col justify-between shadow-md sticky top-0">
         <div className="flex flex-col flex-1 overflow-y-auto">
           <div className="p-6 border-b border-gray-200 pb-4">
-            <Image src="/images/logo/logo.png" alt="SIWAR APP" width={160} height={50} className="mx-auto" />
+            <Image src="/images/logo/logo-dark.png" alt="SIWAR APP" width={160} height={50} className="mx-auto" />
           </div>
           <nav className="flex-1 px-4 pt-6 space-y-2">
             {menuItems.map((item, idx) => {
