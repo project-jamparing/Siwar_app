@@ -9,7 +9,9 @@ interface Tagihan {
   tanggal_bayar: string | null
   kk: {
     no_kk: string
-    nama_kepala_keluarga: string
+    warga_kk_nikTowarga: {
+      nama: string
+    } | null
   } | null
 }
 
@@ -26,7 +28,7 @@ export default function DetailPembayaranIuran({ iuranId }: Props) {
     try {
       const res = await fetch(`/api/iuran/${iuranId}/tagihan`)
       const json = await res.json()
-      setData(json)
+      setData(Array.isArray(json) ? json : [])
     } catch (err) {
       console.error('❌ Gagal fetch tagihan:', err)
     } finally {
@@ -41,7 +43,7 @@ export default function DetailPembayaranIuran({ iuranId }: Props) {
   const filtered = data.filter((item) => {
     if (!item.kk) return false
     const noKK = item.kk.no_kk.toLowerCase()
-    const nama = item.kk.nama_kepala_keluarga.toLowerCase()
+    const nama = item.kk.warga_kk_nikTowarga?.nama.toLowerCase() ?? ''
     return noKK.includes(search.toLowerCase()) || nama.includes(search.toLowerCase())
   })
 
@@ -73,8 +75,10 @@ export default function DetailPembayaranIuran({ iuranId }: Props) {
             {filtered.length > 0 ? (
               filtered.map((item) => (
                 <tr key={item.id}>
-                  <td className="border px-4 py-2">{item.kk?.no_kk}</td>
-                  <td className="border px-4 py-2">{item.kk?.nama_kepala_keluarga}</td>
+                  <td className="border px-4 py-2">{item.kk?.no_kk || '-'}</td>
+                  <td className="border px-4 py-2">
+                    {item.kk?.warga_kk_nikTowarga?.nama || '-'}
+                  </td>
                   <td className="border px-4 py-2 capitalize">
                     {item.status === 'lunas' ? (
                       <span className="text-green-600 font-medium">Sudah Bayar</span>
