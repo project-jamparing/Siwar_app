@@ -25,6 +25,9 @@ export default function TabelKeluarga() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchKK, setSearchKK] = useState('');
 
+  const [filterRT, setFilterRT] = useState('Semua');
+  const [filterKategori, setFilterKategori] = useState('Semua');
+
   useEffect(() => {
     const fetchRole = async () => {
       try {
@@ -84,11 +87,26 @@ export default function TabelKeluarga() {
     }
   };
 
+  const mapKategori = (kategori: string) => {
+    switch (kategori) {
+      case '1': return 'Kampung';
+      case '2': return 'Kost';
+      case '3': return 'Kavling';
+      case '4': return 'UMKM';
+      case '5': return 'Kantor';
+      case '6': return 'Bisnis';
+      default: return kategori;
+    }
+  };
+
   const filteredData = useMemo(() => {
-    return data.filter(item =>
-      item.no_kk.toLowerCase().includes(searchKK.toLowerCase())
-    );
-  }, [data, searchKK]);
+    return data.filter((item) => {
+      const matchKK = item.no_kk.toLowerCase().includes(searchKK.toLowerCase());
+      const matchRT = filterRT === 'Semua' || item.rt === filterRT;
+      const matchKategori = filterKategori === 'Semua' || mapKategori(item.kategori) === filterKategori;
+      return matchKK && matchRT && matchKategori;
+    });
+  }, [data, searchKK, filterRT, filterKategori]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
@@ -132,25 +150,40 @@ export default function TabelKeluarga() {
             className="border px-3 py-2 rounded-md text-sm w-full md:w-64"
           />
 
-          <div className="flex items-center gap-2 text-gray-800">
-            <label htmlFor="limit" className="text-sm text-gray-700">
-              Tampilkan:
-            </label>
-            <select
-              id="limit"
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              className="border px-2 py-1 rounded-md text-sm"
-            >
-              {[5, 10, 20, 50, 100].map((limit) => (
-                <option key={limit} value={limit}>
-                  {limit}
-                </option>
-              ))}
-            </select>
+          <div className="flex flex-wrap gap-2">
+            <div>
+              <label htmlFor="filterRT" className="text-sm text-gray-700">RT:</label>
+              <select
+                id="filterRT"
+                value={filterRT}
+                onChange={(e) => {
+                  setFilterRT(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="border px-2 py-1 rounded-md text-sm ml-2"
+              >
+                {['Semua', '01', '02', '03', '04'].map((rt) => (
+                  <option key={rt} value={rt}>{rt}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label htmlFor="limit" className="text-sm text-gray-700">Tampilkan:</label>
+              <select
+                id="limit"
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="border px-2 py-1 rounded-md text-sm ml-2"
+              >
+                {[5, 10, 20, 50, 100].map((limit) => (
+                  <option key={limit} value={limit}>{limit}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -206,7 +239,7 @@ export default function TabelKeluarga() {
                         <td className="px-5 py-3 font-medium">{item.no_kk}</td>
                         <td className="px-5 py-3">{item.nama}</td>
                         <td className="px-5 py-3">{item.rt}</td>
-                        <td className="px-5 py-3 capitalize">{item.kategori}</td>
+                        <td className="px-5 py-3 capitalize">{mapKategori(item.kategori)}</td>
                         <td className="px-5 py-3 text-center">
                           <div className="flex justify-center gap-2">
                             <Link

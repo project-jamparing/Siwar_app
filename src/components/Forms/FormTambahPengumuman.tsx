@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import BackButton from '../Buttons/BackButton';
 
 type FormTambahPengumumanProps = {
   role: 'rw' | 'rt';
@@ -78,7 +79,7 @@ export default function FormTambahPengumuman({
         <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-800 text-center mb-8">
           Tambah Pengumuman {role.toUpperCase()}
         </h1>
-
+        <BackButton />
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-gray-700 mb-2 font-semibold">Judul</label>
