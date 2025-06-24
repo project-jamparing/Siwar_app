@@ -83,15 +83,6 @@ export default async function AdminPage() {
           <p className="text-3xl font-bold text-gray-800">{pengumuman.length}</p>
         </div>
       </div>
-
-      {/* Pengumuman Section */}
-      <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 flex items-center gap-4 hover:shadow-lg transition">
-        <Megaphone className="w-10 h-10 text-yellow-500" />
-        <div>
-          <h3 className="text-sm text-gray-500 mb-1">Pengumuman Aktif</h3>
-          <p className="text-lg font-semibold text-gray-700">{pengumuman.length}</p>
-        </div>
-      </div>
     </main>
   );
 }

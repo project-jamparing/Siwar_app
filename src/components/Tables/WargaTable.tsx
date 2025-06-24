@@ -6,6 +6,7 @@ import { Trash2, Pencil } from 'lucide-react';
 type Warga = {
   nik: string;
   nama: string;
+  no_kk?: string | null;
   jenis_kelamin: string;
   tempat_lahir?: string | null;
   tanggal_lahir?: string | null;
@@ -69,19 +70,26 @@ export default function WargaTable({
     });
   };
 
-  const filteredWarga = useMemo(() => {
-    return warga.filter(w =>
-      w.nik.toLowerCase().includes(search.toLowerCase()) ||
-      w.nama.toLowerCase().includes(search.toLowerCase())
-    );
+  const sortedAndFilteredWarga = useMemo(() => {
+    return warga
+      .filter(w =>
+        w.nik.toLowerCase().includes(search.toLowerCase()) ||
+        w.nama.toLowerCase().includes(search.toLowerCase())
+      )
+      .sort((a, b) => {
+        if (a.no_kk === b.no_kk) {
+          return a.nama.localeCompare(b.nama);
+        }
+        return (a.no_kk || '').localeCompare(b.no_kk || '');
+      });
   }, [warga, search]);
 
-  const totalPages = Math.ceil(filteredWarga.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedAndFilteredWarga.length / itemsPerPage);
 
   const paginatedWarga = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredWarga.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredWarga, currentPage, itemsPerPage]);
+    return sortedAndFilteredWarga.slice(startIndex, startIndex + itemsPerPage);
+  }, [sortedAndFilteredWarga, currentPage, itemsPerPage]);
 
   return (
     <>
@@ -125,8 +133,9 @@ export default function WargaTable({
             <table className="table-auto min-w-full rounded-xl [&_th]:p-2 [&_td]:p-2">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">NIK</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">No KK</th>
                   <th className="text-left text-sm font-semibold text-gray-900 capitalize">Nama</th>
+                  <th className="text-left text-sm font-semibold text-gray-900 capitalize">NIK</th>
                   <th className="text-left text-sm font-semibold text-gray-900 capitalize">Jenis Kelamin</th>
                   <th className="text-left text-sm font-semibold text-gray-900 capitalize">Tempat Lahir</th>
                   <th className="text-left text-sm font-semibold text-gray-900 capitalize">Tanggal Lahir</th>
@@ -143,8 +152,9 @@ export default function WargaTable({
               <tbody className="divide-y divide-gray-300">
                 {paginatedWarga.map((w) => (
                   <tr key={w.nik} className="bg-white hover:bg-gray-50 transition-all duration-300">
-                    <td className="text-sm font-medium text-gray-900">{w.nik}</td>
+                    <td className="text-sm text-gray-900">{w.no_kk || '-'}</td>
                     <td className="text-sm text-gray-900">{w.nama}</td>
+                    <td className="text-sm font-medium text-gray-900">{w.nik}</td>
                     <td className="text-sm text-gray-900">
                       {w.jenis_kelamin === 'perempuan' ? 'Perempuan' : 'Laki-laki'}
                     </td>

@@ -42,6 +42,32 @@ export default function FormTambahWarga() {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFetchKkData = async (noKkValue: string) => {
+    if (!noKkValue) return;
+
+    try {
+      const res = await fetch(`/api/kk/${noKkValue}`);
+      if (!res.ok) {
+        console.warn('KK tidak ditemukan atau error');
+        return;
+      }
+
+      const data = await res.json();
+
+      const kepalaKeluarga = data.find((item: any) => item.status_hubungan_dalam_keluarga === 'Kepala Keluarga');
+      const istri = data.find((item: any) => item.status_hubungan_dalam_keluarga === 'Istri');
+
+      setForm(prev => ({
+        ...prev,
+        ayah: kepalaKeluarga?.nama || '',
+        ibu: istri?.nama || '',
+      }));
+
+    } catch (error) {
+      console.error('Error fetch KK:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -127,9 +153,9 @@ export default function FormTambahWarga() {
         <BackButton />
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
-            ['NIK', 'nik', 'text', true],
-            ['Nama', 'nama', 'text', true],
             ['No KK', 'no_kk', 'text', false],
+            ['Nama', 'nama', 'text', true],
+            ['NIK', 'nik', 'text', true],
             ['Tempat Lahir', 'tempat_lahir', 'text', false],
             ['Tanggal Lahir', 'tanggal_lahir', 'date', false],
             ['Agama', 'agama', 'text', false],
@@ -147,6 +173,7 @@ export default function FormTambahWarga() {
                 name={name}
                 value={(form as any)[name] || ''}
                 onChange={handleChange}
+                onBlur={name === 'no_kk' ? (e) => handleFetchKkData(e.target.value) : undefined}
                 className={inputStyle}
                 required={required}
                 disabled={isSubmitting}
@@ -263,7 +290,7 @@ export default function FormTambahWarga() {
                 className={inputStyle}
                 required
                 disabled={isSubmitting}
-                title='Tanggal Pernikahan'
+                title="Tanggal Pernikahan"
               />
             </div>
           )}

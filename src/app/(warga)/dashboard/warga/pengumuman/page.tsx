@@ -1,3 +1,4 @@
+// src/app/(warga)/dashboard/warga/pengumuman/page.tsx
 import { cookies } from 'next/headers';
 import PengumumanComponent from '@/components/Pengumuman/PengumumanViewOnly';
 import type { pengumuman as Pengumuman } from '@prisma/client';

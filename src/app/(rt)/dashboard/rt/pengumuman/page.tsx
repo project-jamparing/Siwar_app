@@ -1,3 +1,4 @@
+// src/app/(rt)/dashboard/rt/pengumuman/page.tsx
 import { cookies } from 'next/headers';
 import PengumumanComponent from '@/components/Pengumuman/Pengumuman';
 import type { pengumuman as Pengumuman } from '@prisma/client';
@@ -5,7 +6,7 @@ import type { pengumuman as Pengumuman } from '@prisma/client';
 export const dynamic = 'force-dynamic';
 
 async function getData(role: 'rt' | 'warga') {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const nik = cookieStore.get('nik')?.value;
 
   const page = 1; // halaman pertama

@@ -28,6 +28,9 @@ export default function TabelKeluarga() {
   const [filterRT, setFilterRT] = useState('Semua');
   const [filterKategori, setFilterKategori] = useState('Semua');
 
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [kkToDelete, setKkToDelete] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchRole = async () => {
       try {
@@ -37,7 +40,7 @@ export default function TabelKeluarga() {
         setRole(json.role?.toLowerCase() || null);
       } catch (err: any) {
         console.error('Gagal ambil role:', err);
-        setRole('rw'); // fallback default
+        setRole('rw');
       }
     };
 
@@ -64,26 +67,33 @@ export default function TabelKeluarga() {
     fetchData();
   }, [refresh]);
 
-  const handleDelete = async (no_kk: string) => {
-    const konfirmasi = confirm(`Yakin ingin menghapus KK ${no_kk}?`);
-    if (!konfirmasi) return;
+  const handleDelete = (no_kk: string) => {
+    setKkToDelete(no_kk);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!kkToDelete) return;
 
     try {
       const res = await fetch('/api/kk/delete', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ no_kk }),
+        body: JSON.stringify({ no_kk: kkToDelete }),
       });
 
       const json = await res.json();
       if (!res.ok) {
         alert(`Gagal menghapus: ${json.error || 'Terjadi kesalahan'}`);
       } else {
-        alert(`✅ ${json.message}`);
+        console.log(`✅ ${json.message}`);
         setRefresh((prev) => !prev);
       }
     } catch (err: any) {
-      alert(`Gagal: ${err.message}`);
+      console.error(`Gagal: ${err.message}`);
+    } finally {
+      setShowConfirmDelete(false);
+      setKkToDelete(null);
     }
   };
 
@@ -150,7 +160,7 @@ export default function TabelKeluarga() {
             className="border px-3 py-2 rounded-md text-sm w-full md:w-64"
           />
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             <div>
               <label htmlFor="filterRT" className="text-sm text-gray-700">RT:</label>
               <select
@@ -167,7 +177,7 @@ export default function TabelKeluarga() {
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label htmlFor="limit" className="text-sm text-gray-700">Tampilkan:</label>
               <select
@@ -314,6 +324,45 @@ export default function TabelKeluarga() {
           </>
         )}
       </div>
+
+      {showConfirmDelete && kkToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 transition-opacity duration-300 ease-out">
+          <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-fade-in-up border border-gray-200">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Konfirmasi Hapus
+              </h2>
+            </div>
+
+            {/* Body */}
+            <div className="text-gray-700 text-base leading-relaxed">
+              Apakah Anda yakin ingin menghapus KK{' '}
+              <span className="text-red-600 font-semibold">{kkToDelete}</span>?
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-4 mt-6">
+              <button
+                onClick={() => {
+                  setShowConfirmDelete(false);
+                  setKkToDelete(null);
+                }}
+                className="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
+              >
+                Batal
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
