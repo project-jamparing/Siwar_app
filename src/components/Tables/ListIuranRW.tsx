@@ -1,3 +1,4 @@
+// Path: src/components/Tables/ListIuranRW.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -5,6 +6,7 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { Trash, Pencil, Ban } from 'lucide-react'
 
+// Definisi interface untuk Iuran
 interface Iuran {
   id: number
   nama: string
@@ -18,6 +20,7 @@ interface Iuran {
   }
 }
 
+// Tipe untuk modal yang ditampilkan (hapus, nonaktif, edit)
 type ModalType = 'hapus' | 'nonaktif' | 'edit' | null
 
 export default function ListIuranRW() {
@@ -26,52 +29,89 @@ export default function ListIuranRW() {
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [selectedIuranId, setSelectedIuranId] = useState<number | null>(null)
   const [modalType, setModalType] = useState<ModalType>(null)
+  const [loading, setLoading] = useState(true); // Tambahkan state loading
 
   const router = useRouter()
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get('/api/iuran/list')
-        setIurans(res.data)
-      } catch (err) {
-        console.error('Gagal mengambil data iuran', err)
-      }
+  // Fungsi untuk mengambil data iuran dari API
+  const fetchData = async () => {
+    setLoading(true); // Set loading true sebelum fetch
+    try {
+      // Pastikan API endpoint ini benar untuk mengambil daftar iuran
+      // Jika 'iuran/list' adalah endpoint yang ada, biarkan.
+      // Jika tidak, sesuaikan dengan endpoint yang benar (misal: '/api/iuran/bulanan')
+      const res = await axios.get('/api/iuran/list')
+      setIurans(res.data)
+    } catch (err) {
+      console.error('Gagal mengambil data iuran', err)
+      // alert('Gagal mengambil data iuran. Silakan coba refresh halaman.') // Dihapus
+    } finally {
+      setLoading(false); // Set loading false setelah fetch selesai
     }
+  }
+
+  // Effect hook untuk memuat data saat komponen pertama kali di-mount
+  useEffect(() => {
     fetchData()
   }, [])
 
+  // Fungsi untuk membuka modal konfirmasi
   const openModal = (type: ModalType, id: number) => {
     setModalType(type)
     setSelectedIuranId(id)
   }
 
+  // Fungsi untuk menutup modal
   const closeModal = () => {
     setModalType(null)
     setSelectedIuranId(null)
   }
 
+  // Fungsi untuk menangani penghapusan iuran
   const handleDelete = async () => {
     if (!selectedIuranId) return
-    await axios.delete(`/api/iuran/${selectedIuranId}`)
-    closeModal()
-    const res = await axios.get('/api/iuran/list')
-    setIurans(res.data)
+
+    try {
+      await axios.delete(`/api/iuran/bulanan/${selectedIuranId}`)
+      closeModal()
+      await fetchData() // Panggil fetchData untuk memuat ulang data
+      // alert('Iuran berhasil dihapus!') // DIHAPUS SESUAI PERMINTAAN
+    } catch (error) {
+      console.error('Gagal menghapus iuran:', error)
+      if (axios.isAxiosError(error) && error.response) {
+        alert(`Gagal menghapus iuran: ${error.response.data.message || error.response.statusText}`); // Alert error tetap dipertahankan untuk debug
+      } else {
+        alert('Terjadi kesalahan saat menghapus iuran.'); // Alert error tetap dipertahankan untuk debug
+      }
+    }
   }
 
+  // Fungsi untuk menangani penonaktifan iuran
   const handleNonaktifkan = async () => {
     if (!selectedIuranId) return
-    await axios.patch(`/api/iuran/nonaktifkan/${selectedIuranId}`)
-    closeModal()
-    const res = await axios.get('/api/iuran/list')
-    setIurans(res.data)
+
+    try {
+      await axios.patch(`/api/iuran/bulanan/${selectedIuranId}`, { status: 'nonaktif' })
+      closeModal()
+      await fetchData() // Panggil fetchData untuk memuat ulang data
+      // alert('Iuran berhasil dinonaktifkan!') // DIHAPUS SESUAI PERMINTAAN
+    } catch (error) {
+      console.error('Gagal menonaktifkan iuran:', error)
+      if (axios.isAxiosError(error) && error.response) {
+        alert(`Gagal menonaktifkan iuran: ${error.response.data.message || error.response.statusText}`); // Alert error tetap dipertahankan untuk debug
+      } else {
+        alert('Terjadi kesalahan saat menonaktifkan iuran.'); // Alert error tetap dipertahankan untuk debug
+      }
+    }
   }
 
+  // Fungsi untuk navigasi ke halaman edit
   const handleEdit = () => {
     if (!selectedIuranId) return
     router.push(`/dashboard/rw/iuran/edit/${selectedIuranId}`)
   }
 
+  // Logika paginasi
   const totalPages = Math.ceil(iurans.length / itemsPerPage)
   const paginatedIurans = iurans.slice(
     (currentPage - 1) * itemsPerPage,
@@ -130,7 +170,13 @@ export default function ListIuranRW() {
             </tr>
           </thead>
           <tbody>
-            {paginatedIurans.length === 0 ? (
+            {loading ? ( // Tampilkan loading state
+              <tr>
+                <td colSpan={8} className="text-center py-4 text-gray-600 font-medium">
+                  Memuat data iuran...
+                </td>
+              </tr>
+            ) : paginatedIurans.length === 0 ? (
               <tr>
                 <td colSpan={8} className="text-center py-4 text-red-600 font-medium">
                   Tidak ada data iuran.

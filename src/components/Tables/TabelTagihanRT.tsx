@@ -1,64 +1,124 @@
-'use client'
+// src/components/Tables/TabelIuranRT.tsx
+// ATAU src/components/Tables/TabelTagihanRT.tsx (gunakan nama file yang Anda miliki)
+'use client' // Pastikan ini ada, karena ini komponen client-side
+
 import { useEffect, useState } from 'react'
 import { Check } from 'lucide-react'
+// Hapus import useSession jika Anda tidak lagi menggunakannya di frontend ini
+// import { useSession } from 'next-auth/react'; 
 
-export default function TabelTagihanRT() {
-  const [tagihan, setTagihan] = useState<any[]>([])
-  const [selectedId, setSelectedId] = useState<number | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
-  const [searchQuery, setSearchQuery] = useState('')
+interface TagihanRT {
+  id: number;
+  nama_iuran: string;
+  no_kk: string;
+  nama_kepala_keluarga: string;
+  status: 'lunas' | 'belum_lunas'; // Tetap gunakan enum dari Prisma
+  tanggal_bayar: string | null;
+  iuran_id: number;
+}
 
+export default function TabelIuranRT() { // Sesuaikan nama function jika TabelTagihanRT
+  // Jika Anda tidak mengambil rt_id dari sesi di frontend ini,
+  // maka baris ini bisa dihapus atau dikomentari.
+  // const { data: session } = useSession(); 
+  const [tagihan, setTagihan] = useState<TagihanRT[]>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Fungsi fetchTagihan sekarang TIDAK lagi menerima parameter rtId
+  // karena API Anda mengambil rt_id dari cookie.
   const fetchTagihan = async () => {
-    const res = await fetch('/api/tagihan/rt?rt_id')
-    const data = await res.json()
-    if (data.success) {
-      setTagihan(data.data)
+    try {
+      // PENTING: Pastikan URL ini benar-benar sesuai dengan lokasi API Anda.
+      // Jika API Anda ada di src/app/api/iuran/rt/route.ts, maka URL-nya adalah '/api/iuran/rt'.
+      // Jika API Anda ada di src/app/api/tagihan/rt/route.ts, maka URL-nya adalah '/api/tagihan/rt'.
+      const res = await fetch('/api/iuran/rt'); // <<< Cek URL ini!
+
+      if (!res.ok) { // Tambahkan pengecekan jika response tidak OK (misal: 401, 500)
+        const errorData = await res.json();
+        console.error("Failed to fetch tagihan from API:", errorData.message || res.statusText);
+        setTagihan([]);
+        // Opsional: tampilkan pesan error ke user
+        alert(`Gagal memuat data iuran: ${errorData.message || 'Server error.'}`);
+        return;
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        setTagihan(data.data);
+      } else {
+        console.error("API response indicates failure:", data.message);
+        setTagihan([]);
+      }
+    } catch (error) {
+      console.error("Error fetching tagihan:", error);
+      // Ini adalah error 'Failed to fetch' yang Anda dapatkan.
+      // Bisa jadi masalah jaringan, atau server API tidak merespons.
+      setTagihan([]);
+      alert("Terjadi kesalahan saat mengambil data iuran. Pastikan server berjalan dan koneksi internet stabil.");
     }
-  }
+  };
 
   const handleConfirm = async () => {
-    if (!selectedId) return
-    await fetch(`/api/tagihan/${selectedId}/bayar`, { method: 'PATCH' })
-    setSelectedId(null)
-    fetchTagihan()
-  }
+    if (!selectedId) return;
 
+    try {
+      const res = await fetch(`/api/tagihan/${selectedId}/bayar`, { method: 'PATCH' });
+      const data = await res.json();
+
+      if (data.success) {
+        setSelectedId(null);
+        // Setelah konfirmasi berhasil, panggil ulang fetchTagihan
+        fetchTagihan(); 
+      } else {
+        console.error("Failed to confirm payment:", data.message);
+        alert(`Gagal mengonfirmasi pembayaran: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error confirming payment:", error);
+      alert("Terjadi kesalahan saat mengonfirmasi pembayaran.");
+    }
+  };
+
+  // useEffect ini akan memanggil fetchTagihan saat komponen dimuat
   useEffect(() => {
-    fetchTagihan()
-  }, [])
+    fetchTagihan(); // Panggil fungsi tanpa parameter rtId
+  }, []); // Empty dependency array, hanya dijalankan sekali saat mount
 
+  // --- Bagian filterData, pagination, renderPageNumbers, dan JSX rendering di bawah ini tidak berubah ---
   const filteredData = tagihan.filter((t) =>
     t.no_kk.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.nama_kepala_keluarga.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  );
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
-  )
+  );
 
   const goToPage = (page: number) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page)
-  }
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
 
   const renderPageNumbers = () => {
-    const pages: (number | string)[] = []
+    const pages: (number | string)[] = [];
 
     if (totalPages <= 10) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i)
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       if (currentPage <= 5) {
-        pages.push(...Array.from({ length: 5 }, (_, i) => i + 1), '...')
-        pages.push(totalPages - 1, totalPages)
+        pages.push(...Array.from({ length: 5 }, (_, i) => i + 1), '...');
+        pages.push(totalPages - 1, totalPages);
       } else if (currentPage >= totalPages - 4) {
-        pages.push(1, 2, '...')
-        pages.push(...Array.from({ length: 5 }, (_, i) => totalPages - 4 + i))
+        pages.push(1, 2, '...');
+        pages.push(...Array.from({ length: 5 }, (_, i) => totalPages - 4 + i));
       } else {
-        pages.push(1, '...')
-        pages.push(currentPage - 1, currentPage, currentPage + 1)
-        pages.push('...', totalPages)
+        pages.push(1, '...');
+        pages.push(currentPage - 1, currentPage, currentPage + 1);
+        pages.push('...', totalPages);
       }
     }
 
@@ -78,8 +138,8 @@ export default function TabelTagihanRT() {
           {page}
         </button>
       )
-    )
-  }
+    );
+  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -93,8 +153,8 @@ export default function TabelTagihanRT() {
             id="tampilan"
             value={itemsPerPage}
             onChange={(e) => {
-              setItemsPerPage(Number(e.target.value))
-              setCurrentPage(1)
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
             }}
             className="px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
           >
@@ -112,8 +172,8 @@ export default function TabelTagihanRT() {
             placeholder="Cari No KK / Nama..."
             value={searchQuery}
             onChange={(e) => {
-              setSearchQuery(e.target.value)
-              setCurrentPage(1)
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
             }}
             className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
           />
@@ -134,20 +194,22 @@ export default function TabelTagihanRT() {
           </thead>
           <tbody>
             {paginatedData.length > 0 ? (
-              paginatedData.map((t: any) => (
+              paginatedData.map((t: TagihanRT) => (
                 <tr key={t.id} className="hover:bg-gray-50">
                   <td className="px-4 py-2 border-b">{t.nama_iuran}</td>
                   <td className="px-4 py-2 border-b">{t.no_kk}</td>
                   <td className="px-4 py-2 border-b">{t.nama_kepala_keluarga}</td>
                   <td className="px-4 py-2 border-b font-semibold">
-                    {t.status === 'sudah bayar' ? (
-                      <span className="text-green-600">Sudah Bayar</span>
-                    ) : (
+                    {/* Sesuaikan dengan nilai string yang Anda format di API: 'belum bayar' / 'sudah bayar' */}
+                    {t.status === 'belum bayar' ? ( // Perhatikan perbandingan string di sini
                       <span className="text-red-600">Belum Bayar</span>
+                    ) : (
+                      <span className="text-green-600">Sudah Bayar</span>
                     )}
                   </td>
                   <td className="px-4 py-2 border-b text-center">
-                    {t.status === 'belum bayar' && (
+                    {/* Sesuaikan dengan nilai string yang Anda format di API: 'belum bayar' */}
+                    {t.status === 'belum bayar' && ( // Perhatikan perbandingan string di sini
                       <button
                         onClick={() => setSelectedId(t.id)}
                         className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-sm transition"
@@ -225,5 +287,5 @@ export default function TabelTagihanRT() {
         </div>
       )}
     </div>
-  )
+  );
 }

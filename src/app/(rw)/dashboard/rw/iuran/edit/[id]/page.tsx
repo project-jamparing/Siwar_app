@@ -1,3 +1,4 @@
+// Path: src/app/(rw)/dashboard/rw/iuran/edit/[id]/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -20,14 +21,22 @@ export default function EditIuranPage() {
   useEffect(() => {
     const fetchIuran = async () => {
       try {
-        const res = await axios.get(`/api/iuran/${id}`);
+        const res = await axios.get(`/api/iuran/bulanan/${id}`);
         const data = res.data;
         setForm({
           ...data,
           nominal: data.nominal.toString(),
+          tanggal_nagih: data.tanggal_nagih ? new Date(data.tanggal_nagih).toISOString().split('T')[0] : '',
+          tanggal_tempo: data.tanggal_tempo ? new Date(data.tanggal_tempo).toISOString().split('T')[0] : '',
+          kategori_id: data.kategori_id,
         });
-      } catch {
-        console.error('Gagal mengambil data iuran');
+      } catch (error) {
+        console.error('Gagal mengambil data iuran:', error);
+        if (axios.isAxiosError(error) && error.response) {
+          alert(`Gagal mengambil data iuran: ${error.response.data.message || error.response.statusText}`);
+        } else {
+          alert('Terjadi kesalahan tidak dikenal saat mengambil data iuran.');
+        }
       } finally {
         setLoading(false);
       }
@@ -52,17 +61,23 @@ export default function EditIuranPage() {
     e.preventDefault();
 
     try {
-      await axios.put(`/api/iuran/${id}`, {
+      await axios.patch(`/api/iuran/bulanan/${id}`, {
         ...form,
-        nominal: parseFloat(form.nominal),
+        nominal: parseFloat(form.nominal.replace(/\./g, '')),
         kategori_id: parseInt(form.kategori_id),
-        tanggal_nagih: new Date(form.tanggal_nagih),
-        tanggal_tempo: new Date(form.tanggal_tempo),
+        tanggal_nagih: form.tanggal_nagih,
+        tanggal_tempo: form.tanggal_tempo,
       });
 
+      // alert('Iuran berhasil diperbarui!'); // BARIS INI TELAH DIHAPUS
       router.push('/dashboard/rw/iuran');
     } catch (error) {
-      console.error('Gagal update iuran.', error);
+      console.error('Gagal update iuran:', error);
+      if (axios.isAxiosError(error) && error.response) {
+        alert(`Gagal memperbarui iuran: ${error.response.data.message || error.response.statusText}`);
+      } else {
+        alert('Terjadi kesalahan tidak dikenal saat memperbarui iuran.');
+      }
     }
   };
 
@@ -82,7 +97,7 @@ export default function EditIuranPage() {
         <input
           type="text"
           name="nama"
-          value={form.nama}
+          value={form.nama || ''}
           onChange={handleChange}
           className="border border-gray-300 rounded px-3 py-2 w-full"
           required
@@ -93,7 +108,7 @@ export default function EditIuranPage() {
         <label className="block text-sm font-medium mb-1">Deskripsi:</label>
         <textarea
           name="deskripsi"
-          value={form.deskripsi}
+          value={form.deskripsi || ''}
           onChange={handleChange}
           className="border border-gray-300 rounded px-3 py-2 w-full"
           required
@@ -118,7 +133,7 @@ export default function EditIuranPage() {
         <input
           type="date"
           name="tanggal_nagih"
-          value={form.tanggal_nagih?.split('T')[0]}
+          value={form.tanggal_nagih || ''}
           onChange={handleChange}
           className="border border-gray-300 rounded px-3 py-2 w-full"
           required
@@ -130,7 +145,7 @@ export default function EditIuranPage() {
         <input
           type="date"
           name="tanggal_tempo"
-          value={form.tanggal_tempo?.split('T')[0]}
+          value={form.tanggal_tempo || ''}
           onChange={handleChange}
           className="border border-gray-300 rounded px-3 py-2 w-full"
           required
@@ -141,7 +156,7 @@ export default function EditIuranPage() {
         <label className="block text-sm font-medium mb-1">Kategori:</label>
         <select
           name="kategori_id"
-          value={form.kategori_id}
+          value={form.kategori_id || ''}
           onChange={handleChange}
           className="border border-gray-300 rounded px-3 py-2 w-full bg-white"
           required

@@ -1,81 +1,85 @@
-// Path: C:\Users\LENOVO\Siwar_app\src\components\Tables\DetailPembayaranIuranRT.tsx
+// Path: src/components/Tables/DetailPembayaranIuranRWByIuran.tsx
+'use client';
 
-'use client'
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { format } from 'date-fns';
 
-import { useEffect, useState } from 'react'
-import { format } from 'date-fns'
-
-interface Tagihan {
-  id: number
-  status: string
-  tanggal_bayar: string | null
-  kk: {
-    no_kk: string
-    nama_kepala_keluarga: string // Disini nama_kepala_keluarga sudah sesuai dengan output API
-  } | null
+// Interface untuk data yang diharapkan dari API detail-pembayaran-warga-rw
+interface RiwayatPembayaranItemPerIuran {
+  id_pembayaran: number;
+  nama_iuran: string;
+  no_kk: string;
+  nama_kepala_keluarga: string;
+  status: 'lunas' | 'belum_lunas' | string;
+  tanggal_bayar: string | null;
 }
 
-interface Props {
-  iuranId: number // ID Iuran yang akan ditampilkan detail pembayarannya
+interface DetailPembayaranIuranRWByIuranProps {
+  iuranId: number; // ID Iuran yang akan ditampilkan detail pembayarannya
 }
 
-export default function DetailPembayaranIuranRT({ iuranId }: Props) {
-  const [data, setData] = useState<Tagihan[]>([])
-  const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(true)
+export default function DetailPembayaranIuranRWByIuran({ iuranId }: DetailPembayaranIuranRWByIuranProps) {
+  const [data, setData] = useState<RiwayatPembayaranItemPerIuran[]>([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true) // Set loading true saat memulai fetch
-        // Panggil API dengan iuranId yang diterima dari props
-        const res = await fetch(`/api/iuran/rt/${iuranId}`)
-        if (!res.ok) {
-          // Tangani error jika respons tidak OK (e.g., 404, 405, 500)
-          const errorText = await res.text() // Ambil teks error untuk debug
-          throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorText}`)
+        // Panggil API backend yang baru kita buat
+        const res = await axios.get(`/api/iuran/status/rw/${iuranId}/detail-pembayaran-warga`);
+        setData(Array.isArray(res.data) ? res.data : []);
+      } catch (err: any) {
+        console.error('❌ Gagal fetch detail pembayaran warga (RW, per iuran):', err);
+        if (axios.isAxiosError(err) && err.response) {
+          setError(err.response.data.message || err.response.statusText || 'Gagal mengambil data detail pembayaran.');
+        } else {
+          setError('Terjadi kesalahan saat mengambil data detail pembayaran.');
         }
-        const json = await res.json()
-        setData(Array.isArray(json) ? json : []) // Pastikan data adalah array
-      } catch (err) {
-        console.error('❌ Gagal fetch detail tagihan RT:', err)
-        setData([]) // Kosongkan data jika ada error
+        setData([]);
       } finally {
-        setLoading(false) // Set loading false setelah selesai (baik sukses/gagal)
+        setLoading(false);
       }
-    }
+    };
 
-    // Panggil fetchData setiap kali iuranId berubah
-    fetchData()
-  }, [iuranId]) // Dependency array memastikan useEffect berjalan saat iuranId berubah
+    fetchData();
+  }, [iuranId]); // Akan fetch ulang jika iuranId berubah
 
-  // Filter data berdasarkan input pencarian (No KK atau Nama Kepala Keluarga)
-  const filtered = data.filter((item) => {
-    // Jika item.kk null, abaikan item ini
-    if (!item.kk) return false
-    const noKK = item.kk.no_kk.toLowerCase()
-    const nama = item.kk.nama_kepala_keluarga?.toLowerCase() ?? '' // Handle jika nama_kepala_keluarga bisa null
-
-    const searchValue = search.toLowerCase()
-    return noKK.includes(searchValue) || nama.includes(searchValue)
-  })
+  const filteredData = data.filter((item) => {
+    const searchValue = search.toLowerCase();
+    return (
+      item.no_kk.toLowerCase().includes(searchValue) ||
+      item.nama_kepala_keluarga.toLowerCase().includes(searchValue)
+    );
+  });
 
   if (loading) {
-    return <p className="p-4 text-center">Memuat detail pembayaran...</p>
+    return <p className="p-4 text-center text-gray-600">Memuat detail pembayaran per iuran...</p>;
+  }
+
+  if (error) {
+    return <p className="p-4 text-center text-red-600">Error: {error}</p>;
   }
 
   if (data.length === 0 && !loading) {
     return (
       <div className="p-4">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Detail Pembayaran Iuran RT</h2>
+        <h2 className="text-xl font-bold mb-4 text-gray-800">Detail Pembayaran Iuran (RW View)</h2>
         <p className="text-center text-gray-600">Tidak ada data pembayaran untuk iuran ini.</p>
       </div>
-    )
+    );
   }
+
+  // Ambil nama iuran dari data pertama (asumsi semua data untuk iuran yang sama)
+  const iuranName = data.length > 0 ? data[0].nama_iuran : `ID Iuran ${iuranId}`;
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">Detail Pembayaran Iuran RT</h2>
+      <h2 className="text-xl font-bold mb-4 text-gray-800">Detail Pembayaran Iuran: {iuranName}</h2>
 
       <input
         type="text"
@@ -104,14 +108,14 @@ export default function DetailPembayaranIuranRT({ iuranId }: Props) {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filtered.length > 0 ? (
-              filtered.map((item) => (
-                <tr key={item.id}>
+            {filteredData.length > 0 ? (
+              filteredData.map((item) => (
+                <tr key={item.id_pembayaran}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.kk?.no_kk || '-'}
+                    {item.no_kk || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.kk?.nama_kepala_keluarga || '-'}
+                    {item.nama_kepala_keluarga || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {item.status === 'lunas' ? (
@@ -126,7 +130,7 @@ export default function DetailPembayaranIuranRT({ iuranId }: Props) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {item.tanggal_bayar
-                      ? format(new Date(item.tanggal_bayar), 'dd-MM-yyyy')
+                      ? format(new Date(item.tanggal_bayar), 'dd-MM-yyyy HH:mm')
                       : '-'}
                   </td>
                 </tr>
@@ -142,5 +146,5 @@ export default function DetailPembayaranIuranRT({ iuranId }: Props) {
         </table>
       </div>
     </div>
-  )
+  );
 }

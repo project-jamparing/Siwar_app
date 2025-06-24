@@ -53,10 +53,13 @@ export default function FormTambahIuranSekali() {
     setMessage('')
 
     try {
-      await axios.post('/api/iuran/sekali', {
+      const payload = {
         ...form,
         nominal: parseFloat(form.nominal),
-      })
+        kategori_id: parseInt(form.kategori_id), // ✅ FIX DISINI
+      }
+
+      await axios.post('/api/iuran/sekali', payload)
 
       router.push('/dashboard/rt/iuran')
     } catch (error: any) {
@@ -105,7 +108,9 @@ export default function FormTambahIuranSekali() {
             type="text"
             inputMode="numeric"
             name="nominal"
-            value={form.nominal ? Number(form.nominal).toLocaleString('id-ID') : ''}
+            value={
+              form.nominal ? Number(form.nominal).toLocaleString('id-ID') : ''
+            }
             onChange={handleChange}
             placeholder="100.000"
             className="w-full px-3 py-2 rounded border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

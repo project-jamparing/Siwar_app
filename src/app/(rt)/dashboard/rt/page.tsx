@@ -1,3 +1,5 @@
+// Path: src\app\(rt)\dashboard\rt\page.tsx
+
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
@@ -30,7 +32,7 @@ export default async function RTPage() {
   
   const rtId = user?.warga?.kk?.rt_id;
   if (!rtId) {
-    throw new Error('RT ID tidak ditemukan');
+    throw new Error('RT ID tidak ditemukan. Pastikan user memiliki relasi RT di KK nya.');
   }
   
   // Ambil semua no_kk di RT tersebut
@@ -47,7 +49,63 @@ export default async function RTPage() {
     },
   });
   
-  const jumlahWarga = wargaRT.length;  
+  const jumlahWarga = wargaRT.length;  
+
+  // --- START PERUBAHAN UNTUK IURAN MASUK (MEMPERBAIKI ERROR AGGREGATE) ---
+  const paidTagihan = await prisma.tagihan.findMany({
+    where: {
+      status: 'lunas', // Hanya yang berstatus 'lunas'
+      kk: { // Filter tagihan berdasarkan KK yang ada di RT ini
+        rt_id: rtId,
+      },
+    },
+    include: { // Kita perlu meng-include iuran untuk mendapatkan nominalnya
+      iuran: {
+        select: {
+          nominal: true,
+        },
+      },
+    },
+  });
+
+  // Lakukan penjumlahan secara manual di JavaScript
+  let totalIuranMasuk = 0;
+  for (const tagihan of paidTagihan) {
+    if (tagihan.iuran && tagihan.iuran.nominal) {
+      // Pastikan nominal adalah Decimal.js object, lalu konversi ke Number
+      totalIuranMasuk += tagihan.iuran.nominal.toNumber();
+    }
+  }
+
+  // Format ke Rupiah
+  const formattedIuranMasuk = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0, 
+    maximumFractionDigits: 0,
+  }).format(totalIuranMasuk);
+  // --- END PERUBAHAN UNTUK IURAN MASUK ---
+
+  // --- START PERUBAHAN UNTUK PENGUMUMAN AKTIF ---
+  const pengumumanAktif = await prisma.pengumuman.count({
+    where: {
+      rt_id: rtId,
+      // Jika ada kolom status di pengumuman (misal 'aktif'), tambahkan di sini
+      // status: 'aktif',
+    },
+  });
+
+  const pengumumanTerbaru = await prisma.pengumuman.findMany({
+    where: {
+      rt_id: rtId,
+      // status: 'aktif', // Tambahkan jika ada status
+    },
+    orderBy: {
+      tanggal: 'desc', 
+    },
+    take: 2, 
+  });
+  // --- END PERUBAHAN UNTUK PENGUMUMAN AKTIF ---
 
   return (
     <main className="flex-1 p-6">
@@ -66,7 +124,7 @@ export default async function RTPage() {
             <h3 className="text-lg font-semibold text-gray-700">Iuran Masuk</h3>
             <FileCheck2 className="text-green-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">Rp 1.200.000</p>
+          <p className="text-3xl font-bold text-gray-800">{formattedIuranMasuk}</p>
         </div>
 
         <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">
@@ -74,7 +132,7 @@ export default async function RTPage() {
             <h3 className="text-lg font-semibold text-gray-700">Pengumuman Aktif</h3>
             <Megaphone className="text-yellow-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">2</p>
+          <p className="text-3xl font-bold text-gray-800">{pengumumanAktif}</p>
         </div>
       </div>
 
@@ -82,14 +140,18 @@ export default async function RTPage() {
       <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Pengumuman Terbaru</h2>
         <div className="space-y-3">
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Rapat RT Jumat</h3>
-            <p className="text-gray-600 text-sm">19.30 WIB di Balai Warga</p>
-          </div>
-          <div className="p-4 bg-indigo-50 rounded-lg">
-            <h3 className="font-semibold text-indigo-700">Kerja Bakti Minggu</h3>
-            <p className="text-gray-600 text-sm">Minggu, 07.00 pagi – saluran air</p>
-          </div>
+          {pengumumanTerbaru.length > 0 ? (
+            pengumumanTerbaru.map((pengumuman) => (
+              <div key={pengumuman.id} className="p-4 bg-indigo-50 rounded-lg">
+                <h3 className="font-semibold text-indigo-700">{pengumuman.judul}</h3>
+                <p className="text-gray-600 text-sm">
+                  {pengumuman.isi} {pengumuman.tanggal ? `(${new Date(pengumuman.tanggal).toLocaleDateString('id-ID')})` : ''}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600">Tidak ada pengumuman terbaru untuk RT Anda.</p>
+          )}
         </div>
       </div>
     </main>

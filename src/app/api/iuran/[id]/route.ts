@@ -1,43 +1,57 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
+// import { getRTFromSession } from '@/lib/auth' // nanti diganti ini
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
-  const iuran = await prisma.iuran.findUnique({
-    where: { id },
-  });
-  return NextResponse.json(iuran);
-}
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const iuranId = parseInt(params.id)
+  const rtId = 3 // 🔁 Sementara hardcoded, nanti ambil dari session
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
-  const body = await req.json();
-
-  const updated = await prisma.iuran.update({
-    where: { id },
-    data: {
-      nama: body.nama,
-      deskripsi: body.deskripsi,
-      nominal: body.nominal,
-      tanggal_nagih: new Date(body.tanggal_nagih),
-      tanggal_tempo: new Date(body.tanggal_tempo),
-    },
-  });
-
-  return NextResponse.json(updated);
-}
-
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
+  if (isNaN(iuranId)) {
+    return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
+  }
 
   try {
-    await prisma.iuran.delete({
-      where: { id },
-    });
+    const tagihan = await prisma.tagihan.findMany({
+      where: {
+        iuran_id: iuranId,
+        NOT: { no_kk: null },
+        kk: {
+          rt_id: rtId,
+        },
+      },
+      select: {
+        id: true,
+        status: true,
+        tanggal_bayar: true,
+        kk: {
+          select: {
+            no_kk: true,
+            warga_kk_nikTowarga: {
+              select: {
+                nama: true,
+              },
+            },
+          },
+        },
+      },
+    })
 
-    return NextResponse.json({ message: 'Iuran berhasil dihapus' });
-  } catch (error) {
-    console.error('Gagal menghapus iuran:', error);
-    return NextResponse.json({ message: 'Gagal menghapus iuran' }, { status: 500 });
+    const hasil = tagihan.map((t) => ({
+      id: t.id,
+      status: t.status,
+      tanggal_bayar: t.tanggal_bayar,
+      kk: {
+        no_kk: t.kk?.no_kk ?? '-',
+        nama_kepala_keluarga: t.kk?.warga_kk_nikTowarga?.nama ?? '-',
+      },
+    }))
+
+    return NextResponse.json(hasil)
+  } catch (error: any) {
+    console.error('❌ Gagal ambil tagihan RT:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
