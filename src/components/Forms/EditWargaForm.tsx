@@ -76,9 +76,9 @@ export default function EditWargaPage() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Input Umum */}
         {[
-          ['NIK', 'nik'],
-          ['Nama', 'nama'],
           ['No KK', 'no_kk'],
+          ['Nama', 'nama'],
+          ['NIK', 'nik'],
           ['Tempat Lahir', 'tempat_lahir'],
           ['Tanggal Lahir', 'tanggal_lahir'],
           ['Agama', 'agama'],

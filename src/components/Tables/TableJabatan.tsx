@@ -155,7 +155,7 @@ export default function TableJabatan({ data, onNonaktif, updatingId }: Props) {
                     </span>
                   </td>
                   <td className="text-gray-700 font-medium">
-                    {jabatan.rukun_tetangga_nama}
+                    {jabatan.nama_rukun_tetangga}
                   </td>
                   <td className="text-center">
                     {jabatan.status === "aktif" ? (
