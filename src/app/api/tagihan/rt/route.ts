@@ -1,5 +1,3 @@
-// src/app/api/tagihan/rt/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
@@ -23,19 +21,25 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const tagihan = await prisma.tagihan.findMany({
+    // Ambil semua tagihan dari warga yang berada di RT login
+    const rawTagihan = await prisma.tagihan.findMany({
       where: {
         kk: {
           rt_id: rtIdParsed,
-          // kriteria_id: { // Hati-hati dengan kategori_id di sini, apakah ini di KK atau Iuran?
-          //   not: 7,
-          // },
         },
       },
       include: {
-        iuran: true,
+        iuran: {
+          select: {
+            id: true,
+            nama: true,
+            kategori_id: true,
+          },
+        },
         kk: {
-          include: {
+          select: {
+            no_kk: true,
+            kategori_id: true,
             warga_kk_nikTowarga: {
               select: { nama: true },
             },
@@ -43,19 +47,24 @@ export async function GET(req: NextRequest) {
         },
       },
       orderBy: {
-        // --- GANTI DENGAN INI ---
-        id: 'desc', // Ini akan memastikan tagihan terbaru muncul paling atas
-        // -----------------------
+        id: 'desc',
       },
     });
 
-    const result = tagihan.map((t) => ({
+    // Filter hanya tagihan dengan kategori KK == kategori Iuran
+    const filteredTagihan = rawTagihan.filter(
+      (t) => t.iuran?.kategori_id === t.kk?.kategori_id
+    );
+
+    const result = filteredTagihan.map((t) => ({
       id: t.id,
       nama_iuran: t.iuran?.nama || '-',
-      no_kk: t.no_kk || '-',
+      no_kk: t.kk?.no_kk || '-',
       nama_kepala_keluarga: t.kk?.warga_kk_nikTowarga?.nama || '-',
-      status: t.status === 'belum_lunas' ? 'belum bayar' : 'sudah bayar',
-      tanggal_bayar: t.tanggal_bayar ? t.tanggal_bayar.toISOString().split('T')[0] : null,
+      status: t.status === 'lunas' ? 'sudah bayar' : 'belum bayar',
+      tanggal_bayar: t.tanggal_bayar
+        ? t.tanggal_bayar.toISOString().split('T')[0]
+        : null,
       iuran_id: t.iuran?.id || 0,
     }));
 

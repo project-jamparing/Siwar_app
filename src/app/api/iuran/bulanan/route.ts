@@ -1,107 +1,108 @@
-// Path: src/app/api/iuran/bulanan/route.ts
-// API ini berfungsi untuk membuat definisi iuran bulanan baru
-// DAN secara otomatis membuat tagihan untuk semua Kepala Keluarga yang relevan.
-
-import { NextRequest, NextResponse } from 'next/server';
-// Pastikan Anda mengimpor instance prisma yang sudah diinisialisasi sebagai SINGLETON
-// Misalnya dari src/lib/prisma.ts atau src/lib/db.ts
-import prisma from '@/lib/prisma'; // <--- PASTIKAN PATH KE PRISMA CLIENT ANDA BENAR
+import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json()
 
-    // 1. Buat Definisi Iuran Baru di tabel 'iuran'
+    const {
+      nama,
+      deskripsi,
+      nominal,
+      tanggal_nagih,
+      tanggal_tempo,
+      kategori_id
+    } = body
+
+    // 1. Buat Iuran Baru
     const newIuran = await prisma.iuran.create({
       data: {
-        nama: body.nama,
-        deskripsi: body.deskripsi,
-        nominal: body.nominal,
-        tanggal_nagih: new Date(body.tanggal_nagih),
-        tanggal_tempo: new Date(body.tanggal_tempo),
-        status: 'aktif', // Asumsi iuran baru otomatis aktif
-        kategori_id: body.kategori_id,
+        nama,
+        deskripsi,
+        nominal,
+        tanggal_nagih: new Date(tanggal_nagih),
+        tanggal_tempo: new Date(tanggal_tempo),
+        status: 'aktif',
+        kategori_id,
       },
-    });
+    })
 
-    // 2. Ambil Semua Kepala Keluarga (KK) yang ada di sistem
-    // ASUMSI SEMENTARA: Iuran RW berlaku untuk semua KK di semua RT.
-    // PENTING: JIKA ADA LOGIKA RW-RT YANG LEBIH SPESIFIK DI DATABASE ANDA (misal: rt.rwId),
-    // MAKA LOGIKA INI HARUS DIUBAH UNTUK MEMFILTER HANYA KK DI RT YANG RELEVAN DENGAN RW LOGIN.
-    // Misalnya, jika ada tabel `rt` dengan `rwId` dan `kk` terhubung ke `rt`:
-    /*
-    const rwIdFromSession = 1; // Ganti dengan RW ID dari sesi login RW yang sebenarnya
-    const rtsUnderRw = await prisma.rukun_tetangga.findMany({
+    // 2. Ambil KK sesuai kategori
+    const kkList = await prisma.kk.findMany({
       where: {
-        rwId: rwIdFromSession, // Asumsi `rukun_tetangga` punya kolom `rwId`
+        kategori_id: kategori_id,
       },
-      select: { id: true }
-    });
-    const rtIdsUnderRw = rtsUnderRw.map(rt => rt.id);
-
-    const allKk = await prisma.kk.findMany({
-      where: {
-        rt_id: {
-          in: rtIdsUnderRw,
-        },
-      },
-      select: { no_kk: true },
-    });
-    */
-    // Jika tidak ada relasi RW ke RT di database Anda, maka `allKk` akan mengambil semua KK.
-    const allKk = await prisma.kk.findMany({
       select: {
         no_kk: true,
       },
-    });
+    })
 
-    // 3. Buat Tagihan Individual untuk Setiap Kepala Keluarga
-    const tagihanToCreate = allKk.map(kk => ({
-      iuran_id: newIuran.id, // ID iuran yang baru saja dibuat
-      no_kk: kk.no_kk,
-      status: 'belum_lunas', // Status awal tagihan
-      tanggal_bayar: null, // Belum dibayar
-    }));
+    if (kkList.length === 0) {
+      return NextResponse.json({
+        message: 'Iuran dibuat, tapi tidak ada KK dengan kategori ini.',
+        iuran: newIuran,
+        jumlahTagihanDibuat: 0
+      }, { status: 200 })
+    }
 
-    // Masukkan semua tagihan ke database secara batch (sekaligus)
-    await prisma.tagihan.createMany({
-      data: tagihanToCreate,
-      skipDuplicates: true, // Untuk menghindari error jika ada duplikat (opsional)
-    });
+    // 3. Ambil tagihan yang sudah ada untuk iuran ini
+    const existingTagihan = await prisma.tagihan.findMany({
+      where: {
+        iuran_id: newIuran.id,
+      },
+      select: {
+        no_kk: true,
+      },
+    })
+
+    const existingNoKKSet = new Set(existingTagihan.map(t => t.no_kk))
+
+    // 4. Buat list tagihan baru hanya untuk KK yang belum punya tagihan
+    const tagihanToCreate = kkList
+      .filter(kk => !existingNoKKSet.has(kk.no_kk))
+      .map(kk => ({
+        iuran_id: newIuran.id,
+        no_kk: kk.no_kk,
+        status: 'belum_lunas',
+        tanggal_bayar: null,
+      }))
+
+    if (tagihanToCreate.length > 0) {
+      await prisma.tagihan.createMany({
+        data: tagihanToCreate,
+      })
+    }
 
     return NextResponse.json({
       message: 'Iuran dan tagihan berhasil dibuat!',
       iuran: newIuran,
       jumlahTagihanDibuat: tagihanToCreate.length
-    }, { status: 201 }); // Status 201 Created
+    }, { status: 201 })
 
   } catch (error: any) {
-    console.error('❌ Error saat membuat iuran dan tagihan:', error);
-    return NextResponse.json({ 
-      message: 'Gagal membuat iuran dan tagihan.', 
-      error: error.message 
-    }, { status: 500 });
-  } 
-  // HAPUS BARIS INI: await prisma.$disconnect(); // <<< DIHAPUS UNTUK SINGLETON PRISMA
+    console.error('❌ Error saat membuat iuran dan tagihan:', error)
+    return NextResponse.json({
+      message: 'Gagal membuat iuran dan tagihan.',
+      error: error.message,
+    }, { status: 500 })
+  }
 }
 
-// Opsional: Jika Anda juga punya GET untuk daftar iuran bulanan
 export async function GET(req: NextRequest) {
   try {
     const iurans = await prisma.iuran.findMany({
-      where: {
-        // Filter iuran yang bulanan jika ada kategori khusus atau tipe di DB Anda
-        // Untuk sekarang, asumsikan semua iuran di endpoint ini adalah bulanan
-      },
       include: {
         kategori: true,
-        tagihan: true, // Untuk hitung total sudah/belum lunas jika perlu
+        tagihan: true,
       },
-    });
-    return NextResponse.json(iurans);
+    })
+
+    return NextResponse.json(iurans)
   } catch (error: any) {
-    console.error('❌ Gagal mengambil daftar iuran bulanan:', error);
-    return NextResponse.json({ message: 'Gagal mengambil daftar iuran bulanan.', error: error.message }, { status: 500 });
-  } 
-  // HAPUS BARIS INI: await prisma.$disconnect(); // <<< DIHAPUS UNTUK SINGLETON PRISMA
+    console.error('❌ Gagal mengambil daftar iuran bulanan:', error)
+    return NextResponse.json({
+      message: 'Gagal mengambil daftar iuran bulanan.',
+      error: error.message
+    }, { status: 500 })
+  }
 }
