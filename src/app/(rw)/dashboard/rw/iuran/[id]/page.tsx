@@ -3,10 +3,7 @@
 
 import { useParams } from 'next/navigation'; // Untuk mengambil ID dari URL
 import BackButton from '@/components/Buttons/BackButton'; // Jika Anda punya tombol kembali
-// --- GANTI IMPORT INI ---
-// import DetailIuranRWModal from '@/components/Tables/DetailIuranRWModal'; // Ini yang lama
-import DetailPembayaranIuranRWByIuran from '@/components/Tables/DetailPembayaranIuranRWByIuran'; // <--- IMPORT KOMPONEN BARU INI
-// --- AKHIR GANTI IMPORT ---
+import DetailPembayaranIuranRWByIuran from '@/components/Tables/DetailPembayaranIuranRWByIuran'; // Import komponen tabel detail
 
 export default function IuranDetailPage() {
   // Ambil ID iuran dari parameter URL
@@ -15,24 +12,22 @@ export default function IuranDetailPage() {
 
   // Tampilkan pesan error jika ID tidak valid
   if (isNaN(iuranId)) {
-    return <p className="p-4 text-red-500 text-center">ID iuran tidak valid.</p>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 font-sans">
+        <div className="p-8 bg-white rounded-xl shadow-lg text-center text-red-600 font-bold">
+          <p className="text-xl">ID iuran tidak valid.</p>
+        </div>
+      </div>
+    );
   }
 
   // Tampilan komponen halaman
   return (
-    <div className="p-6 max-w-7xl mx-auto"> {/* Ubah max-w-5xl ke max-w-7xl agar lebih lebar untuk tabel */}
+    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100"> 
       <BackButton /> {/* Jika Anda menggunakan komponen BackButton */}
-      <h1 className="text-2xl font-bold mb-4 text-gray-800 text-center">
-        Detail Pembayaran Iuran untuk RW (ID: {iuranId})
-      </h1>
-      <p className="text-center text-gray-600 mb-6">
-        Berikut adalah status pembayaran warga untuk iuran ini dari seluruh wilayah RW Anda.
-      </p>
-
-      {/* --- GANTI KOMPONEN INI --- */}
-      {/* <DetailIuranRWModal iuranId={iuranId} onClose={() => {}} /> // Ini yang lama */}
-      <DetailPembayaranIuranRWByIuran iuranId={iuranId} /> {/* <--- RENDER KOMPONEN BARU INI */}
-      {/* --- AKHIR GANTI KOMPONEN --- */}
+      {/* JUDUL DAN DESKRIPSI DI ATAS DIHAPUS, SEHINGGA HANYA JUDUL DARI KOMPONEN DETAIL YANG MUNCUL */}
+      
+      <DetailPembayaranIuranRWByIuran iuranId={iuranId} /> {/* Render komponen tabel detail */}
     </div>
   );
 }
