@@ -1,4 +1,5 @@
 import SidebarServer from '@/components/SidebarServer';
+import "@/lib/cron";
 
 export default function RWLayout({ children }: { children: React.ReactNode }) {
   return (
