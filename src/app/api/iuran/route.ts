@@ -1,30 +1,37 @@
-// File: app/api/iuran/route.ts
-import { NextResponse } from 'next/server';
-import  prisma  from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
 
-export async function GET() {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = parseInt(params.id)
+
+  if (isNaN(id)) {
+    return NextResponse.json(
+      { success: false, message: 'ID iuran tidak valid.' },
+      { status: 400 }
+    )
+  }
+
   try {
-    const tagihan = await prisma.tagihan.findMany({
-      include: {
-        iuran: true,
+    const updatedIuran = await prisma.iuran.update({
+      where: { id },
+      data: {
+        status: 'nonaktif',
       },
-      orderBy: {
-        id: 'desc',
-      },
-    });
+    })
 
-    const result = tagihan.map((item) => ({
-      id: item.id,
-      nama: item.iuran?.nama,
-      nominal: item.iuran?.nominal,
-      status: item.status === 'lunas' ? 'Sudah Bayar' : '-',
-      tanggal_bayar: item.tanggal_bayar ?? null,
-      jatuh_tempo: item.iuran?.tanggal_tempo,
-    }));
-
-    return NextResponse.json(result);
+    return NextResponse.json({
+      success: true,
+      message: 'Iuran berhasil dinonaktifkan.',
+      data: updatedIuran,
+    })
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: 'Terjadi kesalahan' }, { status: 500 });
+    console.error('Gagal menonaktifkan iuran:', error)
+    return NextResponse.json(
+      { success: false, message: 'Gagal menonaktifkan iuran.' },
+      { status: 500 }
+    )
   }
 }

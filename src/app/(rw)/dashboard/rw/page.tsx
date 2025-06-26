@@ -30,6 +30,43 @@ export default async function RWPage() {
     { cache: 'no-store' }
   );
   const { data: pengumumanTerbaru } = await res.json();
+  
+  // --- Hitung Total Iuran RW dari semua RT ---
+  // 1. Ambil semua RT
+  const rtList = await prisma.rukun_tetangga.findMany({
+    select: { id: true },
+  });
+  const rtIds = rtList.map(rt => rt.id);
+
+  // 2. Ambil semua tagihan yang sudah lunas dari RT yang ditemukan
+  const paidTagihanRW = await prisma.tagihan.findMany({
+    where: {
+      status: 'lunas',
+      kk: {
+        rt_id: { in: rtIds },
+      },
+    },
+    include: {
+      iuran: {
+        select: { nominal: true },
+      },
+    },
+  });
+
+  // 3. Hitung total nominal iuran yang masuk
+  let totalIuranRW = 0;
+  for (const tagihan of paidTagihanRW) {
+    if (tagihan.iuran?.nominal) {
+      totalIuranRW += tagihan.iuran.nominal.toNumber();
+    }
+  }
+
+  const formattedIuranRW = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(totalIuranRW);
 
   return (
     <main className="flex-1 p-6 space-y-6">
@@ -56,7 +93,7 @@ export default async function RWPage() {
             <h3 className="text-lg font-semibold text-gray-700">Total Iuran RW</h3>
             <FileCheck2 className="text-green-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">Rp 6.500.000</p>
+          <p className="text-3xl font-bold text-gray-800">{formattedIuranRW}</p>
         </div>
 
         <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">

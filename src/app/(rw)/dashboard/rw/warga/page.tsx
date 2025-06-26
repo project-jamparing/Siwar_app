@@ -36,8 +36,6 @@ export default async function DaftarWargaPage() {
         </a>
       </div>
     </header>
-
-
         <section className="bg-white rounded-lg shadow-md p-4 md:p-6">
           <WargaTable warga={warga} showActions={true} />
         </section>

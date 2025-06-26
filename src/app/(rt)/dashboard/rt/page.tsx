@@ -36,6 +36,7 @@ export default async function RTPage() {
     where: { rt_id: rtId },
     select: { no_kk: true },
   });
+
   const noKkList = kks.map((k) => k.no_kk);
 
   // Ambil warga yang no_kk-nya ada di RT
@@ -52,6 +53,41 @@ export default async function RTPage() {
     { cache: 'no-store' }
   );
   const { data: pengumumanTerbaru } = await res.json();
+
+   // --- START PERUBAHAN UNTUK IURAN MASUK (MEMPERBAIKI ERROR AGGREGATE) ---
+   const paidTagihan = await prisma.tagihan.findMany({
+    where: {
+      status: 'lunas', // Hanya yang berstatus 'lunas'
+      kk: { // Filter tagihan berdasarkan KK yang ada di RT ini
+        rt_id: rtId,
+      },
+    },
+    include: { // Kita perlu meng-include iuran untuk mendapatkan nominalnya
+      iuran: {
+        select: {
+          nominal: true,
+        },
+      },
+    },
+  });
+
+  // Lakukan penjumlahan secara manual di JavaScript
+  let totalIuranMasuk = 0;
+  for (const tagihan of paidTagihan) {
+    if (tagihan.iuran && tagihan.iuran.nominal) {
+      // Pastikan nominal adalah Decimal.js object, lalu konversi ke Number
+      totalIuranMasuk += tagihan.iuran.nominal.toNumber();
+    }
+  }
+
+  // Format ke Rupiah
+  const formattedIuranMasuk = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0, 
+    maximumFractionDigits: 0,
+  }).format(totalIuranMasuk);
+  // --- END PERUBAHAN UNTUK IURAN MASUK ---
 
   return (
     <main className="flex-1 p-6 space-y-6">
@@ -78,7 +114,7 @@ export default async function RTPage() {
             <h3 className="text-lg font-semibold text-gray-700">Iuran Masuk</h3>
             <FileCheck2 className="text-green-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">Rp 1.200.000</p>
+          <p className="text-3xl font-bold text-gray-800">{formattedIuranMasuk}</p>
         </div>
 
         <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 hover:shadow-lg transition">

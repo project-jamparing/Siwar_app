@@ -17,7 +17,10 @@ export async function PATCH(
 
     const updated = await prisma.tagihan.update({
       where: { id: tagihanId },
-      data: { status: 'lunas' }, // ✅ enum valid
+      data: {
+        status: 'lunas',
+        tanggal_bayar: new Date(), // ✅ Tambahkan ini
+      },
     })
 
     return NextResponse.json({
