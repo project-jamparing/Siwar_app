@@ -1,4 +1,4 @@
-// Path: src/app/api/iuran/route.ts
+// Path: src/app/api/iuran/sekali/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     console.log('📄 KK List yang ditemukan untuk kategori', parsedKategoriId, ':', kkList.map((k) => k.no_kk));
 
     if (kkList.length === 0) {
-      console.warn('⚠️ Tidak ada KK yang cocok untuk kategori & RT ini.');
+      console.warn('⚠ Tidak ada KK yang cocok untuk kategori & RT ini.');
       // Anda mungkin ingin mengembalikan respons sukses meskipun tidak ada KK yang cocok,
       // karena iuran itu sendiri sudah berhasil dibuat.
       return NextResponse.json({ message: '✅ Berhasil menambahkan iuran, namun tidak ada KK yang cocok untuk kategori ini.' });
